@@ -1,0 +1,31 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/AmpMechanism/PID_Controller": "ProfiledPIDController",
+      "/Shuffleboard/Climber/PID_Controller": "ProfiledPIDController",
+      "/Shuffleboard/Commands/Climber": "Subsystem",
+      "/Shuffleboard/Commands/CommandScheduler": "Scheduler",
+      "/Shuffleboard/Commands/IntakePivot": "Subsystem",
+      "/Shuffleboard/Commands/IntakeRollers": "Subsystem",
+      "/Shuffleboard/Commands/Shooter": "Subsystem",
+      "/Shuffleboard/Commands/Swerve Commands": "Subsystem",
+      "/Shuffleboard/IntakePivot/PID_Controller": "ProfiledPIDController",
+      "/Shuffleboard/Shooter/PID_Controller": "PIDController",
+      "/Shuffleboard/Shooter/rightController": "PIDController"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "Shuffleboard": {
+        "Shooter Function": {
+          "open": true
+        },
+        "open": true
+      }
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}

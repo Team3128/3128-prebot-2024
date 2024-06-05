@@ -8,7 +8,6 @@ import frc.team3128.subsystems.Swerve;
 import common.utility.narwhaldashboard.NarwhalDashboard;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.team3128.commands.CmdManager.autoShoot;
 
 import java.util.HashMap;
 
@@ -29,14 +28,7 @@ public class AutoPrograms {
 
     private void initAutoSelector() {
         final String[] autoStrings = new String[] {
-            "default",
-            "topFar_4note",
-            "topFarCopy_4note",
-            "middleClose_4note",
-            "middleClose_5note",
-            "middle_6note",
-            "bottom_7note",
-            "special_3note"
+
         };
         
         NarwhalDashboard.getInstance().addAutos(autoStrings);
@@ -48,7 +40,7 @@ public class AutoPrograms {
 
     public Command getAutonomousCommand() {
         String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
-        String hardcode = "middleClose_4note";
+        String hardcode = "";
         
         Command autoCommand;
         if (selectedAutoName == null) {
@@ -64,11 +56,7 @@ public class AutoPrograms {
 
     private Command defaultAuto(){
         return sequence(
-                Trajectories.resetAuto(),
-                waitSeconds(5),
-                autoShoot(),
-                waitSeconds(2),
-                run(()-> Swerve.getInstance().drive(new Translation2d(Robot.getAlliance() == Alliance.Blue ? 1 : -1, 0), 0, true))
+        
             );
     }
 }

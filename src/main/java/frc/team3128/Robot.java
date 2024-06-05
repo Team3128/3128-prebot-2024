@@ -129,8 +129,6 @@ public class Robot extends NAR_Robot {
         Camera.validDist = 0.5;
         Camera.enableAll();
         CommandScheduler.getInstance().cancelAll();
-        
-        CmdManager.neutral(false).schedule();
     }
 
     @Override

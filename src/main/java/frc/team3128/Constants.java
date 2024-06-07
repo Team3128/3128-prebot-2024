@@ -295,9 +295,9 @@ public class Constants {
 
     public static class ShooterConstants {
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.0025, 0, 0, 0, 0.00179104, 0); // 0.00187623
-        public static final double kF = 0.3582; //0.144578;
-        public static final int LEFT_MOTOR_ID = 41;
-        public static final int RIGHT_MOTOR_ID = 42;
+        public static final double kF = 0; 
+        public static final int LEFT_MOTOR_ID = 0;
+        public static final int RIGHT_MOTOR_ID = 0;
         public static final double GEAR_RATIO = 1;
         public static final double MAX_RPM = 5500;
         public static final double MIN_RPM = 0;
@@ -321,67 +321,6 @@ public class Constants {
         public static final double SHOOTER_TEST_TIMEOUT = 2.5;
 
         public static final double PROJECTILE_SPEED = 100; // m/s
-    }
-
-    public static class AmpWristConstants {
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.25, 0, 0, 0.08, 0, 0.22);
-        public static final double MAX_VELOCITY = 10000000;
-        public static final double MAX_ACCELERATION = 1000000;
-        public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCITY, MAX_ACCELERATION);
-
-        public static final int WRIST_MOTOR_ID = 53;
-        public static final NAR_CANSpark WRIST_MOTOR = new NAR_CANSpark(WRIST_MOTOR_ID);
-        public static final double GEAR_RATIO = 1.0 / 70.875;
-        public static final double CURRENT_LIMIT = 20;
-        public static final double POSITION_TOLERANCE = 1;
-
-        public static final int ROLLER_MOTOR_ID = 52;
-        public static final NAR_TalonSRX ROLLER_MOTOR = new NAR_TalonSRX(ROLLER_MOTOR_ID);
-        public static final double AMP_POWER = 0.8;
-
-        public static final double EXTEND_TIMEOUT = 1;
-        public static final double RETRACTED_TIMEOUT = 1;
-
-        public static final double ROLLER_TIMEOUT = 5;
-        public static final double ROLLER_TEST_PLATEAU = 0.5;
-        public static final double ROLLER_TEST_EXPECTED_CURRENT = 1.25;
-    }
-    public static class ClimberConstants {
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
-        public static final double MAX_VELOCTIY = 10000000;
-        public static final double MAX_ACCELERATION = 100000;
-        public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
-        public static final int LEFT_MOTOR_ID = 21;
-        public static final int RIGHT_MOTOR_ID = 22;
-        public static final double GEAR_RATIO = 1.0 / 15.0;
-        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.751) * Math.PI;
-        public static final double POSITION_TOLERANCE = 0.5;
-        public static final double PIVOT_CLIMBER_DIST = 28;
-        public static final double POSITION_MINIMUM = 0;
-        public static final double POSITION_MAXIMUM = 30;
-        public static final double HEIGHT_OFFSET = 7; // 14 degrees ish
-        public static final double ANGLE_OFFSET = 14;
-
-        public static final double NEUTRAL_THRESHOLD = 1;
-        public static final InterpolatingDoubleTreeMap climberHeightMap = new InterpolatingDoubleTreeMap();
-        static {
-            climberHeightMap.put(0.0 + 0.93, 25.0);
-            climberHeightMap.put(0.25 + 0.93, 25.0);
-            climberHeightMap.put(0.5 + 0.93, 20.0);
-            climberHeightMap.put(0.75 + 0.93, 17.0);
-            climberHeightMap.put(1.0 + 0.93, 15.0);
-            climberHeightMap.put(1.25 + 0.93, 14.0);
-            climberHeightMap.put(1.5 + 0.93, 13.0);
-            climberHeightMap.put(1.75 + 0.93, 12.0);
-            climberHeightMap.put(2.0 + 0.93, 11.25);
-            climberHeightMap.put(2.25 + 0.93, 10.0);
-            climberHeightMap.put(2.5 + 0.93, 9.7);
-            climberHeightMap.put(2.75 + 0.93, 9.5);
-            climberHeightMap.put(3.0 + 0.93, 9.5);
-        }
-
-        public static final double SETPOINT_TEST_TIMEOUT_EXTEND = 1;
-        public static final double SETPOINT_TEST_TIMEOUT_RETRACT = 1;
     }
 
     public static class IntakeConstants {

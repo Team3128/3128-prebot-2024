@@ -12,11 +12,9 @@ import common.core.swerve.SwerveModuleConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
 import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_TalonFX;
-import common.hardware.motorcontroller.NAR_TalonSRX;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -424,6 +422,53 @@ public class Constants {
             }
     
         }
+    }
+    public static class ClimberConstants {
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
+        public static final double MAX_VELOCTIY = 10000000;
+        public static final double MAX_ACCELERATION = 100000;
+        public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
+        public static final int CLIMB_MOTOR_ID = 21;
+        public static final double GEAR_RATIO = 1.0 / 15.0;
+        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.751) * Math.PI;
+        public static final double POSITION_TOLERANCE = 0.5;
+        public static final double PIVOT_CLIMBER_DIST = 28;
+        public static final double POSITION_MINIMUM = 0;
+        public static final double POSITION_MAXIMUM = 30;
+        public static final double HEIGHT_OFFSET = 7; // 14 degrees ish
+        public static final double ANGLE_OFFSET = 14;
+
+        public static final double NEUTRAL_THRESHOLD = 1;
+
+        public static final double SETPOINT_TEST_TIMEOUT_EXTEND = 1;
+        public static final double SETPOINT_TEST_TIMEOUT_RETRACT = 1;
+    }
+
+    public static class HopperConstants {
+        public static final int HOPPER_MOTOR_ID = 13;
+        public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
+        public static final double STALL_CURRENT = 50;
+        public static final double INTAKE_POWER = 0.5;
+        public static final double OUTTAKE_POWER = -0.5;
+        public static final double STALL_POWER = 0.05;
+        public static final int CURRENT_LIMIT = 40;
+    }
+
+    public static class AmperConstants {
+        public static final int ELEV_MOTOR_ID = 11;
+        public static final NAR_CANSpark ELEV_MOTOR = new NAR_CANSpark(ELEV_MOTOR_ID);
+
+        public static final int ROLLER_MOTOR_ID = 2;
+        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID);
+
+        public static final int CURRENT_LIMIT = 40;
+
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
+        public static final double MAX_VELOCTIY = 10000000;
+        public static final double MAX_ACCELERATION = 100000;
+        public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
+
+        public static final double POSITION_TOLERANCE = 0.25;
     }
 }
 

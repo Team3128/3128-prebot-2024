@@ -9,19 +9,17 @@ import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
-import common.utility.shuffleboard.NAR_Shuffleboard;
 import common.utility.tester.Tester;
 import common.utility.tester.Tester.UnitTest;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import static frc.team3128.Constants.ShooterConstants.*;
 
 import java.util.function.DoubleSupplier;
 
 public class Shooter extends ShooterTemplate {
-    public NAR_CANSpark leftMotor;
-    public NAR_CANSpark rightMotor;
+    private NAR_CANSpark leftMotor;
+    private NAR_CANSpark rightMotor;
 
     private static Shooter instance;
 
@@ -31,7 +29,7 @@ public class Shooter extends ShooterTemplate {
 
     private Controller rightController = new Controller(PIDConstants, Type.VELOCITY);
 
-    public Shooter() {
+    private Shooter() {
         super(new Controller(PIDConstants, Type.VELOCITY));
         setConstraints(MIN_RPM, MAX_RPM);
         setTolerance(TOLERANCE);
@@ -46,9 +44,8 @@ public class Shooter extends ShooterTemplate {
     }
 
     public static synchronized Shooter getInstance(){
-        if(instance == null){
+        if (instance == null)
             instance = new Shooter();
-        }
         return instance;
     }
 
@@ -117,9 +114,10 @@ public class Shooter extends ShooterTemplate {
     }
 
     public State getRunningState() {
-        if (rightMotor.getState() != State.DISCONNECTED && leftMotor.getState() != State.DISCONNECTED) {
-            return State.RUNNING; 
-        }
+        if (rightMotor.getState() != State.DISCONNECTED && leftMotor.getState() != State.DISCONNECTED)
+            return State.RUNNING;
+        if (rightMotor.getState() != State.DISCONNECTED || rightMotor.getState() != State.DISCONNECTED)
+            return State.PARTIALLY_RUNNING;
         return State.DISCONNECTED;
     }
 

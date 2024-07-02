@@ -1,29 +1,26 @@
 package frc.team3128.subsystems;
 
 import common.core.controllers.TrapController;
-import common.core.subsystems.NAR_PIDSubsystem;
-import common.hardware.motorcontroller.NAR_CANSpark;
+import common.core.subsystems.ElevatorTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
-import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import edu.wpi.first.wpilibj2.command.Command;
 
-import static frc.team3128.Constants.*;
 import static frc.team3128.Constants.ClimberConstants.*;
 
-import java.util.function.DoubleSupplier;
+public class Climber extends ElevatorTemplate {
 
-public class Climber extends NAR_PIDSubsystem {
-    private static Climber instance;
+    public enum Setpoint {
+        EXTENDED(30),
+        RETRACTED(0);
 
-    private NAR_CANSpark climbMotor;
-
-    private Climber() {
-        super(new TrapController(PIDConstants, TRAP_CONSTRAINTS));
-        configMotors();
-        setTolerance(POSITION_TOLERANCE);
-        setConstraints(POSITION_MINIMUM, POSITION_MAXIMUM);
+        private double setpoint;
+        private Setpoint(double setpoint) {
+            this.setpoint = setpoint;
+        }
     }
+
+    private static Climber instance;
 
     public static synchronized Climber getInstance() {
         if (instance == null)
@@ -31,38 +28,27 @@ public class Climber extends NAR_PIDSubsystem {
         return instance;
     }
 
-    private void configMotors() {
-        climbMotor = new NAR_CANSpark(CLIMB_MOTOR_ID);
-        climbMotor.setInverted(false);
-        climbMotor.setUnitConversionFactor(GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100);
-        climbMotor.setNeutralMode(Neutral.BRAKE);
-        climbMotor.setStatusFrames(SparkMaxConfig.POSITION);
-    }
+    private Climber() {
+        super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), CLIMB_MOTOR);
 
-    private void setPower(double power) {
-        disable();
-        climbMotor.set(power);
+        // TODO: figure out kG function
+        // setkG_Function(());
+        setTolerance(POSITION_TOLERANCE);
+        setConstraints(MIN_SETPOINT, MAX_SETPOINT);
+        initShuffleboard();
     }
 
     @Override
-    protected void useOutput(double output, double setpoint) {
-        climbMotor.setVolts(output);
+    protected void configMotors() {
+        // TODO: figure unit conversion out
+        CLIMB_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
+        CLIMB_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+        CLIMB_MOTOR.setNeutralMode(Neutral.BRAKE);
+        CLIMB_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
     }
 
-    @Override
-    protected double getMeasurement() {
-        return climbMotor.getPosition();
+    public Command moveElevator(Setpoint setpoint) {
+        return moveElevator(setpoint.setpoint);
     }
 
-    public Command climbTo(DoubleSupplier setpoint) {
-        return runOnce(()->startPID(setpoint.getAsDouble()));
-    }
-
-    public Command climbTo(double setpoint) {
-        return climbTo(()->setpoint);
-    }
-
-    public State getRunningState() {
-        return climbMotor.getState();
-    }
 }

@@ -292,10 +292,14 @@ public class Constants {
     }
 
     public static class ShooterConstants {
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.0025, 0, 0, 0, 0.00179104, 0); // 0.00187623
-        public static final double kF = 0; 
         public static final int LEFT_MOTOR_ID = 0;
         public static final int RIGHT_MOTOR_ID = 0;
+
+        public static final NAR_CANSpark LEFT_MOTOR = new NAR_CANSpark(LEFT_MOTOR_ID);
+        public static final NAR_CANSpark RIGHT_MOTOR = new NAR_CANSpark(RIGHT_MOTOR_ID);
+
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.0025, 0, 0, 0, 0.00179104, 0); // 0.00187623
+        public static final double kF = 0; 
         public static final double GEAR_RATIO = 1;
         public static final double MAX_RPM = 5500;
         public static final double MIN_RPM = 0;
@@ -322,38 +326,32 @@ public class Constants {
     }
 
     public static class IntakeConstants {
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
         public static final int PIVOT_MOTOR_ID = 31;
         public static final NAR_CANSpark PIVOT_MOTOR = new NAR_CANSpark(PIVOT_MOTOR_ID);
-        public static final double GEAR_RATIO = 1.0 / 40.0;
+
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
         public static final double MAX_VELOCITY = 1000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCITY, MAX_ACCELERATION);
-        public static final double POSITION_MINIMUM = 0;
-        public static final double POSITION_MAXIMUM = 220;
+
+        public static final double ANGLE_TOLERANCE = 3;
+        public static final double MIN_SETPOINT = 0;
+        public static final double MAX_SETPOINT = 220;
+        public static final int CURRENT_LIMIT = 40;
+
+        public static final double GEAR_RATIO = 1.0 / 40.0;
+        public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
 
         public static final int RIGHT_ROLLER_MOTOR_ID = 32;
         public static final int LEFT_ROLLER_MOTOR_ID = 33;
         public static final NAR_CANSpark RIGHT_ROLLER_MOTOR = new NAR_CANSpark(RIGHT_ROLLER_MOTOR_ID);
         public static final NAR_CANSpark LEFT_ROLLER_MOTOR = new NAR_CANSpark(LEFT_ROLLER_MOTOR_ID);
-        public static final double ANGLE_TOLERANCE = 3;
-        public static final int CURRENT_LIMIT = 40;
+
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
         public static final double OUTTAKE_POWER = -0.3;
         public static final double INTAKE_POWER = 0.7 /0.75;
-        public static final double AMP_POWER = -0.18 / 0.75;
-
-        public static final double CURRENT_TEST_POWER = OUTTAKE_POWER;
-        public static final double CURRENT_TEST_PLATEAU = 1;
-        public static final double CURRENT_TEST_TIMEOUT = 5;
-        public static final double CURRENT_TEST_TOLERANCE = 40;
-        public static final double CURRENT_TEST_EXPECTED_CURRENT = 12.5;
-
-        public static final double SETPOINT_TEST_PLATEAU = 1;
-        public static final double SETPOINT_TEST_TIMEOUT = 3;
-
-        public static final double INTAKE_TEST_TIMEOUT = 30;
+        public static final double VOLT_COMP = 9;
     }
 
     public static class LimelightConstants {
@@ -424,33 +422,35 @@ public class Constants {
         }
     }
     public static class ClimberConstants {
+        public static final int CLIMB_MOTOR_ID = 21;
+        public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
+
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
         public static final double MAX_VELOCTIY = 10000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
-        public static final int CLIMB_MOTOR_ID = 21;
+
+        public static final double POSITION_TOLERANCE = 0.5;
+        public static final double MIN_SETPOINT = 0;
+        public static final double MAX_SETPOINT = 30;
+        public static final int CURRENT_LIMIT = 40;
+
         public static final double GEAR_RATIO = 1.0 / 15.0;
         public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.751) * Math.PI;
-        public static final double POSITION_TOLERANCE = 0.5;
-        public static final double PIVOT_CLIMBER_DIST = 28;
-        public static final double POSITION_MINIMUM = 0;
-        public static final double POSITION_MAXIMUM = 30;
-        public static final double HEIGHT_OFFSET = 7; // 14 degrees ish
-        public static final double ANGLE_OFFSET = 14;
+        public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
 
-        public static final double NEUTRAL_THRESHOLD = 1;
-
-        public static final double SETPOINT_TEST_TIMEOUT_EXTEND = 1;
-        public static final double SETPOINT_TEST_TIMEOUT_RETRACT = 1;
     }
 
     public static class HopperConstants {
         public static final int HOPPER_MOTOR_ID = 13;
         public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
+
         public static final double STALL_CURRENT = 50;
         public static final double INTAKE_POWER = 0.5;
         public static final double OUTTAKE_POWER = -0.5;
         public static final double STALL_POWER = 0.05;
+
+        public static final double VOLT_COMP = 9;
         public static final int CURRENT_LIMIT = 40;
     }
 
@@ -461,14 +461,21 @@ public class Constants {
         public static final int ROLLER_MOTOR_ID = 2;
         public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID);
 
-        public static final int CURRENT_LIMIT = 40;
-
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
         public static final double MAX_VELOCTIY = 10000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
 
         public static final double POSITION_TOLERANCE = 0.25;
+        public static final double MIN_SETPOINT = 0;
+        public static final double MAX_SETPOINT = 25;
+        public static final int CURRENT_LIMIT = 40;
+
+        public static final double GEAR_RATIO = 1.0 / 15.0;
+        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.751) * Math.PI;
+        public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
+
+        public static final double ROLLER_POWER = 0.5;
     }
 }
 

@@ -4,13 +4,9 @@ import common.core.controllers.Controller;
 import common.core.controllers.Controller.Type;
 import common.core.controllers.ControllerBase;
 import common.core.subsystems.ShooterTemplate;
-import common.hardware.motorcontroller.NAR_CANSpark;
-import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
-import common.utility.tester.Tester;
-import common.utility.tester.Tester.UnitTest;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import static frc.team3128.Constants.ShooterConstants.*;
@@ -18,8 +14,6 @@ import static frc.team3128.Constants.ShooterConstants.*;
 import java.util.function.DoubleSupplier;
 
 public class Shooter extends ShooterTemplate {
-    private NAR_CANSpark leftMotor;
-    private NAR_CANSpark rightMotor;
 
     private static Shooter instance;
 
@@ -51,28 +45,22 @@ public class Shooter extends ShooterTemplate {
 
     @Override
     protected void configMotors() {
-        leftMotor = new NAR_CANSpark(LEFT_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
-        rightMotor = new NAR_CANSpark(RIGHT_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
-
-        leftMotor.setCurrentLimit(80);
-        rightMotor.setCurrentLimit(80);
+        LEFT_MOTOR.setCurrentLimit(80);
+        RIGHT_MOTOR.setCurrentLimit(80);
         
-        leftMotor.setInverted(true);
-        rightMotor.setInverted(false);
+        LEFT_MOTOR.setInverted(true);
+        RIGHT_MOTOR.setInverted(false);
 
-        leftMotor.setUnitConversionFactor(GEAR_RATIO);
-        rightMotor.setUnitConversionFactor(GEAR_RATIO);
+        LEFT_MOTOR.setUnitConversionFactor(GEAR_RATIO);
+        RIGHT_MOTOR.setUnitConversionFactor(GEAR_RATIO);
 
-        leftMotor.setNeutralMode(Neutral.COAST);
-        rightMotor.setNeutralMode(Neutral.COAST);
+        LEFT_MOTOR.setNeutralMode(Neutral.COAST);
+        RIGHT_MOTOR.setNeutralMode(Neutral.COAST);
 
-        leftMotor.setStatusFrames(SparkMaxConfig.VELOCITY);
-        rightMotor.setStatusFrames(SparkMaxConfig.VELOCITY);
+        LEFT_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        RIGHT_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
     }
-    @Override 
-    public void initShuffleboard() {
-        super.initShuffleboard();
-    }
+
     public void startPID(double leftSetpoint, double rightSetpoint) {
         enable();
         getController().setSetpoint(leftSetpoint);
@@ -87,14 +75,14 @@ public class Shooter extends ShooterTemplate {
 
     @Override
     protected void useOutput(double output, double setpoint) {
-        leftMotor.setVolts(setpoint != 0 ? output + kF_Func.getAsDouble() : 0);
-        final double rightOutput = rightController.calculate(Math.abs(rightMotor.getVelocity()));
-        rightMotor.setVolts(setpoint != 0 ? rightOutput + kF_Func.getAsDouble() : 0);
+        LEFT_MOTOR.setVolts(setpoint != 0 ? output + kF_Func.getAsDouble() : 0);
+        final double rightOutput = rightController.calculate(Math.abs(RIGHT_MOTOR.getVelocity()));
+        RIGHT_MOTOR.setVolts(setpoint != 0 ? rightOutput + kF_Func.getAsDouble() : 0);
     }
 
     @Override
     public double getMeasurement() {
-        return leftMotor.getVelocity();
+        return LEFT_MOTOR.getVelocity();
     }
 
     public Command shoot(double leftSetpoint, double rightSetpoint) {
@@ -110,28 +98,14 @@ public class Shooter extends ShooterTemplate {
     }
 
     public Command runBottomRollers(double power) {
-        return runOnce(()-> rightMotor.set(power));
+        return runOnce(()-> RIGHT_MOTOR.set(power));
     }
 
     public State getRunningState() {
-        if (rightMotor.getState() != State.DISCONNECTED && leftMotor.getState() != State.DISCONNECTED)
+        if (RIGHT_MOTOR.getState() != State.DISCONNECTED && LEFT_MOTOR.getState() != State.DISCONNECTED)
             return State.RUNNING;
-        if (rightMotor.getState() != State.DISCONNECTED || rightMotor.getState() != State.DISCONNECTED)
+        if (RIGHT_MOTOR.getState() != State.DISCONNECTED || RIGHT_MOTOR.getState() != State.DISCONNECTED)
             return State.PARTIALLY_RUNNING;
         return State.DISCONNECTED;
-    }
-
-    public UnitTest getShooterTest() {
-        return new SetpointTest
-        (
-            "testShooter",
-            MAX_RPM,
-            SHOOTER_TEST_PLATEAU,
-            SHOOTER_TEST_TIMEOUT
-        );
-    }
-
-    public void addShooterTests() {
-        Tester.getInstance().addTest("Shooter", getShooterTest());
     }
 }

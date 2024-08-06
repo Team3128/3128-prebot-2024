@@ -28,7 +28,7 @@ import static frc.team3128.Constants.AutoConstants.*;
 import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
 import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
 import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
-import static frc.team3128.Constants.ShooterConstants.RAM_SHOT_RPM;
+import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
 import static frc.team3128.Constants.SwerveConstants.*;
 
 import frc.team3128.Constants.AutoConstants;

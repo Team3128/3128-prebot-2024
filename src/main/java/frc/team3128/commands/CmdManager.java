@@ -1,23 +1,31 @@
 package frc.team3128.commands;
 
+import static edu.wpi.first.wpilibj2.command.Commands.deadline;
+import static edu.wpi.first.wpilibj2.command.Commands.parallel;
+import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
+import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.sequence;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
+import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
+import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
+import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
+
 import common.hardware.input.NAR_XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import frc.team3128.RobotContainer;
 import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.Robot;
+import frc.team3128.RobotContainer;
 import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Climber;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
+import frc.team3128.subsystems.Intake.Setpoint;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
-
-import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.team3128.Constants.ShooterConstants.*;
-import static frc.team3128.Constants.FocalAimConstants.*;
 
 public class CmdManager {
 
@@ -44,7 +52,7 @@ public class CmdManager {
             waitUntil(() -> shooter.atSetpoint()),
             hopper.intake(),
             waitSeconds(0.35),
-            neutral(false)
+            neutral()
         );
     }
 
@@ -71,7 +79,7 @@ public class CmdManager {
             waitUntil(() -> shooter.atSetpoint() && amper.atSetpoint()),
             hopper.intake(),
             waitSeconds(0.35),
-            neutral(false)
+            neutral()
         );
     }
 
@@ -80,7 +88,35 @@ public class CmdManager {
         
     // }
 
-    public static Command neutral(boolean shouldStall) {
+    public static Command intakeCmd(Setpoint setpoint) {
+        return sequence(
+            deadline(
+                intake.pivotTo(setpoint),
+                sequence(
+                    intake.runIntakeRollers(),
+                    // TODO: is this how it works
+                    waitUntil(()->hopper.hasObjectPresent()),
+                    intake.stopRollers()
+                )
+            ),
+            intake.retract()
+        );
+    }
+
+    public static Command feed(double rpm, double angle) {
+        return sequence(
+            parallel(
+                swerve.turnInPlace(()-> Robot.getAlliance() == Alliance.Blue ? 180-angle : angle).asProxy().withTimeout(1),
+                runOnce(()->shooter.startPID(rpm, rpm)),
+                waitUntil(()->shooter.atSetpoint())
+            ),
+            hopper.intake(),
+            waitSeconds(0.35),
+            neutral()
+        );
+    }
+
+    public static Command neutral() {
         return sequence(
             intake.stopRollers(),
             shooter.setShooter(0),

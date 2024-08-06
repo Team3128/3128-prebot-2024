@@ -13,9 +13,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 public class Intake extends PivotTemplate{
 
     public enum Setpoint {
-        EXTENDED(200),
+        GROUND(200),
         SOURCE(60),
-        AMP(90);
+        NEUTRAL(0);
         
 
         public final double angle;
@@ -56,6 +56,17 @@ public class Intake extends PivotTemplate{
         RIGHT_ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
         RIGHT_ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
         RIGHT_ROLLER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+    }
+
+    public Command retract() {
+        return sequence(
+            pivotTo(5),
+            waitUntil(()-> atSetpoint()).withTimeout(1.5),
+            runPivot(-0.2),
+            waitSeconds(0.1),
+            runPivot(0),
+            reset(0)
+        );
     }
 
     public Command pivotTo (Setpoint setpoint) {

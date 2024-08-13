@@ -60,7 +60,7 @@ public class Intake extends PivotTemplate{
 
     public Command retract() {
         return sequence(
-            pivotTo(5),
+            pivotTo(Setpoint.NEUTRAL),
             waitUntil(()-> atSetpoint()).withTimeout(1.5),
             runPivot(-0.2),
             waitSeconds(0.1),

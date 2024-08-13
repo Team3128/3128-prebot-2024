@@ -13,6 +13,9 @@ import static frc.team3128.Constants.ShooterConstants.*;
 
 import java.util.function.DoubleSupplier;
 
+/*
+ * this class needs to be changed, on motor is ramp up and shoot, one is kicker
+ */
 public class Shooter extends ShooterTemplate {
 
     private static Shooter instance;

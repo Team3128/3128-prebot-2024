@@ -42,10 +42,18 @@ public class CmdManager {
         return new ScheduleCommand(new StartEndCommand(()-> controller.startVibrate(), ()-> controller.stopVibrate()).withTimeout(1));
     }
 
+    /* 
+     * dont think it works like this, our robot has only one shooter motor
+     * so one shooter motor will ramp up, then the other (WITH NO PID), known as the kicking motor, will push it a little bit to me shot
+    */
     public static Command rampUpShoot() {
         return shooter.shoot(SHOOTER_RPM, SHOOTER_RPM);
     }
 
+    /*
+     * will have to change this command to work with new ramp up shoot
+     * one possiblity is to keep ramp up shoot in shooter, then have it such that it is split in two. One for ramp up, one for kick, then use it here
+     */
     public static Command ramShoot() {
         return sequence(
             rampUpShoot(),
@@ -56,6 +64,9 @@ public class CmdManager {
         );
     }
 
+    /*
+     * similar logic here
+     */
     public static Command autoShoot() {
         return deadline(
             ramShoot(),
@@ -66,6 +77,9 @@ public class CmdManager {
         ).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
     }
 
+    /*
+     * similar logic here
+     */
     public static Command rampUpAmp() {
         return sequence(
             shooter.shoot(ShooterConstants.AMP_RPM),
@@ -73,6 +87,9 @@ public class CmdManager {
         );
     }
 
+    /*
+     * similar logic here
+     */
     public static Command amp() {
         return sequence(
             rampUpAmp(),

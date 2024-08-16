@@ -128,4 +128,15 @@ public class CmdManager {
             ()->shooter.hasObjectPresent()
         );
     }
+
+    public static Command hopperOuttake() {
+        return sequence(
+            intake.pivotTo(Setpoint.NEUTRAL),
+            // TODO: will this slow things down
+            waitUntil(()->intake.atSetpoint()),
+            hopper.runManipulator(HOPPER_OUTTAKE_POWER),
+            waitSeconds(0.35),
+            hopper.runManipulator(0)
+        );
+    }
 }

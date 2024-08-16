@@ -22,6 +22,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.autonomous.AutoPrograms;
 import frc.team3128.commands.CmdManager;
+import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Leds;
 import frc.team3128.subsystems.Swerve;
 
@@ -32,6 +33,7 @@ import frc.team3128.subsystems.Swerve;
 public class Robot extends NAR_Robot {
 
     private boolean hasInitialized = false;
+    private int notePlateuCount = 0;
 
     public static Alliance alliance;
 
@@ -104,6 +106,16 @@ public class Robot extends NAR_Robot {
     @Override
     public void robotPeriodic(){
         Camera.updateAll();
+        if (Hopper.getInstance().hasObjectPresent()) {
+            notePlateuCount++;
+            if (notePlateuCount >= 125) {
+                CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(Hopper.getInstance()));
+                CommandScheduler.getInstance().schedule(CmdManager.hopperOuttake());
+                notePlateuCount = 0;
+            }
+        } else {
+            notePlateuCount = 0;
+        }
     }
 
     @Override

@@ -44,7 +44,8 @@ public class CmdManager {
             waitUntil(() -> shooter.atSetpoint()),
             shooter.runKickMotor(KICK_POWER),
             waitSeconds(0.35),
-            shooter.stopMotors()
+            shooter.stopMotors(),
+            queueNote()
         );
     }
 
@@ -73,7 +74,8 @@ public class CmdManager {
             waitSeconds(0.35),
             shooter.runShooter(0),
             shooter.runKickMotor(0),
-            amper.retract()
+            amper.retract(),
+            queueNote()
         );
     }
 
@@ -92,17 +94,7 @@ public class CmdManager {
                     waitUntil(()->hopper.hasObjectPresent()),
                     intake.stopRollers(),
                     hopper.runManipulator(0),
-                    either(
-                        none(),
-                        sequence(
-                            hopper.runManipulator(HOPPER_INTAKE_POWER),
-                            shooter.runKickMotor(HOPPER_INTAKE_POWER),
-                            waitUntil(()->shooter.hasObjectPresent()),
-                            hopper.runManipulator(0),
-                            shooter.runKickMotor(0)
-                        ),
-                        ()->shooter.hasObjectPresent()
-                    )
+                    queueNote()
                 )
             ),
             intake.retract()
@@ -118,7 +110,22 @@ public class CmdManager {
             ),
             shooter.runKickMotor(KICK_POWER),
             waitSeconds(0.35),
-            shooter.stopMotors()
+            shooter.stopMotors(),
+            queueNote()
+        );
+    }
+
+    public static Command queueNote() {
+        return either(
+            none(),
+            sequence(
+                hopper.runManipulator(HOPPER_INTAKE_POWER),
+                shooter.runKickMotor(HOPPER_INTAKE_POWER),
+                waitUntil(()->shooter.hasObjectPresent()),
+                hopper.runManipulator(0),
+                shooter.runKickMotor(0)
+            ),
+            ()->shooter.hasObjectPresent()
         );
     }
 }

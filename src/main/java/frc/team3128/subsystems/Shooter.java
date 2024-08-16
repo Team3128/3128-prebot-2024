@@ -18,8 +18,6 @@ public class Shooter extends ShooterTemplate {
 
     private static Shooter instance;
 
-    private DoubleSupplier rpmDiff;
-
     private DoubleSupplier kF_Func;
 
     private DigitalInput sensor;

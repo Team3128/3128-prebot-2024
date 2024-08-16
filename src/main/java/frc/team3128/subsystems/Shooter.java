@@ -14,9 +14,6 @@ import static frc.team3128.Constants.ShooterConstants.*;
 
 import java.util.function.DoubleSupplier;
 
-/*
- * this class needs to be changed, on motor is ramp up and shoot, one is kicker
- */
 public class Shooter extends ShooterTemplate {
 
     private static Shooter instance;
@@ -27,8 +24,6 @@ public class Shooter extends ShooterTemplate {
 
     private DigitalInput sensor;
 
-    private Controller rightController = new Controller(PIDConstants, Type.VELOCITY);
-
     private Shooter() {
         super(new Controller(PIDConstants, Type.VELOCITY));
         setConstraints(MIN_RPM, MAX_RPM);
@@ -38,10 +33,10 @@ public class Shooter extends ShooterTemplate {
         initShuffleboard();
 
         ControllerBase controller = getController();
-        rightController.setkS(()-> controller.getkS());
-        rightController.setkV(()-> controller.getkV());
-        rightController.setkG(()-> controller.getkG());
-        rightController.setTolerance(TOLERANCE);
+        controller.setkS(()-> controller.getkS());
+        controller.setkV(()-> controller.getkV());
+        controller.setkG(()-> controller.getkG());
+        controller.setTolerance(TOLERANCE);
     }
 
     public static synchronized Shooter getInstance(){
@@ -59,7 +54,6 @@ public class Shooter extends ShooterTemplate {
         KICK_MOTOR.setInverted(false);
 
         SHOOTER_MOTOR.setUnitConversionFactor(GEAR_RATIO);
-        KICK_MOTOR.setUnitConversionFactor(GEAR_RATIO);
 
         SHOOTER_MOTOR.setNeutralMode(Neutral.COAST);
         KICK_MOTOR.setNeutralMode(Neutral.BRAKE);
@@ -68,16 +62,10 @@ public class Shooter extends ShooterTemplate {
         KICK_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
     }
 
-    public void startPID(double leftSetpoint, double rightSetpoint) {
-        enable();
-        getController().setSetpoint(leftSetpoint);
-        rightController.setSetpoint(rightSetpoint);
-    }
-
     @Override
     public void startPID(double setpoint) {
-        final double rpm = (debug != null && debug.getAsBoolean()) ? this.setpoint.getAsDouble() : setpoint;
-        startPID(rpm, rpm - rpmDiff.getAsDouble());
+        enable();
+        getController().setSetpoint(setpoint);
     }
 
     @Override
@@ -90,20 +78,23 @@ public class Shooter extends ShooterTemplate {
         return SHOOTER_MOTOR.getVelocity();
     }
 
-    public Command shoot(double leftSetpoint, double rightSetpoint) {
-        return runOnce(()-> startPID(leftSetpoint, rightSetpoint));
+    public Command shoot(double setpoint) {
+        return runOnce(()-> startPID(setpoint));
     }
 
-    public Command shoot(double setpoint){
-        return runOnce(() -> startPID(setpoint));
-    }
-
-    public Command setShooter(double power) {
+    public Command runShooter(double power) {
         return runOnce(()-> setPower(power));
     }
 
     public Command runKickMotor(double power) {
         return runOnce(() -> KICK_MOTOR.set(power));
+    }
+
+    public Command stopMotors(){
+        return runOnce(()-> {
+            SHOOTER_MOTOR.set(0);
+            KICK_MOTOR.set(0);
+        });
     }
 
     public State getRunningState() {

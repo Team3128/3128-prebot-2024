@@ -9,7 +9,7 @@ import static frc.team3128.Constants.HopperConstants.*;
 
 public class Hopper extends ManipulatorTemplate {
 
-    private DigitalInput limitSwitch;
+    private DigitalInput sensor;
 
     private static Hopper instance;
 
@@ -20,8 +20,9 @@ public class Hopper extends ManipulatorTemplate {
     }
 
     private Hopper() {
-        super(STALL_CURRENT, INTAKE_POWER, OUTTAKE_POWER, STALL_POWER, 0.3, HOPPER_MOTOR);
-        limitSwitch = new DigitalInput(1);
+        super(STALL_CURRENT, HOPPER_INTAKE_POWER, HOPPER_OUTTAKE_POWER, STALL_POWER, 0.3, HOPPER_MOTOR);
+        sensor = new DigitalInput(HOPPER_MOTOR_ID);
+        configMotors();
         initShuffleboard();
     }
 
@@ -31,10 +32,11 @@ public class Hopper extends ManipulatorTemplate {
         HOPPER_MOTOR.setNeutralMode(Neutral.BRAKE);
         HOPPER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
         HOPPER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        HOPPER_MOTOR.setNeutralMode(Neutral.BRAKE);
     }
 
     @Override
     public boolean hasObjectPresent() {
-        return !limitSwitch.get();
+        return !sensor.get();
     }
 }

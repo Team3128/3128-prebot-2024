@@ -7,6 +7,7 @@ import common.core.subsystems.ShooterTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import static frc.team3128.Constants.ShooterConstants.*;
@@ -24,12 +25,15 @@ public class Shooter extends ShooterTemplate {
 
     private DoubleSupplier kF_Func;
 
+    private DigitalInput sensor;
+
     private Controller rightController = new Controller(PIDConstants, Type.VELOCITY);
 
     private Shooter() {
         super(new Controller(PIDConstants, Type.VELOCITY));
         setConstraints(MIN_RPM, MAX_RPM);
         setTolerance(TOLERANCE);
+        sensor = new DigitalInput(SHOOTER_SENSOR_ID);
         configMotors();
         initShuffleboard();
 
@@ -48,20 +52,20 @@ public class Shooter extends ShooterTemplate {
 
     @Override
     protected void configMotors() {
-        LEFT_MOTOR.setCurrentLimit(80);
-        RIGHT_MOTOR.setCurrentLimit(80);
+        SHOOTER_MOTOR.setCurrentLimit(80);
+        KICK_MOTOR.setCurrentLimit(80);
         
-        LEFT_MOTOR.setInverted(true);
-        RIGHT_MOTOR.setInverted(false);
+        SHOOTER_MOTOR.setInverted(false);
+        KICK_MOTOR.setInverted(false);
 
-        LEFT_MOTOR.setUnitConversionFactor(GEAR_RATIO);
-        RIGHT_MOTOR.setUnitConversionFactor(GEAR_RATIO);
+        SHOOTER_MOTOR.setUnitConversionFactor(GEAR_RATIO);
+        KICK_MOTOR.setUnitConversionFactor(GEAR_RATIO);
 
-        LEFT_MOTOR.setNeutralMode(Neutral.COAST);
-        RIGHT_MOTOR.setNeutralMode(Neutral.COAST);
+        SHOOTER_MOTOR.setNeutralMode(Neutral.COAST);
+        KICK_MOTOR.setNeutralMode(Neutral.BRAKE);
 
-        LEFT_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
-        RIGHT_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        SHOOTER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        KICK_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
     }
 
     public void startPID(double leftSetpoint, double rightSetpoint) {
@@ -78,14 +82,12 @@ public class Shooter extends ShooterTemplate {
 
     @Override
     protected void useOutput(double output, double setpoint) {
-        LEFT_MOTOR.setVolts(setpoint != 0 ? output + kF_Func.getAsDouble() : 0);
-        final double rightOutput = rightController.calculate(Math.abs(RIGHT_MOTOR.getVelocity()));
-        RIGHT_MOTOR.setVolts(setpoint != 0 ? rightOutput + kF_Func.getAsDouble() : 0);
+        SHOOTER_MOTOR.setVolts(setpoint != 0 ? output + kF_Func.getAsDouble() : 0);
     }
 
     @Override
     public double getMeasurement() {
-        return LEFT_MOTOR.getVelocity();
+        return SHOOTER_MOTOR.getVelocity();
     }
 
     public Command shoot(double leftSetpoint, double rightSetpoint) {
@@ -100,15 +102,19 @@ public class Shooter extends ShooterTemplate {
         return runOnce(()-> setPower(power));
     }
 
-    public Command runBottomRollers(double power) {
-        return runOnce(()-> RIGHT_MOTOR.set(power));
+    public Command runKickMotor(double power) {
+        return runOnce(() -> KICK_MOTOR.set(power));
     }
 
     public State getRunningState() {
-        if (RIGHT_MOTOR.getState() != State.DISCONNECTED && LEFT_MOTOR.getState() != State.DISCONNECTED)
+        if (SHOOTER_MOTOR.getState() != State.DISCONNECTED && KICK_MOTOR.getState() != State.DISCONNECTED)
             return State.RUNNING;
-        if (RIGHT_MOTOR.getState() != State.DISCONNECTED || RIGHT_MOTOR.getState() != State.DISCONNECTED)
+        if (SHOOTER_MOTOR.getState() != State.DISCONNECTED || KICK_MOTOR.getState() != State.DISCONNECTED)
             return State.PARTIALLY_RUNNING;
         return State.DISCONNECTED;
+    }
+
+    public boolean hasObjectPresent() {
+        return !sensor.get();
     }
 }

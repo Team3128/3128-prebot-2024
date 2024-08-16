@@ -292,11 +292,12 @@ public class Constants {
     }
 
     public static class ShooterConstants {
-        public static final int LEFT_MOTOR_ID = 0;
-        public static final int RIGHT_MOTOR_ID = 0;
+        public static final int SHOOTER_MOTOR_ID = 0;
+        public static final int KICK_MOTOR_ID = 0;
+        public static final int SHOOTER_SENSOR_ID = 0;
 
-        public static final NAR_CANSpark LEFT_MOTOR = new NAR_CANSpark(LEFT_MOTOR_ID);
-        public static final NAR_CANSpark RIGHT_MOTOR = new NAR_CANSpark(RIGHT_MOTOR_ID);
+        public static final NAR_CANSpark SHOOTER_MOTOR = new NAR_CANSpark(SHOOTER_MOTOR_ID);
+        public static final NAR_CANSpark KICK_MOTOR = new NAR_CANSpark(KICK_MOTOR_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.0025, 0, 0, 0, 0.00179104, 0); // 0.00187623
         public static final double kF = 0; 
@@ -312,7 +313,8 @@ public class Constants {
         public static final double MIDDLE_FEED_RPM = 4500;
         public static final double MIDDLE_FEED_ANGLE = 25;
         
-
+        public static final double INTAKE_POWER = 0.4;
+        public static final double KICK_POWER = 0.2;
         public static final double CURRENT_TEST_POWER = 0;
         public static final double CURRENT_TEST_PLATEAU = 0;
         public static final double CURRENT_TEST_TIMEOUT = 0;
@@ -444,10 +446,11 @@ public class Constants {
     public static class HopperConstants {
         public static final int HOPPER_MOTOR_ID = 13;
         public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
+        public static final int SENSOR_MOTOR_ID = 1;
 
         public static final double STALL_CURRENT = 50;
-        public static final double INTAKE_POWER = 0.5;
-        public static final double OUTTAKE_POWER = -0.5;
+        public static final double HOPPER_INTAKE_POWER = 0.5;
+        public static final double HOPPER_OUTTAKE_POWER = -0.5;
         public static final double STALL_POWER = 0.05;
 
         public static final double VOLT_COMP = 9;

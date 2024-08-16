@@ -1,6 +1,8 @@
 package frc.team3128.commands;
 
 import static edu.wpi.first.wpilibj2.command.Commands.deadline;
+import static edu.wpi.first.wpilibj2.command.Commands.either;
+import static edu.wpi.first.wpilibj2.command.Commands.none;
 import static edu.wpi.first.wpilibj2.command.Commands.parallel;
 import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
@@ -9,14 +11,14 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
 import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
-import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
+import static frc.team3128.Constants.HopperConstants.*;
+import static frc.team3128.Constants.ShooterConstants.*;
 
 import common.hardware.input.NAR_XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.Robot;
 import frc.team3128.RobotContainer;
 import frc.team3128.subsystems.Amper;
@@ -47,7 +49,7 @@ public class CmdManager {
      * so one shooter motor will ramp up, then the other (WITH NO PID), known as the kicking motor, will push it a little bit to me shot
     */
     public static Command rampUpShoot() {
-        return shooter.shoot(SHOOTER_RPM, SHOOTER_RPM);
+        return shooter.shoot(SHOOTER_RPM);
     }
 
     /*
@@ -58,7 +60,7 @@ public class CmdManager {
         return sequence(
             rampUpShoot(),
             waitUntil(() -> shooter.atSetpoint()),
-            hopper.intake(),
+            shooter.runKickMotor(KICK_POWER),
             waitSeconds(0.35),
             neutral()
         );
@@ -82,7 +84,7 @@ public class CmdManager {
      */
     public static Command rampUpAmp() {
         return sequence(
-            shooter.shoot(ShooterConstants.AMP_RPM),
+            shooter.shoot(AMP_RPM),
             amper.extend()
         );
     }
@@ -94,7 +96,7 @@ public class CmdManager {
         return sequence(
             rampUpAmp(),
             waitUntil(() -> shooter.atSetpoint() && amper.atSetpoint()),
-            hopper.intake(),
+            shooter.runKickMotor(KICK_POWER),
             waitSeconds(0.35),
             neutral()
         );
@@ -111,9 +113,21 @@ public class CmdManager {
                 intake.pivotTo(setpoint),
                 sequence(
                     intake.runIntakeRollers(),
-                    // TODO: is this how it works
+                    hopper.runManipulator(HOPPER_INTAKE_POWER),
                     waitUntil(()->hopper.hasObjectPresent()),
-                    intake.stopRollers()
+                    intake.stopRollers(),
+                    hopper.runManipulator(0),
+                    either(
+                        none(),
+                        sequence(
+                            hopper.runManipulator(HOPPER_INTAKE_POWER),
+                            shooter.runKickMotor(HOPPER_INTAKE_POWER),
+                            waitUntil(()->shooter.hasObjectPresent()),
+                            hopper.runManipulator(0),
+                            shooter.runKickMotor(0)
+                        ),
+                        ()->shooter.hasObjectPresent()
+                    )
                 )
             ),
             intake.retract()
@@ -127,7 +141,7 @@ public class CmdManager {
                 runOnce(()->shooter.startPID(rpm, rpm)),
                 waitUntil(()->shooter.atSetpoint())
             ),
-            hopper.intake(),
+            shooter.runKickMotor(KICK_POWER),
             waitSeconds(0.35),
             neutral()
         );
@@ -137,6 +151,7 @@ public class CmdManager {
         return sequence(
             intake.stopRollers(),
             shooter.setShooter(0),
+            shooter.runKickMotor(0),
             amper.retract(),
             hopper.runManipulator(0)
         );

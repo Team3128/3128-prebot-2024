@@ -49,13 +49,11 @@ public class Intake extends PivotTemplate{
         PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
         PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
 
-        RIGHT_ROLLER_MOTOR.setInverted(false);
-        LEFT_ROLLER_MOTOR.setInverted(true);
-        RIGHT_ROLLER_MOTOR.enableVoltageCompensation(VOLT_COMP);
-        LEFT_ROLLER_MOTOR.follow(RIGHT_ROLLER_MOTOR);
-        RIGHT_ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
-        RIGHT_ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-        RIGHT_ROLLER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        ROLLER_MOTOR.setInverted(false);
+        ROLLER_MOTOR.enableVoltageCompensation(VOLT_COMP);
+        ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
+        ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+        ROLLER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
     }
 
     public Command retract() {
@@ -86,7 +84,7 @@ public class Intake extends PivotTemplate{
     }
 
     public Command runRollers(double power) {
-        return runOnce(()-> RIGHT_ROLLER_MOTOR.set(power));
+        return runOnce(()-> ROLLER_MOTOR.set(power));
     }
 
 }

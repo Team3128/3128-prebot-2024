@@ -8,6 +8,7 @@ import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import static frc.team3128.Constants.ShooterConstants.*;
@@ -20,13 +21,14 @@ public class Shooter extends ShooterTemplate {
 
     private DoubleSupplier kF_Func;
 
-    private DigitalInput sensor;
+    private DigitalInput kickSensor, rollersSensor;
 
     private Shooter() {
         super(new Controller(PIDConstants, Type.VELOCITY));
         setConstraints(MIN_RPM, MAX_RPM);
         setTolerance(TOLERANCE);
-        sensor = new DigitalInput(SHOOTER_SENSOR_ID);
+        kickSensor = new DigitalInput(KICK_SENSOR_ID);
+        rollersSensor = new DigitalInput(ROLLERS_SENSOR_ID);
         configMotors();
         initShuffleboard();
 
@@ -54,7 +56,7 @@ public class Shooter extends ShooterTemplate {
         SHOOTER_MOTOR.setUnitConversionFactor(GEAR_RATIO);
 
         SHOOTER_MOTOR.setNeutralMode(Neutral.COAST);
-        KICK_MOTOR.setNeutralMode(Neutral.BRAKE);
+        KICK_MOTOR.setNeutralMode(Neutral.COAST);
 
         SHOOTER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
         KICK_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
@@ -103,7 +105,11 @@ public class Shooter extends ShooterTemplate {
         return State.DISCONNECTED;
     }
 
-    public boolean hasObjectPresent() {
-        return !sensor.get();
+    public boolean noteInKick() {
+        return !kickSensor.get();
+    }
+
+    public boolean noteInRollers() {
+        return !rollersSensor.get();
     }
 }

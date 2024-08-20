@@ -38,25 +38,45 @@ public class CmdManager {
         return shooter.shoot(SHOOTER_RPM);
     }
 
-    public static Command ramShoot() {
-        return sequence(
-            rampUpShoot(),
-            waitUntil(() -> shooter.atSetpoint()),
-            shooter.runKickMotor(KICK_POWER),
-            waitSeconds(0.35),
-            shooter.stopMotors(),
-            queueNote()
+    public static Command kick() {
+        return either(
+            sequence(
+                shooter.runKickMotor(KICK_POWER),
+                waitUntil(() -> shooter.noteInRollers()).withTimeout(0.3),
+                waitUntil(() -> !shooter.noteInRollers()),
+                shooter.runKickMotor(0)
+            ),
+            none(),
+            () -> shooter.noteInKick()
         );
     }
 
-    public static Command autoShoot() {
+    public static Command ramShoot(boolean once) {
+        return sequence(
+            rampUpShoot(),
+            waitUntil(() -> shooter.atSetpoint()),
+            kick(),
+            either(
+                queueNote(),
+                sequence(
+                    queueNote(),
+                    waitUntil(() -> shooter.atSetpoint()),
+                    kick()
+                ),
+                () -> once
+            ),
+            shooter.stopMotors()
+        );
+    }
+
+    public static Command autoShoot(boolean once) {
         return deadline(
-            ramShoot(),
+            rampUpShoot(),
             repeatingSequence(
                 runOnce(()-> CmdSwerveDrive.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
                 waitSeconds(0.1)
             )
-        ).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
+        ).andThen(ramShoot(once)).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
     }
 
     public static Command rampUpAmp() {
@@ -66,16 +86,22 @@ public class CmdManager {
         );
     }
 
-    public static Command amp() {
+    public static Command amp(boolean once) {
         return sequence(
             rampUpAmp(),
             waitUntil(() -> shooter.atSetpoint() && amper.atSetpoint()),
-            shooter.runKickMotor(KICK_POWER),
-            waitSeconds(0.35),
-            shooter.runShooter(0),
-            shooter.runKickMotor(0),
-            amper.retract(),
-            queueNote()
+            kick(),
+            either(
+                queueNote(),
+                sequence(
+                    queueNote(),
+                    waitUntil(() -> shooter.atSetpoint()),
+                    kick()
+                ),
+                () -> once
+            ),
+            waitSeconds(0.2),
+            amper.retract()
         );
     }
 
@@ -84,48 +110,52 @@ public class CmdManager {
         
     // }
 
-    public static Command intakeCmd(Setpoint setpoint) {
+    public static Command intake(Setpoint setpoint) {
         return sequence(
-            deadline(
-                intake.pivotTo(setpoint),
-                sequence(
-                    intake.runIntakeRollers(),
-                    hopper.runManipulator(HOPPER_INTAKE_POWER),
-                    waitUntil(()->hopper.hasObjectPresent()),
-                    intake.stopRollers(),
-                    hopper.runManipulator(0),
-                    queueNote()
-                )
-            ),
+            intake.pivotTo(setpoint),
+            intake.runIntakeRollers(),
+            hopper.runManipulator(HOPPER_INTAKE_POWER)
+        );
+    }
+
+    public static Command stopIntake() {
+        return sequence(
+            intake.stopRollers(),
+            hopper.runManipulator(0),
             intake.retract()
         );
     }
 
-    public static Command feed(double rpm, double angle) {
+    public static Command feed(double rpm, double angle, boolean once) {
         return sequence(
             parallel(
                 swerve.turnInPlace(()-> Robot.getAlliance() == Alliance.Blue ? 180-angle : angle).asProxy().withTimeout(1),
-                runOnce(()->shooter.startPID(rpm)),
-                waitUntil(()->shooter.atSetpoint())
+                runOnce(()-> shooter.startPID(rpm)),
+                waitUntil(()-> shooter.atSetpoint())
             ),
-            shooter.runKickMotor(KICK_POWER),
-            waitSeconds(0.35),
-            shooter.stopMotors(),
-            queueNote()
+            kick(),
+            either(
+                queueNote(),
+                sequence(
+                    queueNote(),
+                    waitUntil(() -> shooter.atSetpoint()),
+                    kick()
+                ),
+                () -> once
+            ),
+            shooter.stopMotors()
         );
     }
 
     public static Command queueNote() {
         return either(
-            none(),
+            none(), 
             sequence(
                 hopper.runManipulator(HOPPER_INTAKE_POWER),
-                shooter.runKickMotor(HOPPER_INTAKE_POWER),
-                waitUntil(()->shooter.hasObjectPresent()),
-                hopper.runManipulator(0),
-                shooter.runKickMotor(0)
-            ),
-            ()->shooter.hasObjectPresent()
+                waitUntil(()-> shooter.noteInKick()),
+                hopper.runManipulator(0)
+            ), 
+            () -> (!hopper.hasObjectPresent() || shooter.noteInKick())
         );
     }
 

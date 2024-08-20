@@ -12,6 +12,7 @@ import common.core.swerve.SwerveModuleConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
 import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_TalonFX;
+import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -292,9 +293,10 @@ public class Constants {
     }
 
     public static class ShooterConstants {
-        public static final int SHOOTER_MOTOR_ID = 0;
-        public static final int KICK_MOTOR_ID = 0;
-        public static final int SHOOTER_SENSOR_ID = 0;
+        public static final int SHOOTER_MOTOR_ID = 60;
+        public static final int KICK_MOTOR_ID = 61;
+        public static final int KICK_SENSOR_ID = 0;
+        public static final int ROLLERS_SENSOR_ID = 1;
 
         public static final NAR_CANSpark SHOOTER_MOTOR = new NAR_CANSpark(SHOOTER_MOTOR_ID);
         public static final NAR_CANSpark KICK_MOTOR = new NAR_CANSpark(KICK_MOTOR_ID);
@@ -344,10 +346,8 @@ public class Constants {
         public static final double GEAR_RATIO = 1.0 / 40.0;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
 
-        public static final int RIGHT_ROLLER_MOTOR_ID = 32;
-        public static final int LEFT_ROLLER_MOTOR_ID = 33;
-        public static final NAR_CANSpark RIGHT_ROLLER_MOTOR = new NAR_CANSpark(RIGHT_ROLLER_MOTOR_ID);
-        public static final NAR_CANSpark LEFT_ROLLER_MOTOR = new NAR_CANSpark(LEFT_ROLLER_MOTOR_ID);
+        public static final int ROLLER_MOTOR_ID = 30;
+        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID);
 
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
@@ -424,7 +424,7 @@ public class Constants {
         }
     }
     public static class ClimberConstants {
-        public static final int CLIMB_MOTOR_ID = 21;
+        public static final int CLIMB_MOTOR_ID = 50;
         public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
@@ -444,9 +444,10 @@ public class Constants {
     }
 
     public static class HopperConstants {
-        public static final int HOPPER_MOTOR_ID = 13;
+        public static final int HOPPER_MOTOR_ID = 40;
         public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
-        public static final int SENSOR_MOTOR_ID = 1;
+        public static final int HOPPER_FRONT_SENSOR_ID = 1;
+        public static final int HOPPER_BACK_SENSOR_ID = 2;
 
         public static final double STALL_CURRENT = 50;
         public static final double HOPPER_INTAKE_POWER = 0.5;
@@ -458,11 +459,11 @@ public class Constants {
     }
 
     public static class AmperConstants {
-        public static final int ELEV_MOTOR_ID = 11;
+        public static final int ELEV_MOTOR_ID = 21;
         public static final NAR_CANSpark ELEV_MOTOR = new NAR_CANSpark(ELEV_MOTOR_ID);
 
-        public static final int ROLLER_MOTOR_ID = 2;
-        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID);
+        public static final int ROLLER_MOTOR_ID = 20;
+        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
         public static final double MAX_VELOCTIY = 10000000;

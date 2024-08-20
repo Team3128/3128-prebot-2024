@@ -13,6 +13,7 @@ import common.hardware.camera.Camera;
 import common.utility.Log;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,6 +32,7 @@ import frc.team3128.subsystems.Swerve;
  * each mode, as described in the TimedRobot documentation.
  */
 public class Robot extends NAR_Robot {
+    private Timer timer = new Timer();
 
     private boolean hasInitialized = false;
     private int notePlateuCount = 0;
@@ -59,6 +61,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void robotInit(){
+        timer.restart();
         
         try {
             Class<?> container = Class.forName("processor.ClassManager");
@@ -106,16 +109,16 @@ public class Robot extends NAR_Robot {
     @Override
     public void robotPeriodic(){
         Camera.updateAll();
+        // TODO: this may break everything
         if (Hopper.getInstance().hasObjectPresent()) {
-            notePlateuCount++;
-            if (notePlateuCount >= 125) {
-                CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(Hopper.getInstance()));
+            if (timer.hasElapsed(2.5)) {
+                // CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(Hopper.getInstance()));
                 CommandScheduler.getInstance().schedule(CmdManager.hopperOuttake());
-                notePlateuCount = 0;
+                timer.reset();
             }
-        } else {
-            notePlateuCount = 0;
-        }
+            return;
+        } 
+        timer.reset();
     }
 
     @Override

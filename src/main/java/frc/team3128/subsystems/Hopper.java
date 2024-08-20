@@ -9,7 +9,8 @@ import static frc.team3128.Constants.HopperConstants.*;
 
 public class Hopper extends ManipulatorTemplate {
 
-    private DigitalInput sensor;
+    // front is the shooter
+    private DigitalInput frontSensor, backSensor;
 
     private static Hopper instance;
 
@@ -21,7 +22,8 @@ public class Hopper extends ManipulatorTemplate {
 
     private Hopper() {
         super(STALL_CURRENT, HOPPER_INTAKE_POWER, HOPPER_OUTTAKE_POWER, STALL_POWER, 0.3, HOPPER_MOTOR);
-        sensor = new DigitalInput(HOPPER_MOTOR_ID);
+        frontSensor = new DigitalInput(HOPPER_FRONT_SENSOR_ID);
+        backSensor = new DigitalInput(HOPPER_BACK_SENSOR_ID);
         configMotors();
         initShuffleboard();
     }
@@ -37,6 +39,16 @@ public class Hopper extends ManipulatorTemplate {
 
     @Override
     public boolean hasObjectPresent() {
-        return !sensor.get();
+        return noteInFront() || noteInBack();
+    }
+
+    // shooter side
+    public boolean noteInFront() {
+        return !frontSensor.get();
+    }
+
+    // intake side
+    public boolean noteInBack() {
+        return !backSensor.get();
     }
 }

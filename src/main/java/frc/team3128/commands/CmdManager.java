@@ -51,10 +51,8 @@ public class CmdManager {
         );
     }
 
-    public static Command ramShoot(boolean once) {
+    public static Command kick(boolean once) {
         return sequence(
-            rampUpShoot(),
-            waitUntil(() -> shooter.atSetpoint()),
             kick(),
             either(
                 queueNote(),
@@ -64,7 +62,15 @@ public class CmdManager {
                     kick()
                 ),
                 () -> once
-            ),
+            )
+        );
+    }
+
+    public static Command ramShoot(boolean once) {
+        return sequence(
+            rampUpShoot(),
+            waitUntil(() -> shooter.atSetpoint()),
+            kick(once),
             shooter.stopMotors()
         );
     }
@@ -90,16 +96,7 @@ public class CmdManager {
         return sequence(
             rampUpAmp(),
             waitUntil(() -> shooter.atSetpoint() && amper.atSetpoint()),
-            kick(),
-            either(
-                queueNote(),
-                sequence(
-                    queueNote(),
-                    waitUntil(() -> shooter.atSetpoint()),
-                    kick()
-                ),
-                () -> once
-            ),
+            kick(once),
             waitSeconds(0.2),
             amper.retract()
         );
@@ -114,7 +111,10 @@ public class CmdManager {
         return sequence(
             intake.pivotTo(setpoint),
             intake.runIntakeRollers(),
-            hopper.runManipulator(HOPPER_INTAKE_POWER)
+            hopper.runManipulator(HOPPER_INTAKE_POWER),
+            waitUntil(() -> shooter.noteInKick()),
+            waitUntil(() -> hopper.noteInFront()),
+            stopIntake()
         );
     }
 
@@ -129,20 +129,11 @@ public class CmdManager {
     public static Command feed(double rpm, double angle, boolean once) {
         return sequence(
             parallel(
-                swerve.turnInPlace(()-> Robot.getAlliance() == Alliance.Blue ? 180-angle : angle).asProxy().withTimeout(1),
-                runOnce(()-> shooter.startPID(rpm)),
-                waitUntil(()-> shooter.atSetpoint())
+                swerve.turnInPlace(() -> Robot.getAlliance() == Alliance.Blue ? 180-angle : angle).asProxy().withTimeout(1),
+                runOnce(() -> shooter.startPID(rpm)),
+                waitUntil(() -> shooter.atSetpoint())
             ),
-            kick(),
-            either(
-                queueNote(),
-                sequence(
-                    queueNote(),
-                    waitUntil(() -> shooter.atSetpoint()),
-                    kick()
-                ),
-                () -> once
-            ),
+            kick(once),
             shooter.stopMotors()
         );
     }

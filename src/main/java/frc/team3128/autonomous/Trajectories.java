@@ -35,33 +35,19 @@ import frc.team3128.Constants.AutoConstants;
 import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.Robot;
 import frc.team3128.RobotContainer;
+import frc.team3128.commands.CmdManager;
 import frc.team3128.commands.CmdSwerveDrive;
 
 import java.util.function.DoubleSupplier;
 
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Intake;
 
 /**
  * Store trajectories for autonomous. Edit points here. 
  * @author Daniel Wang
  */
 public class Trajectories {
-
-    //USED FOR HARDCODED SHOTS BITCHES
-    public enum ShootPosition {
-        // find values
-        WING(5.09),      //Change this for top 
-        BOTTOM(7.5),    //Change this for bottom auto
-        RAM(24.5);
-
-        private final double height;
-        ShootPosition(double height) {
-            this.height = height;
-        }
-        public double getHeight() {
-            return height;
-        }
-    }
 
     private static final Swerve swerve = Swerve.getInstance();
     private static double vx = 0, vy = 0;
@@ -71,20 +57,9 @@ public class Trajectories {
         Pathfinding.setPathfinder(new LocalADStar());
 
         // TODO: add commands
-        // NamedCommands.registerCommand("Intake", intake.intakeAuto());
-        // NamedCommands.registerCommand("Shoot", autoShoot(0.75));
-        // NamedCommands.registerCommand("RamShoot", ramShotAuto());
-        // NamedCommands.registerCommand("BottomShoot", autoShootPreset(ShootPosition.BOTTOM));
-        // NamedCommands.registerCommand("WingRamp", rampUpAuto(ShootPosition.WING));
-        // NamedCommands.registerCommand("Align", align());
-        // NamedCommands.registerCommand("AlignCCW", alignSearch(true));
-        // NamedCommands.registerCommand("AlignCW", alignSearch(false));
-        // NamedCommands.registerCommand("Outtake", outtakeAuto());
-        // NamedCommands.registerCommand("Retract", intake.retractAuto());
-        // NamedCommands.registerCommand("Neutral", neutralAuto());
-        // NamedCommands.registerCommand("AlignPreload", alignPreload(false));
-        // NamedCommands.registerCommand("Drop", shooter.shoot(MAX_RPM));
-        // NamedCommands.registerCommand("RamShootMax", autoShootPreset(ShootPosition.RAM));
+        NamedCommands.registerCommand("ramShoot", CmdManager.ramShoot(true));
+        NamedCommands.registerCommand("ramShootNoStop", CmdManager.ramShootNoStop(true));
+        NamedCommands.registerCommand("intakeAndStop", CmdManager.intakeAndStop(Intake.Setpoint.GROUND));
 
         AutoBuilder.configureHolonomic(
             swerve::getPose,
@@ -108,7 +83,6 @@ public class Trajectories {
             runOnce(()-> swerve.zeroGyro(Robot.getAlliance() == Alliance.Red ? 0 : 180)),
             runOnce(()-> swerve.resetEncoders())
         );
-        
     }
 
     public static void drive(ChassisSpeeds velocity) {
@@ -130,7 +104,6 @@ public class Trajectories {
             setpoint, //setpoint
             (double output) -> {
                 Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-                NAR_Shuffleboard.addData("HElp", "help", output, 0, 0);
             }
         ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
     }
@@ -146,7 +119,6 @@ public class Trajectories {
             setpoint, //setpoint
             (double output) -> {
                 Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-                NAR_Shuffleboard.addData("HElp", "help", output, 0, 0);
             }
         ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
     }
@@ -157,11 +129,11 @@ public class Trajectories {
 
     public static Command goToPoint(Pose2d pose) {
         return AutoBuilder.pathfindToPose(
-                pose,
-                AutoConstants.constraints,
-                0.0, // Goal end velocity in meters/sec
-                0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
-            );
+            pose,
+            AutoConstants.constraints,
+            0.0, // Goal end velocity in meters/sec
+            0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+        );
     }
     
 }

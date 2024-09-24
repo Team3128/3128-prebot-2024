@@ -68,22 +68,28 @@ public class CmdManager {
 
     public static Command ramShoot(boolean once) {
         return sequence(
-            rampUpShoot(),
-            waitUntil(() -> shooter.atSetpoint()),
-            kick(once),
+            ramShootNoStop(once),
             shooter.stopMotors()
         );
     }
 
-    public static Command autoShoot(boolean once) {
-        return deadline(
+    public static Command ramShootNoStop(boolean once) {
+        return sequence(
             rampUpShoot(),
-            repeatingSequence(
-                runOnce(()-> CmdSwerveDrive.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
-                waitSeconds(0.1)
-            )
-        ).andThen(ramShoot(once)).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
+            waitUntil(()->shooter.atSetpoint()),
+            kick(once)
+        );
     }
+
+    // public static Command autoShoot(boolean once) {
+    //     return deadline(
+    //         rampUpShoot(),
+    //         repeatingSequence(
+    //             runOnce(()-> CmdSwerveDrive.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
+    //             waitSeconds(0.1)
+    //         )
+    //     ).andThen(ramShoot(once)).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
+    // }
 
     public static Command rampUpAmp() {
         return sequence(
@@ -107,14 +113,13 @@ public class CmdManager {
         
     // }
 
-    public static Command intake(Setpoint setpoint) {
+    public static Command intake(Intake.Setpoint setpoint) {
         return sequence(
             intake.pivotTo(setpoint),
             intake.runIntakeRollers(),
             hopper.runManipulator(HOPPER_INTAKE_POWER),
             waitUntil(() -> shooter.noteInKick()),
-            waitUntil(() -> hopper.noteInFront()),
-            stopIntake()
+            waitUntil(() -> hopper.noteInFront())
         );
     }
 
@@ -123,6 +128,13 @@ public class CmdManager {
             intake.stopRollers(),
             hopper.runManipulator(0),
             intake.retract()
+        );
+    }
+
+    public static Command intakeAndStop(Intake.Setpoint setpoint) {
+        return sequence(
+            intake(setpoint),
+            stopIntake()
         );
     }
 

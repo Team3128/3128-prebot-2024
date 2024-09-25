@@ -24,7 +24,7 @@ import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.commands.CmdSwerveDrive;
 import common.core.swerve.SwerveModule;
 import common.hardware.camera.Camera;
-import common.hardware.camera.OffseasonAprilTags;
+// import common.hardware.camera.OffseasonAprilTags;
 import common.hardware.input.NAR_ButtonBoard;
 import common.hardware.input.NAR_XboxController;
 import common.hardware.input.NAR_XboxController.XboxButton;
@@ -38,10 +38,11 @@ import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import common.utility.sysid.CmdSysId;
 import common.utility.tester.Tester;
-import common.utility.tester.Tester.UnitTest;
+// import common.utility.tester.Tester.UnitTest;
 import frc.team3128.subsystems.Leds;
 import frc.team3128.subsystems.Swerve;
 import java.util.ArrayList;
+import edu.wpi.first.apriltag.AprilTagFields;
 
 /**
  * Command-based is a "declarative" paradigm, very little robot logic should
@@ -110,7 +111,7 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     public void initCameras() {
         Camera.disableAll();
-        Camera.configCameras(OffseasonAprilTags.offSeasonTagMap, PoseStrategy.LOWEST_AMBIGUITY, (pose, time) -> swerve.addVisionMeasurement(pose, time), () -> swerve.getPose());
+        Camera.configCameras(AprilTagFields.k2024Crescendo, PoseStrategy.LOWEST_AMBIGUITY, (pose, time) -> swerve.addVisionMeasurement(pose, time), () -> swerve.getPose());
         Camera.setAmbiguityThreshold(0.3);
         Camera.overrideThreshold = 30;
         Camera.validDist = 0.5;

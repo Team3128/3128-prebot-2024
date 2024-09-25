@@ -5,9 +5,12 @@ import static frc.team3128.Constants.AmperConstants.*;
 import common.core.controllers.TrapController;
 import common.core.subsystems.ElevatorTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
+import common.hardware.motorcontroller.NAR_Motor.Control;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
-
+import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
 import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 
 public class Amper extends ElevatorTemplate {
@@ -33,8 +36,9 @@ public class Amper extends ElevatorTemplate {
     private Amper() {
         super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), ELEV_MOTOR);
 
-        // TODO: figure out kG function
-        // setkG_Function(());
+        this.setSafetyThresh(100);
+        // setkG_Function(() ->  getMeasurement()*Math.sin(AMPER_ANGLE));
+
         setTolerance(POSITION_TOLERANCE);
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
         initShuffleboard();
@@ -45,41 +49,59 @@ public class Amper extends ElevatorTemplate {
         // TODO: figure unit conversion out
         ELEV_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
         ELEV_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+        ELEV_MOTOR.setInverted(true);
 
-        ELEV_MOTOR.setNeutralMode(Neutral.BRAKE);
-        ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
+        ELEV_MOTOR.setNeutralMode(Neutral.COAST);
+        // ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
 
-        ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
-        ROLLER_MOTOR.setDefaultStatusFrames();
+        // ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
+        // ROLLER_MOTOR.setDefaultStatusFrames();
+    }
+    
+    public void setVoltage(double volts) {
+        ELEV_MOTOR.set(0, Control.Position);
+        ELEV_MOTOR.setVolts(volts);
+    }
+    public double getVelocity() {
+        return ELEV_MOTOR.getVelocity();
+    }
+    public double getPosition() {
+        return ELEV_MOTOR.getPosition();
     }
 
-    public Command moveElevator(Setpoint setpoint) {
-        return moveElevator(setpoint.setpoint);
+    @Override
+    public void initShuffleboard(){
+        super.initShuffleboard();
+
+        NAR_Shuffleboard.addData(getName(), "Measurement2", ()-> getPosition(), 5, 1);
+        NAR_Shuffleboard.addData(getName(), "Current", ()-> ELEV_MOTOR.getStallCurrent(), 5, 2);
+        NAR_Shuffleboard.addData(getName(), "Voltage", ()-> ELEV_MOTOR.getMotor().getBusVoltage(), 5, 3);
+        NAR_Shuffleboard.addData(getName(), "Velocity", ()-> getVelocity(), 1,0);
     }
 
-    public Command runRollers() {
-        return runRollers(ROLLER_POWER);
-    }
+    // public Command runRollers() {
+    //     return runRollers(ROLLER_POWER);
+    // }
 
-    public Command stopRollers(){
-        return runRollers(0);
-    }
+    // public Command stopRollers(){
+    //     return runRollers(0);
+    // }
 
-    public Command runRollers(double power) {
-        return runOnce(() -> ROLLER_MOTOR.set(power));
-    }  
+    // public Command runRollers(double power) {
+    //     return runOnce(() -> ROLLER_MOTOR.set(power));
+    // }  
 
     public Command extend() {
         return sequence(
-            moveElevator(Setpoint.EXTENDED),
-            runRollers()
+             moveElevator(Setpoint.EXTENDED.setpoint)
+            // runRollers()
         );
     }
 
     public Command retract() {
         return sequence(
-            moveElevator(Setpoint.RETRACTED),
-            stopRollers()
+            moveElevator(Setpoint.RETRACTED.setpoint)
+            // stopRollers()
         );
     }
 

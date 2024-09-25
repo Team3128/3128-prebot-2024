@@ -2,6 +2,7 @@ package frc.team3128;
 
 import java.util.HashMap;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.path.PathConstraints;
 
 import common.core.controllers.Controller;
@@ -9,6 +10,7 @@ import common.core.controllers.PIDFFConfig;
 import common.core.controllers.Controller.Type;
 import common.core.swerve.SwerveConversions;
 import common.core.swerve.SwerveModuleConfig;
+import common.core.swerve.SwerveModuleConfig.SwerveEncoderConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
 import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_TalonFX;
@@ -60,7 +62,7 @@ public class Constants {
     public static class SwerveConstants {
         public static final double RAMP_TIME = 3;
 
-        public static final int pigeonID = 30; 
+        public static final int pigeonID = 15; 
 
         /* Drivetrain Constants */
         public static final double bumperLength = Units.inchesToMeters(5);
@@ -107,9 +109,9 @@ public class Constants {
         // Theoretical: v = 4.96824, omega = 11.5
         // Real: v = 4.5, omega = 10
         // For safety, use less than theoretical and real values
-        public static final double maxSpeed = 5.87;//4.8; //meters per second - 16.3 ft/sec
+        public static final double maxSpeed = 3;//4.8; //meters per second - 16.3 ft/sec
         public static final double maxAttainableSpeed = maxSpeed; //Stole from citrus.
-        public static final double maxAcceleration = 5;
+        public static final double maxAcceleration = 1;
         public static final double maxAngularVelocity = 8; //3; //11.5; // citrus: 10 - Mason look at this later wtf
         public static final double maxAngularAcceleration = 2 * Math.PI; //I stole from citrus.
 
@@ -130,38 +132,31 @@ public class Constants {
 
         public static final SwerveModuleConfig Mod0 = new SwerveModuleConfig(
             0, 
-            new SwerveMotorConfig(new NAR_TalonFX(1), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(2), angleMotorConfig, anglePIDConfig),
-            10,
-            63.017578125 - 180,
-            canCoderInvert,
-            maxSpeed);
+            new SwerveMotorConfig(new NAR_TalonFX(1, "Drivetrain"), driveMotorConfig, drivePIDConfig),
+            new SwerveMotorConfig(new NAR_TalonFX(2, "Drivetrain"), angleMotorConfig, anglePIDConfig),
+            new SwerveEncoderConfig(new CANcoder(11, "Drivetrain"), 105.15, canCoderInvert),
+            maxSpeed
+        );
 
         public static final SwerveModuleConfig Mod1 = new SwerveModuleConfig(
             1, 
-            new SwerveMotorConfig(new NAR_TalonFX(3), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(4), angleMotorConfig, anglePIDConfig),
-            11,
-            110.478515625 - 180,
-            canCoderInvert,
+            new SwerveMotorConfig(new NAR_TalonFX(3, "Drivetrain"), driveMotorConfig, drivePIDConfig),
+            new SwerveMotorConfig(new NAR_TalonFX(4, "Drivetrain"), angleMotorConfig, anglePIDConfig),
+            new SwerveEncoderConfig(new CANcoder(12, "Drivetrain"), -62.40234375, canCoderInvert),
             maxSpeed);
         
         public static final SwerveModuleConfig Mod2 = new SwerveModuleConfig(
             2, 
-            new SwerveMotorConfig(new NAR_TalonFX(5), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(6), angleMotorConfig, anglePIDConfig),
-            12,
-            -48.076171875 + 180,
-            canCoderInvert,
+            new SwerveMotorConfig(new NAR_TalonFX(5, "Drivetrain"), driveMotorConfig, drivePIDConfig),
+            new SwerveMotorConfig(new NAR_TalonFX(6, "Drivetrain"), angleMotorConfig, anglePIDConfig),
+            new SwerveEncoderConfig(new CANcoder(13, "Drivetrain"), -84.287109375, canCoderInvert),
             maxSpeed);
         
         public static final SwerveModuleConfig Mod3 = new SwerveModuleConfig(
             3, 
-            new SwerveMotorConfig(new NAR_TalonFX(7), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(8), angleMotorConfig, anglePIDConfig),
-            13,
-            -158.37890625000003 + 180,
-            canCoderInvert,
+            new SwerveMotorConfig(new NAR_TalonFX(7, "Drivetrain"), driveMotorConfig, drivePIDConfig),
+            new SwerveMotorConfig(new NAR_TalonFX(8, "Drivetrain"), angleMotorConfig, anglePIDConfig),
+            new SwerveEncoderConfig(new CANcoder(14, "Drivetrain"), 167.607421875, canCoderInvert),
             maxSpeed);
 
         public static final double turnkP = 5;
@@ -462,24 +457,26 @@ public class Constants {
         public static final int ELEV_MOTOR_ID = 21;
         public static final NAR_CANSpark ELEV_MOTOR = new NAR_CANSpark(ELEV_MOTOR_ID);
 
-        public static final int ROLLER_MOTOR_ID = 20;
-        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
+        // public static final int ROLLER_MOTOR_ID = 20;
+        // public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.75, 0, 0, 0.21115, 0.00182, 0.00182, 0.0);
         public static final double MAX_VELOCTIY = 10000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
 
         public static final double POSITION_TOLERANCE = 0.25;
         public static final double MIN_SETPOINT = 0;
-        public static final double MAX_SETPOINT = 25;
+        public static final double MAX_SETPOINT = 21.25;
         public static final int CURRENT_LIMIT = 40;
 
-        public static final double GEAR_RATIO = 1.0 / 15.0;
-        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.751) * Math.PI;
+        public static final double GEAR_RATIO = 1.0 / (6 + 2/3);
+        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(0.9023) * Math.PI;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
 
         public static final double ROLLER_POWER = 0.5;
+
+        public static final double AMPER_ANGLE = 31.96;
     }
 }
 

@@ -16,7 +16,8 @@ import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 public class Amper extends ElevatorTemplate {
     
     public enum Setpoint {
-        EXTENDED(20),
+        FULLEXTEND(21.25),
+        PARTEXTEND(21.25*0.8),
         RETRACTED(0);
 
         private double setpoint;
@@ -52,10 +53,10 @@ public class Amper extends ElevatorTemplate {
         ELEV_MOTOR.setInverted(true);
 
         ELEV_MOTOR.setNeutralMode(Neutral.COAST);
-        // ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
+        ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
 
-        // ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
-        // ROLLER_MOTOR.setDefaultStatusFrames();
+        ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
+        ROLLER_MOTOR.setDefaultStatusFrames();
     }
     
     public void setVoltage(double volts) {
@@ -79,30 +80,28 @@ public class Amper extends ElevatorTemplate {
         NAR_Shuffleboard.addData(getName(), "Velocity", ()-> getVelocity(), 1,0);
     }
 
-    // public Command runRollers() {
-    //     return runRollers(ROLLER_POWER);
-    // }
+    public Command runRollers() {
+        return runRollers(ROLLER_POWER);
+    }
 
-    // public Command stopRollers(){
-    //     return runRollers(0);
-    // }
+    public Command stopRollers(){
+        return runRollers(0);
+    }
 
-    // public Command runRollers(double power) {
-    //     return runOnce(() -> ROLLER_MOTOR.set(power));
-    // }  
+    public Command runRollers(double power) {
+        return runOnce(() -> ROLLER_MOTOR.set(power));
+    }  
 
-    public Command extend() {
-        return sequence(
-             moveElevator(Setpoint.EXTENDED.setpoint)
-            // runRollers()
-        );
+    public Command partExtend() {
+        return moveElevator(Setpoint.PARTEXTEND.setpoint);
+    }
+
+    public Command fullExtend(){
+        return moveElevator(Setpoint.FULLEXTEND.setpoint);
     }
 
     public Command retract() {
-        return sequence(
-            moveElevator(Setpoint.RETRACTED.setpoint)
-            // stopRollers()
-        );
+        return moveElevator(Setpoint.RETRACTED.setpoint);
     }
 
 }

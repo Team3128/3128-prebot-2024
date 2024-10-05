@@ -8,6 +8,8 @@ import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class Intake extends PivotTemplate{
@@ -40,6 +42,9 @@ public class Intake extends PivotTemplate{
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
         setSafetyThresh(5);
         initShuffleboard();
+
+        this.setSafetyThresh(1000);
+
     }
 
     @Override
@@ -49,11 +54,11 @@ public class Intake extends PivotTemplate{
         PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
         PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
 
-        ROLLER_MOTOR.setInverted(false);
-        ROLLER_MOTOR.enableVoltageCompensation(VOLT_COMP);
-        ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
-        ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-        ROLLER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        // ROLLER_MOTOR.setInverted(false);
+        // ROLLER_MOTOR.enableVoltageCompensation(VOLT_COMP);
+        // ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
+        // ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+        // ROLLER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
     }
 
     public Command retract() {
@@ -65,6 +70,11 @@ public class Intake extends PivotTemplate{
             runPivot(0),
             reset(0)
         );
+    }
+
+    @Override
+    public double getMeasurement() {
+        return -1 * motors[0].getPosition();
     }
 
     public Command pivotTo (Setpoint setpoint) {

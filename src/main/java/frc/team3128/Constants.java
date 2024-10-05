@@ -457,8 +457,8 @@ public class Constants {
         public static final int ELEV_MOTOR_ID = 21;
         public static final NAR_CANSpark ELEV_MOTOR = new NAR_CANSpark(ELEV_MOTOR_ID);
 
-        // public static final int ROLLER_MOTOR_ID = 20;
-        // public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
+        public static final int ROLLER_MOTOR_ID = 20;
+        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.75, 0, 0, 0.21115, 0.00182, 0.00182, 0.0);
         public static final double MAX_VELOCTIY = 10000000;

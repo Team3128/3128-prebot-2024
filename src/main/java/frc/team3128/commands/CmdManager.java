@@ -91,19 +91,22 @@ public class CmdManager {
     //     ).andThen(ramShoot(once)).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
     // }
 
-    public static Command rampUpAmp() {
+    public static Command ampUp(){
         return sequence(
-            shooter.shoot(AMP_RPM),
-            amper.extend()
+            amper.partExtend(),
+            amper.runRollers(),
+            shooter.runShooter(0.3)
         );
     }
 
-    public static Command amp(boolean once) {
+    public static Command ampFinAndDown(){
         return sequence(
-            rampUpAmp(),
-            waitUntil(() -> shooter.atSetpoint() && amper.atSetpoint()),
-            kick(once),
-            waitSeconds(0.2),
+            amper.fullExtend(),
+            waitUntil(() -> amper.atSetpoint()),
+            shooter.runKickMotor(1),
+            waitSeconds(1),
+            amper.stopRollers(),
+            shooter.stopMotors(),
             amper.retract()
         );
     }

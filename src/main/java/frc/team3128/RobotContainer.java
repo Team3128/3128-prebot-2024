@@ -89,6 +89,7 @@ public class RobotContainer {
 
         configureButtonBindings();
 
+
         // NAR_Shuffleboard.addData("Limelight", "ValidTarget", ()-> limelight.hasValidTarget(), 0, 0);
         // NAR_Shuffleboard.addData("Limelight", "TX", ()-> limelight.getValue(LimelightKey.HORIZONTAL_OFFSET), 0, 1);
     }   
@@ -110,8 +111,9 @@ public class RobotContainer {
             CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90);
         }));
 
-        controller.getButton(XboxButton.kLeftBumper).onTrue(intake(Intake.Setpoint.GROUND));
-        controller.getButton(XboxButton.kRightBumper).onTrue(retractIntake());
+        controller.getButton(XboxButton.kLeftTrigger).onTrue(intake(Intake.Setpoint.GROUND));
+        controller.getButton(XboxButton.kLeftBumper).onTrue(retractIntake());
+        controller.getButton(XboxButton.kRightTrigger).onTrue(Shooter.getInstance().rampUpShooter()).onFalse(Shooter.getInstance().setShooting(true));
 
         controller.getButton(XboxButton.kA).onTrue(Shooter.getInstance().runShooter(0.8));
         controller.getButton(XboxButton.kY).onTrue(Shooter.getInstance().runShooter(0));
@@ -122,21 +124,42 @@ public class RobotContainer {
 
         // new Trigger(()->true).onTrue(queueNote());
 
+        new Trigger(()-> Shooter.getInstance().getShooting())
+        .onTrue(sequence(
+            Shooter.getInstance().runKickMotor(.5),
+            Hopper.getInstance().runManipulator(.8)
+        )).onFalse(sequence(
+            Shooter.getInstance().runKickMotor(0),
+            Hopper.getInstance().runManipulator(0),
+            Shooter.getInstance().stopMotors()
+        ));
+        
+        new Trigger(()-> Shooter.getInstance().noteInRollers()).negate()
+        .and(()->Hopper.getInstance().hasObjectPresent()).negate()
+        .onTrue(Shooter.getInstance().setShooting(false));
+
         new Trigger(()-> Intake.getInstance().getMeasurement() > 90)
         .and(()->!Hopper.getInstance().hasObjectPresent())
         .onTrue(Hopper.getInstance().runManipulator(0.8))
         .onFalse(Hopper.getInstance().runManipulator(0));
 
+        new Trigger(()-> Intake.getInstance().getMeasurement() < 20)
+        .and(()->Hopper.getInstance().hasObjectPresent()).negate()
+        .onTrue(Hopper.getInstance().runManipulator(0));
+
         new Trigger(()-> Shooter.getInstance().noteInRollers()).negate()
         .and(()->Hopper.getInstance().hasObjectPresent())
+        .and(() -> !Shooter.getInstance().getShooting())
         .onTrue(sequence(
-            Shooter.getInstance().runKickMotor(0.8),
+            Shooter.getInstance().runKickMotor(0.5),
             Hopper.getInstance().runManipulator(0.8)
         ))
         .onFalse(sequence(
-            Shooter.getInstance().runKickMotor(0),
-            Hopper.getInstance().runManipulator(0)
+            Shooter.getInstance().runKickMotor(-.1),
+            waitSeconds(.1),
+            Shooter.getInstance().runKickMotor(0)
         ));
+        
 
     }
 

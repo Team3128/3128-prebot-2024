@@ -20,6 +20,8 @@ public class Shooter extends ShooterTemplate {
 
     private static Shooter instance;
 
+    private boolean isShooting;
+
     private DoubleSupplier kF_Func;
 
     private DigitalInput kickSensor, rollersSensor;
@@ -31,6 +33,7 @@ public class Shooter extends ShooterTemplate {
 
         // kickSensor = new DigitalInput(KICK_SENSOR_ID);
         rollersSensor = new DigitalInput(ROLLERS_SENSOR_ID);
+        isShooting = false;
         // NAR_Shuffleboard.addData
 
         configMotors();
@@ -120,5 +123,13 @@ public class Shooter extends ShooterTemplate {
 
     public boolean noteInRollers() {
         return !rollersSensor.get();
+    }
+
+    public boolean getShooting() {
+        return isShooting;
+    }
+
+    public Command setShooting(boolean value) {
+        return runOnce(() -> isShooting = value);
     }
 }

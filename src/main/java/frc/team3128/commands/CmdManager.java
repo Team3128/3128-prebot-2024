@@ -71,6 +71,12 @@ public class CmdManager {
         );
     }
 
+    public static Command ramShoot() {
+        return sequence(
+            shooter.runKickMotor(.5)
+        );
+    }
+
     public static Command ramShootNoStop(boolean once) {
         return sequence(
             shooter.rampUpShooter(),
@@ -92,10 +98,7 @@ public class CmdManager {
     public static Command intake(Intake.Setpoint setpoint) {
         return sequence(
             // intake.pivotTo(setpoint),
-            intake.runIntakeRollers(),
-            hopper.runManipulator(HOPPER_INTAKE_POWER),
-            waitUntil(()->hopper.hasObjectPresent()),
-            hopper.runManipulator(0)
+            intake.runIntakeRollers()
         );
     }
 

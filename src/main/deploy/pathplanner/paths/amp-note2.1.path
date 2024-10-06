@@ -3,36 +3,59 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4,
-        "y": 5.55
+        "x": 1.46,
+        "y": 7.35
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4707106781186547,
-        "y": 5.479289321881345
+        "x": 1.46,
+        "y": 8.35
       },
       "isLocked": false,
-      "linkedName": "middle"
+      "linkedName": "Amp"
     },
     {
       "anchor": {
-        "x": 2.65,
-        "y": 4.4
+        "x": 6.0,
+        "y": 7.4
       },
       "prevControl": {
-        "x": 2.5792893218813453,
-        "y": 4.470710678118655
+        "x": 5.003805301908255,
+        "y": 7.4871557427476585
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.25,
+      "rotationDegrees": 180.0,
+      "rotateFast": true
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "intakeAndStop",
+      "name": "Intake",
+      "waypointRelativePos": 0.45,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Intake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "WingRamp",
       "waypointRelativePos": 0,
       "command": {
         "type": "parallel",
@@ -41,7 +64,7 @@
             {
               "type": "named",
               "data": {
-                "name": "intakeAndStop"
+                "name": "WingRamp"
               }
             }
           ]
@@ -56,8 +79,8 @@
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 135.0,
+    "velocity": 5.5,
+    "rotation": 180.0,
     "rotateFast": true
   },
   "reversed": false,

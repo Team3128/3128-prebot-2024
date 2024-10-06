@@ -11,11 +11,15 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+import static frc.team3128.Constants.AmperConstants.*;
+import static frc.team3128.Constants.IntakeConstants.*;
 import static frc.team3128.Constants.ShooterConstants.*;
 import static frc.team3128.commands.CmdManager.*;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import frc.team3128.Constants.AmperConstants;
+import frc.team3128.Constants.IntakeConstants;
 import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.commands.CmdSwerveDrive;
 import common.core.swerve.SwerveModule;
@@ -131,6 +135,32 @@ public class RobotContainer {
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(0.8)).onFalse(shooter.runKickMotor(0));
 
         controller.getButton(XboxButton.kY).whileTrue(amper.setState(AmpState.PRIMED)).onFalse(amper.setState(AmpState.AMP));
+
+        // assumes starting at zero. should reset motor position before running. will stop at 90% max height. make sure going in correct direction. will print the output in console so be sure to scroll throught console to check for outputs. Check R^2 value for good correlation; if not good try upping the ramp rate
+        buttonPad.getButton(1).onTrue(new CmdSysId(
+            "Elevator",
+            (volts)-> ELEV_MOTOR.setVolts(volts),
+            ()-> ELEV_MOTOR.getVelocity(),
+            ()-> ELEV_MOTOR.getPosition(),
+            2,
+            0.5,
+            AmperConstants.POSITION_MAX * 0.9,
+            true,
+            amper)
+        );
+
+        // stats at whatever is position 0 and move forwards towards 90% max position.
+        buttonPad.getButton(2).onTrue(new CmdSysId(
+            "Intake",
+            (volts)-> PIVT_MOTOR.setVolts(volts),
+            ()-> PIVT_MOTOR.getVelocity(),
+            ()-> PIVT_MOTOR.getPosition(),
+            2,
+            0.5,
+            IntakeConstants.POSITION_MAX * 0.9,
+            true,
+            intake)
+        );
 
 
         // new Trigger(()->true).onTrue(queueNote());

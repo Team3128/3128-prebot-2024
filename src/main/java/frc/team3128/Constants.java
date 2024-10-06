@@ -1,12 +1,11 @@
 package frc.team3128;
 
-import java.util.HashMap;
-
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.path.PathConstraints;
 
 import common.core.controllers.Controller;
 import common.core.controllers.PIDFFConfig;
+import common.core.controllers.TrapController;
 import common.core.controllers.Controller.Type;
 import common.core.swerve.SwerveConversions;
 import common.core.swerve.SwerveModuleConfig;
@@ -15,6 +14,7 @@ import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
 import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_TalonFX;
 import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
+import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -23,6 +23,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.team3128.subsystems.Swerve;
 import edu.wpi.first.math.MathUtil;
@@ -178,7 +179,6 @@ public class Constants {
         }
     }
 
-
     public static class VisionConstants {
 
         public static final double POSE_THRESH = 100;
@@ -234,41 +234,65 @@ public class Constants {
     }
 
     public static class FocalAimConstants {
+        public static final  Translation2d focalPoint = new Translation2d(0.1, Units.inchesToMeters(218.29));
+
         public static final double speakerLength = 1.043;
-        public static final double speakerMidpointY = Units.inchesToMeters(218.29);//5.4;
+        public static final double speakerMidpointY = Units.inchesToMeters(218.29); //5.4;
         
-        ; //6.151 - speakerLength / 2;
-        public static final double focalPointX = 0.1; //0.229; //1.4583577128;
-        public static final Translation2d speakerMidpointBlue = new Translation2d(0, speakerMidpointY);
-        public static final Translation2d speakerMidpointRed = new Translation2d(FieldConstants.FIELD_X_LENGTH, speakerMidpointY);
-        public static final Translation2d focalPointBlue = new Translation2d(focalPointX, speakerMidpointY);
-        public static final Translation2d focalPointRed = new Translation2d(FieldConstants.FIELD_X_LENGTH - focalPointX, speakerMidpointY);
-        public static final double angleOffset = 0;
-        //testing: kV: drivetrain spinning consistently (ie. v1 = vel at  vel at 1 rad/sec v2=2 rad/sec). 1/(v2-v1) = kV
-        //kS: plug kV into 1= kS + kV(v1)
-        public static final double offset = 0.3;
-        public static final double lowerBound = speakerMidpointY - offset;
-        public static final double higherBound = speakerMidpointY + offset;
+         //6.151 - speakerLength / 2;
+        // public static final double focalPointX = 0.1; //0.229; //1.4583577128;
+        // public static final Translation2d speakerMidpointBlue = new Translation2d(0, speakerMidpointY);
+        // public static final Translation2d speakerMidpointRed = new Translation2d(FieldConstants.FIELD_X_LENGTH, speakerMidpointY);
+        // public static final Translation2d focalPointBlue = new Translation2d(focalPointX, speakerMidpointY);
+        // public static final Translation2d focalPointRed = new Translation2d(FieldConstants.FIELD_X_LENGTH - focalPointX, speakerMidpointY);
+        // public static final double angleOffset = 0;
+        // //testing: kV: drivetrain spinning consistently (ie. v1 = vel at  vel at 1 rad/sec v2=2 rad/sec). 1/(v2-v1) = kV
+        // //kS: plug kV into 1= kS + kV(v1)
+        // public static final double offset = 0.3;
+        // public static final double lowerBound = speakerMidpointY - offset;
+        // public static final double higherBound = speakerMidpointY + offset;
     }
 
     public static class ShooterConstants {
-        public static final int SHOOTER_MOTOR_ID = 60;
+
+        // Shooter Motor Constants
+        public static final int SHTR_MOTOR_ID = 60;
+        public static final NAR_CANSpark SHTR_MOTOR = new NAR_CANSpark(SHTR_MOTOR_ID);
+        public static final boolean SHTR_MOTOR_INVERT = false;
+        public static final int SHTR_CURRENT_LIMIT = 40;
+        public static final double SHTR_GEAR_RATIO = 1.0;
+        public static final SparkMaxConfig SHTR_STATUS_FRAME = SparkMaxConfig.VELOCITY;
+        public static final Neutral SHTR_NEUTRAL_MODE = Neutral.COAST;
+
+        // Kicker Motor Constants
         public static final int KICK_MOTOR_ID = 61;
-        public static final int KICK_SENSOR_ID = 0;
-        public static final int ROLLERS_SENSOR_ID = 1;
-
-        public static final NAR_CANSpark SHOOTER_MOTOR = new NAR_CANSpark(SHOOTER_MOTOR_ID);
         public static final NAR_CANSpark KICK_MOTOR = new NAR_CANSpark(KICK_MOTOR_ID);
+        public static final boolean KICK_MOTOR_INVERT = false;
+        public static final int KICK_CURRENT_LIMIT = 40;
+        public static final double KICK_GEAR_RATIO = 1.0;
+        public static final SparkMaxConfig KICK_STATUS_FRAME = SparkMaxConfig.VELOCITY;
+        public static final Neutral KICK_NEUTRAL_MODE = Neutral.COAST;
 
+        // Shooter Sensor Constants
+        public static final int SHTR_SENSOR_ID = 1;
+        public static final DigitalInput SHTR_SENSOR = new DigitalInput(SHTR_SENSOR_ID);
+
+        // Shooter System Constants
+        public static final double SHTR_ANGLE = 0;
+        public static final double VELOCITY_MIN = 0;
+        public static final double VELOCITY_MAX = 5500;
+
+        // Controller Constants
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.0025, 0, 0, 0, 0.00179104, 0); // 0.00187623
-        public static final double kF = 0; 
-        public static final double GEAR_RATIO = 1;
-        public static final double MAX_RPM = 5500;
-        public static final double MIN_RPM = 0;
+        public static final Controller CONTROLLER = new Controller(PIDConstants, Type.VELOCITY);
         public static final double TOLERANCE = 150;
-        public static final double AMP_RPM = 2500;
-        public static final double SHOOTER_RPM = 4500;
         
+        // Functional Constants
+        public static final double SHOOTER_RPM = 4500;
+        public static final double SOURCE_RPM = 2000;
+
+        public static final double AMP_RPM = 2500;
+        public static final double AMP_ANGLE = 90;
         public static final double EDGE_FEED_RPM = 5000;
         public static final double EDGE_FEED_ANGLE = 35;
         public static final double MIDDLE_FEED_RPM = 4500;
@@ -276,43 +300,45 @@ public class Constants {
         
         public static final double INTAKE_POWER = 0.4;
         public static final double KICK_POWER = 0.2;
-        public static final double CURRENT_TEST_POWER = 0;
-        public static final double CURRENT_TEST_PLATEAU = 0;
-        public static final double CURRENT_TEST_TIMEOUT = 0;
-        public static final double CURRENT_TEST_TOLERANCE = 0;
-        public static final double CURRENT_TEST_EXPECTED_CURRENT = 0;
-
-        public static final double SHOOTER_TEST_PLATEAU = 1;
-        public static final double SHOOTER_TEST_TIMEOUT = 2.5;
-
-        public static final double PROJECTILE_SPEED = 100; // m/s
     }
 
     public static class IntakeConstants {
-        public static final int PIVOT_MOTOR_ID = 31;
-        public static final NAR_CANSpark PIVOT_MOTOR = new NAR_CANSpark(PIVOT_MOTOR_ID);
 
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
-        public static final double MAX_VELOCITY = 1000000;
-        public static final double MAX_ACCELERATION = 100000;
-        public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCITY, MAX_ACCELERATION);
+        // Pivot Motor Constants
+        public static final int PIVT_MOTOR_ID = 31;
+        public static final NAR_CANSpark PIVT_MOTOR = new NAR_CANSpark(PIVT_MOTOR_ID);
+        public static final boolean PIVT_MOTOR_INVERT = false;
+        public static final int PIVT_CURRENT_LIMIT = 40;
+        public static final double PIVT_GEAR_RATIO = 1.0 / 40.0;
+        public static final SparkMaxConfig PIVT_STATUS_FRAME = SparkMaxConfig.POSITION;
+        public static final Neutral PIVT_NEUTRAL_MODE = Neutral.COAST;
 
-        public static final double ANGLE_TOLERANCE = 3;
-        public static final double MIN_SETPOINT = 0;
-        public static final double MAX_SETPOINT = 220;
-        public static final int CURRENT_LIMIT = 40;
+        // Pivot System Constants
+        public static final double POSITION_MIN = 0;
+        public static final double POSITION_MAX = 220;
+        public static final double UNIT_CONV_FACTOR = PIVT_GEAR_RATIO * 360;
 
-        public static final double GEAR_RATIO = 1.0 / 40.0;
-        public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
-
+        // Roller Motor Constants
         public static final int ROLLER_MOTOR_ID = 30;
         public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
+        public static final boolean ROLLER_MOTOR_INVERT = false;
+        public static final int ROLLER_CURRENT_LIMIT = 40;
+        public static final double ROLLER_GEAR_RATIO = 1.0;
+        public static final SparkMaxConfig ROLLER_STATUS_FRAME = SparkMaxConfig.VELOCITY;
+        public static final Neutral ROLLER_NEUTRAL_MODE = Neutral.COAST;
+        public static final double ROLLER_VOLT_COMP = 9;
 
-        public static final double STALL_CURRENT = 50;
-        public static final double STALL_POWER = .05;
+        // Controller Constants
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
+        public static final double MAX_VELOCTIY = 10000000;
+        public static final double MAX_ACCELERATION = 100000;
+        public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
+        public static final TrapController CONTROLLER = new TrapController(PIDConstants, TRAP_CONSTRAINTS);
+        public static final double POSITION_TOLERANCE = 0.25;
+
+        // Functional Constants
         public static final double OUTTAKE_POWER = -0.3;
-        public static final double INTAKE_POWER = 0.7 /0.75;
-        public static final double VOLT_COMP = 9;
+        public static final double INTAKE_POWER = 0.7 / 0.75;
     }
 
     public static class LimelightConstants {
@@ -382,6 +408,7 @@ public class Constants {
     
         }
     }
+    
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 50;
         // public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
@@ -403,44 +430,62 @@ public class Constants {
     }
 
     public static class HopperConstants {
-        public static final int HOPPER_MOTOR_ID = 40;
-        public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
-        public static final int HOPPER_FRONT_SENSOR_ID = 0;
-        public static final int HOPPER_BACK_SENSOR_ID = 2;
+        // Elevator Motor Constants
+        public static final int HPPR_MOTOR_ID = 21;
+        public static final NAR_CANSpark HPPR_MOTOR = new NAR_CANSpark(HPPR_MOTOR_ID);
+        public static final boolean HPPR_MOTOR_INVERT = false;
+        public static final int HPPR_CURRENT_LIMIT = 40;
+        public static final double HPPR_GEAR_RATIO = 1.0;
+        public static final SparkMaxConfig HPPR_STATUS_FRAME = SparkMaxConfig.VELOCITY;
+        public static final Neutral HPPR_NEUTRAL_MODE = Neutral.COAST;
+        public static final double HPPR_VOLT_COMP = 9;
+
+        public static final int HPPR_SENSOR_ID = 0;
+        public static final DigitalInput HPPR_SENSOR = new DigitalInput(HPPR_SENSOR_ID);
 
         public static final double STALL_CURRENT = 50;
-        public static final double HOPPER_INTAKE_POWER = 0.5;
-        public static final double HOPPER_OUTTAKE_POWER = -0.5;
-        public static final double STALL_POWER = 0.05;
-
-        public static final double VOLT_COMP = 9;
-        public static final int CURRENT_LIMIT = 40;
+        public static final double HPPR_INTAKE_POWER = 0.5;
+        public static final double HPPR_OUTTAKE_POWER = -0.5;
+        public static final double HPPR_STALL_POWER = 0.05;
     }
 
     public static class AmperConstants {
+
+        // Elevator Motor Constants
         public static final int ELEV_MOTOR_ID = 21;
         public static final NAR_CANSpark ELEV_MOTOR = new NAR_CANSpark(ELEV_MOTOR_ID);
+        public static final boolean ELEV_MOTOR_INVERT = false;
+        public static final int ELEV_CURRENT_LIMIT = 40;
+        public static final double ELEV_GEAR_RATIO = 1.0 / (6 + 2/3);
+        public static final SparkMaxConfig ELEV_STATUS_FRAME = SparkMaxConfig.POSITION;
+        public static final Neutral ELEV_NEUTRAL_MODE = Neutral.COAST;
 
+        // Elevator System Constants
+        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(0.9023) * Math.PI;
+        public static final double UNIT_CONV_FACTOR = ELEV_GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
+        public static final double AMPER_ANGLE = 31.96;
+        public static final double POSITION_MIN = 0;
+        public static final double POSITION_MAX = 21.25;
+
+        // Roller Motor Constants
         public static final int ROLLER_MOTOR_ID = 20;
         public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
+        public static final boolean ROLLER_MOTOR_INVERT = false;
+        public static final int ROLLER_CURRENT_LIMIT = 40;
+        public static final double ROLLER_GEAR_RATIO = 1.0;
+        public static final SparkMaxConfig ROLLER_STATUS_FRAME = SparkMaxConfig.VELOCITY;
+        public static final Neutral ROLLER_NEUTRAL_MODE = Neutral.COAST;
 
+        // Controller Constants
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.75, 0, 0, 0.21115, 0.00182, 0.00182, 0.0);
         public static final double MAX_VELOCTIY = 10000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
-
+        public static final TrapController CONTROLLER = new TrapController(PIDConstants, TRAP_CONSTRAINTS);
         public static final double POSITION_TOLERANCE = 0.25;
-        public static final double MIN_SETPOINT = 0;
-        public static final double MAX_SETPOINT = 21.25;
-        public static final int CURRENT_LIMIT = 40;
-
-        public static final double GEAR_RATIO = 1.0 / (6 + 2/3);
-        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(0.9023) * Math.PI;
-        public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
 
         public static final double ROLLER_POWER = 0.5;
 
-        public static final double AMPER_ANGLE = 31.96;
     }
 }
 

@@ -1,19 +1,34 @@
 package frc.team3128.subsystems;
 
 import common.core.subsystems.ManipulatorTemplate;
-import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
-import common.hardware.motorcontroller.NAR_Motor.Neutral;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.team3128.subsystems.Intake.IntakeState;
+import frc.team3128.subsystems.Shooter.ShooterState;
 
 import static frc.team3128.Constants.HopperConstants.*;
 
 public class Hopper extends ManipulatorTemplate {
 
-    // front is the shooter
-    private DigitalInput frontSensor, backSensor;
+    public enum HopperState {
+        INTAKE(HPPR_INTAKE_POWER),
+        OUTTAKE(HPPR_OUTTAKE_POWER),
+        IDLE(HPPR_STALL_POWER),
+        HAND_OFF(HPPR_STALL_POWER);
+
+        private final double power;
+
+        private HopperState(double power) {
+            this.power = power;
+        }
+
+        public double getPower() {
+            return power;
+        }
+    }
 
     private static Hopper instance;
+    private static HopperState goalState;
 
     public static synchronized Hopper getInstance() {
         if (instance == null) 
@@ -22,52 +37,56 @@ public class Hopper extends ManipulatorTemplate {
     }
 
     private Hopper() {
-        super(STALL_CURRENT, HOPPER_INTAKE_POWER, HOPPER_OUTTAKE_POWER, STALL_POWER, 0.3, HOPPER_MOTOR);
-        frontSensor = new DigitalInput(HOPPER_FRONT_SENSOR_ID);
-        // backSensor = new DigitalInput(HOPPER_BACK_SENSOR_ID);
-        configMotors();
+        super(STALL_CURRENT, HPPR_INTAKE_POWER, HPPR_OUTTAKE_POWER, HPPR_STALL_POWER, 0.3, HPPR_MOTOR);
+
+        configTriggers();
         // initShuffleboard();
+
+        setDefaultCommand(setState(HopperState.IDLE));
     }
 
     @Override
     protected void configMotors() {
-        HOPPER_MOTOR.enableVoltageCompensation(VOLT_COMP);
-        HOPPER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+        HPPR_MOTOR.setUnitConversionFactor(HPPR_GEAR_RATIO);
+        HPPR_MOTOR.setInverted(HPPR_MOTOR_INVERT);
+        HPPR_MOTOR.setCurrentLimit(HPPR_CURRENT_LIMIT);
+        HPPR_MOTOR.setNeutralMode(HPPR_NEUTRAL_MODE);
+        HPPR_MOTOR.setStatusFrames(HPPR_STATUS_FRAME);
+        HPPR_MOTOR.enableVoltageCompensation(HPPR_VOLT_COMP);
+    }
 
-        HOPPER_MOTOR.setNeutralMode(Neutral.COAST);
+    public void configTriggers() {
+        new Trigger(()-> !hasObjectPresent())
+        .and(()-> Intake.getInstance().goalStateIs(IntakeState.INTAKE))
+        .onTrue(setState(HopperState.INTAKE));
 
-        HOPPER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        new Trigger(()-> !Shooter.getInstance().hasObjectPresent())
+        .and(()-> hasObjectPresent())
+        .onTrue(setState(HopperState.HAND_OFF));
+
+        // necessary to allow for two note intaking
+        new Trigger(()-> Shooter.getInstance().hasObjectPresent())
+        .and(()-> hasObjectPresent())
+        .or(()->Intake.getInstance().goalStateIs(IntakeState.RETRACTED) &&
+                Shooter.getInstance().goalStateIs(ShooterState.IDLE))
+        .onTrue(setState(HopperState.IDLE));
     }
 
     @Override
     public boolean hasObjectPresent() {
-        return noteInFront();
-        // return noteInFront() || noteInBack();
+        return !HPPR_SENSOR.get();
     }
 
-    // shooter side
-    public boolean noteInFront() {
-        return !frontSensor.get();
+    public Command setState(HopperState state) {
+        goalState = state;
+        return runManipulator(state.getPower());
     }
 
-    // public Command runHopper(double power){
-    //     return runOnce(() -> HOPPER_MOTOR.set(power));
-    // }
+    public HopperState getGoalState() {
+        return goalState;
+    }
 
-    // public Command intakeHopper(){
-    //     return runHopper(HOPPER_INTAKE_POWER);
-    // }
-
-    // public Command outtakeHopper(){
-    //     return runHopper(HOPPER_OUTTAKE_POWER);
-    // }
-
-    // public Command stopHopper(){
-    //     return runHopper(0);
-    // }
-
-    // // intake side
-    // public boolean noteInBack() {
-    //     return !backSensor.get();
-    // }
+    public boolean goalStateIs(HopperState state) {
+        return goalState == state;
+    }
 }

@@ -1,32 +1,43 @@
 package frc.team3128.subsystems;
 
+import static frc.team3128.Constants.AmperConstants.POSITION_MAX;
 import static frc.team3128.Constants.IntakeConstants.*;
 
-import common.core.controllers.TrapController;
 import common.core.subsystems.PivotTemplate;
-import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
-import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class Intake extends PivotTemplate{
 
-    public enum Setpoint {
-        GROUND(200),
-        SOURCE(60),
-        NEUTRAL(0);
+    public enum IntakeState {
+        INTAKE(POSITION_MAX, INTAKE_POWER),
+        OUTTAKE(POSITION_MAX, OUTTAKE_POWER), // lmao dont need
+        SOURCE(60, INTAKE_POWER),
+        RETRACTED(0, -0.3);
         
 
-        public final double angle;
-        private Setpoint(double angle) {
+        private final double angle;
+        private final double power;
+
+        private IntakeState(double angle, double power) {
             this.angle = angle;
+            this.power = power;
+        }
+
+        public double getAngle() {
+            return angle;
+        }
+
+        public double getPower() {
+            return power;
         }
     }
 
     private static Intake instance;
+    private static IntakeState goalState;
 
     public static synchronized Intake getInstance() {
         if (instance == null)
@@ -35,68 +46,63 @@ public class Intake extends PivotTemplate{
     }
 
     private Intake() {
-        super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), PIVOT_MOTOR);
+        super(CONTROLLER, PIVT_MOTOR);
 
         setkG_Function(()-> Math.cos(Units.degreesToRadians(getSetpoint())));
 
-        setTolerance(ANGLE_TOLERANCE);
-        setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-        setSafetyThresh(5);
-        // initShuffleboard();
+        configController();
+        configTriggers();
+        initShuffleboard();
 
-        //TODO: remove once done testing
-        this.setSafetyThresh(1000);
-
+        setDefaultCommand(setState(IntakeState.RETRACTED));
     }
 
     @Override
     protected void configMotors() {
-        PIVOT_MOTOR.setInverted(false);
-        PIVOT_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
-        PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
-        PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
+        PIVT_MOTOR.setInverted(PIVT_MOTOR_INVERT);
+        PIVT_MOTOR.setCurrentLimit(PIVT_CURRENT_LIMIT);
+        PIVT_MOTOR.setUnitConversionFactor(PIVT_GEAR_RATIO);
+        PIVT_MOTOR.setStatusFrames(PIVT_STATUS_FRAME);
+        PIVT_MOTOR.setNeutralMode(PIVT_NEUTRAL_MODE);
 
-        // ROLLER_MOTOR.setInverted(false);
-        // ROLLER_MOTOR.enableVoltageCompensation(VOLT_COMP);
-        // ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
-        // ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-        // ROLLER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        ROLLER_MOTOR.setInverted(ROLLER_MOTOR_INVERT);
+        ROLLER_MOTOR.setNeutralMode(ROLLER_NEUTRAL_MODE);
+        ROLLER_MOTOR.setUnitConversionFactor(ROLLER_GEAR_RATIO);
+        ROLLER_MOTOR.setStatusFrames(ROLLER_STATUS_FRAME);
+        ROLLER_MOTOR.setNeutralMode(ROLLER_NEUTRAL_MODE);
+        ROLLER_MOTOR.enableVoltageCompensation(ROLLER_VOLT_COMP);
     }
 
-    public Command retract() {
-        return sequence(
-            pivotTo(Setpoint.NEUTRAL),
-            waitUntil(()-> atSetpoint()).withTimeout(1.5),
-            runPivot(-0.2),
-            waitSeconds(0.1),
-            runPivot(0),
-            reset(0)
-        );
+    public void configController(){
+        CONTROLLER.setConstraints(POSITION_MIN, POSITION_MAX);
+        CONTROLLER.setTolerance(POSITION_TOLERANCE);
+        this.setSafetyThresh(2);
     }
 
-    @Override
-    public double getMeasurement() {
-        return -1 * motors[0].getPosition();
-    }
-
-    public Command pivotTo (Setpoint setpoint) {
-        return pivotTo(setpoint.angle);
-    }
-
-    public Command runIntakeRollers() {
-        return runRollers(INTAKE_POWER);
-    }
-
-    public Command runOuttakeRollers() {
-        return runRollers(OUTTAKE_POWER);
-    }
-
-    public Command stopRollers() {
-        return runRollers(0);
+    public void configTriggers(){
+        new Trigger(()-> Shooter.getInstance().hasObjectPresent())
+        .and(()-> Hopper.getInstance().hasObjectPresent())
+        .onTrue(setState(IntakeState.RETRACTED));
     }
 
     public Command runRollers(double power) {
         return runOnce(()-> ROLLER_MOTOR.set(power));
+    }
+
+    public Command setState(IntakeState state) {
+        goalState = state;
+        return sequence(
+            pivotTo(state.getAngle()),
+            runRollers(state.getPower())
+        );
+    }
+
+    public IntakeState getGoalState() {
+        return goalState;
+    }
+
+    public boolean goalStateIs(IntakeState state) {
+        return goalState == state;
     }
 
 }

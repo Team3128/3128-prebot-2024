@@ -11,11 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.team3128.Constants.ShooterConstants.EDGE_FEED_ANGLE;
-import static frc.team3128.Constants.ShooterConstants.EDGE_FEED_RPM;
-import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
-import static frc.team3128.Constants.ShooterConstants.MIDDLE_FEED_ANGLE;
-import static frc.team3128.Constants.ShooterConstants.MIDDLE_FEED_RPM;
+import static frc.team3128.Constants.ShooterConstants.*;
 import static frc.team3128.commands.CmdManager.*;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -38,12 +34,19 @@ import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import common.utility.sysid.CmdSysId;
 import common.utility.tester.Tester;
+import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
 // import common.utility.tester.Tester.UnitTest;
 import frc.team3128.subsystems.Leds;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
+
+import frc.team3128.subsystems.Amper.AmpState;
+import frc.team3128.subsystems.Hopper.HopperState;
+import frc.team3128.subsystems.Intake.IntakeState;
+import frc.team3128.subsystems.Shooter.ShooterState;
+
 import java.util.ArrayList;
 import edu.wpi.first.apriltag.AprilTagFields;
 
@@ -57,8 +60,12 @@ public class RobotContainer {
 
     private Swerve swerve;
     private Leds leds;
+    public static Amper amper;
+    // public static Climber climber;
+    public static Intake intake;
+    public static Hopper hopper;
+    public Shooter shooter;
 
-    // private NAR_ButtonBoard judgePad;
     private NAR_ButtonBoard buttonPad;
 
     public static NAR_XboxController controller;
@@ -75,14 +82,20 @@ public class RobotContainer {
 
         NAR_Shuffleboard.WINDOW_WIDTH = 10;
 
-        // judgePad = new NAR_ButtonBoard(1);
+        amper = Amper.getInstance();
+        // climber = Climber.getInstance();
+        intake = Intake.getInstance();
+        hopper = Hopper.getInstance();
+        shooter = Shooter.getInstance();
+        swerve = Swerve.getInstance();
+        leds = Leds.getInstance();
+
         controller = new NAR_XboxController(2);
         buttonPad = new NAR_ButtonBoard(3);
 
-        //uncomment line below to enable driving
-        CommandScheduler.getInstance().setDefaultCommand(Swerve.getInstance(), new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
+        CommandScheduler.getInstance().setDefaultCommand(swerve, new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
 
-        initRobotTest();
+        // initRobotTest();
         
         DriverStation.silenceJoystickConnectionWarning(true);
         initCameras();
@@ -110,31 +123,31 @@ public class RobotContainer {
             CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90);
         }));
 
-        controller.getButton(XboxButton.kLeftBumper).onTrue(intake(Intake.Setpoint.GROUND));
-        controller.getButton(XboxButton.kRightBumper).onTrue(retractIntake());
+        controller.getButton(XboxButton.kLeftBumper).onTrue(intake.setState(IntakeState.INTAKE));
+        controller.getButton(XboxButton.kRightBumper).onTrue(intake.setState(IntakeState.RETRACTED));
 
-        controller.getButton(XboxButton.kA).onTrue(Shooter.getInstance().runShooter(0.8));
-        controller.getButton(XboxButton.kY).onTrue(Shooter.getInstance().runShooter(0));
-        controller.getButton(XboxButton.kB).onTrue(Shooter.getInstance().runKickMotor(0.8)).onFalse(Shooter.getInstance().runKickMotor(0));
+        controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
+        controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
+        controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(0.8)).onFalse(shooter.runKickMotor(0));
 
-        controller.getButton(XboxButton.kY).whileTrue(ampUp()).onFalse(ampFinAndDown());
+        controller.getButton(XboxButton.kY).whileTrue(amper.setState(AmpState.PRIMED)).onFalse(amper.setState(AmpState.AMP));
 
 
         // new Trigger(()->true).onTrue(queueNote());
 
-        new Trigger(()-> Intake.getInstance().getMeasurement() > 90)
-        .and(()->!Hopper.getInstance().hasObjectPresent())
-        .onTrue(Hopper.getInstance().runManipulator(0.8))
-        .onFalse(Hopper.getInstance().runManipulator(0));
+        new Trigger(()-> intake.getMeasurement() > 90)
+        .and(()-> !hopper.hasObjectPresent())
+        .onTrue(hopper.runManipulator(0.8))
+        .onFalse(hopper.runManipulator(0));
 
-        new Trigger(()-> Shooter.getInstance().noteInRollers()).negate()
-        .and(()->Hopper.getInstance().hasObjectPresent())
+        new Trigger(()-> shooter.hasObjectPresent()).negate()
+        .and(()-> hopper.hasObjectPresent())
         .onTrue(sequence(
-            Shooter.getInstance().runKickMotor(0.8),
+            shooter.runKickMotor(0.8),
             Hopper.getInstance().runManipulator(0.8)
         ))
         .onFalse(sequence(
-            Shooter.getInstance().runKickMotor(0),
+            shooter.runKickMotor(0),
             Hopper.getInstance().runManipulator(0)
         ));
 
@@ -162,13 +175,6 @@ public class RobotContainer {
         // sideCams.add(camera4);
 
         // limelight = new Limelight("limelight-mason", 0, 0, 0);
-    }
-
-    public static void toggleSideCams(boolean enable) {
-        for (Camera camera : sideCams) {
-            if (enable) camera.enable();
-            else camera.disable();
-        }
     }
 
     public void initDashboard() {

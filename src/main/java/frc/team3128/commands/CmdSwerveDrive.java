@@ -25,8 +25,6 @@ public class CmdSwerveDrive extends Command {
     private final DoubleSupplier yAxis;
     private final DoubleSupplier zAxis;
 
-    private final SlewRateLimiter accelLimiter;
-
     public static PIDController rController;
     private static boolean enabled = false;
     private static double rSetpoint;
@@ -43,7 +41,7 @@ public class CmdSwerveDrive extends Command {
         rController.setTolerance(1);
         rController.enableContinuousInput(-180, 180);
 
-        accelLimiter = new SlewRateLimiter(maxAcceleration);
+        new SlewRateLimiter(maxAcceleration);
         // rController = new PIDController(turnkP, 0, 0);
         swerve.fieldRelative = fieldRelative;
     }

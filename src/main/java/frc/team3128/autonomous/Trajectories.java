@@ -5,11 +5,6 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import common.core.commands.NAR_PIDCommand;
-import common.core.controllers.Controller;
-import common.core.controllers.PIDFFConfig;
-import common.core.controllers.Controller.Type;
-import common.utility.shuffleboard.NAR_Shuffleboard;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -17,7 +12,6 @@ import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -25,16 +19,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.AutoConstants.*;
-import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
-import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
-import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
-import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
 import static frc.team3128.Constants.SwerveConstants.*;
 
 import frc.team3128.Constants.AutoConstants;
-import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.Robot;
-import frc.team3128.RobotContainer;
 import frc.team3128.commands.CmdManager;
 import frc.team3128.commands.CmdSwerveDrive;
 
@@ -58,8 +46,8 @@ public class Trajectories {
 
         // TODO: add commands
         NamedCommands.registerCommand("ramShoot", CmdManager.ramShoot(true));
-        NamedCommands.registerCommand("ramShootNoStop", CmdManager.ramShootNoStop(true));
-        NamedCommands.registerCommand("intakeAndStop", CmdManager.intakeAndStop(Intake.Setpoint.GROUND));
+        NamedCommands.registerCommand("ramShootNoStop", CmdManager.ramShoot(false));
+        NamedCommands.registerCommand("intakeAndStop", Intake.getInstance().setState(Intake.IntakeState.INTAKE));
 
         AutoBuilder.configureHolonomic(
             swerve::getPose,
@@ -93,33 +81,17 @@ public class Trajectories {
         }
     }
 
-    public static Command turnDegrees(boolean counterClockwise, double angle) {
-        DoubleSupplier setpoint = ()-> swerve.getYaw() + angle * (counterClockwise ? 1 : -1) * (Robot.getAlliance() == Alliance.Red ? -1 : 1);
-        Controller controller = new Controller(new PIDFFConfig(5, 0, 0, turnkS, 0, 0), Type.POSITION);
-        controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(1);
+    public Command turnInPlace(DoubleSupplier setpoint, double timeout) {
+        TURN_CONTROLLER.enableContinuousInput(-180, 180);
         return new NAR_PIDCommand(
-            controller, 
+            TURN_CONTROLLER, 
             ()-> swerve.getYaw(), //measurement
             setpoint, //setpoint
             (double output) -> {
-                Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            }
-        ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
-    }
-
-    public static Command turnInPlace() {
-        DoubleSupplier setpoint = ()-> swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
-        Controller controller = new Controller(new PIDFFConfig(5, 0, 0, turnkS, 0, 0), Type.POSITION);
-        controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(1);
-        return new NAR_PIDCommand(
-            controller, 
-            ()-> swerve.getYaw(), //measurement
-            setpoint, //setpoint
-            (double output) -> {
-                Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            }
+                drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
+            },
+            timeout,
+            Swerve.getInstance()
         ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
     }
 

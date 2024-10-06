@@ -23,11 +23,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.team3128.Robot;
 import frc.team3128.RobotContainer;
 import frc.team3128.Constants.FieldConstants;
-import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.commands.CmdSwerveDrive;
 
 import static frc.team3128.Constants.SwerveConstants.*;
 import static frc.team3128.Constants.FocalAimConstants.*;
+import static frc.team3128.Constants.FieldConstants.*;
 
 public class Swerve extends SwerveBase {
 
@@ -59,8 +59,8 @@ public class Swerve extends SwerveBase {
         gyro.optimizeBusUtilization();
 
         initShuffleboard();
-        NAR_Shuffleboard.addData("Testing", "Name", ()-> getDist(speakerMidpointBlue), 0, 0);
-        NAR_Shuffleboard.addData("Testing", "Dist", ()-> getDistHorizontal(), 0, 1);
+        // NAR_Shuffleboard.addData("Testing", "Name", ()-> getDist(speakerMidpointBlue), 0, 0);
+        // NAR_Shuffleboard.addData("Testing", "Dist", ()-> getDistHorizontal(), 0, 1);
         NAR_Shuffleboard.addData("Auto", "Setpoint", ()-> TURN_CONTROLLER.atSetpoint());
         initStateCheck();
     }
@@ -103,33 +103,6 @@ public class Swerve extends SwerveBase {
         gyro.setYaw(reset);
     }
 
-    public double getPredictedDistance() {
-        final ChassisSpeeds velocity = getFieldVelocity();
-        final Translation2d predictedPos = getPredictedPosition(velocity, RAMP_TIME);
-        final double shotTime = getProjectileTime(getDist(predictedPos));
-        final Translation2d target = calculateTarget(Robot.getAlliance() == Alliance.Red ? speakerMidpointRed : speakerMidpointBlue, velocity, shotTime);
-        final double distance = getDist(predictedPos, target);
-        return distance;
-    }
-
-    public double getPredictedAngle() {
-        final ChassisSpeeds velocity = getFieldVelocity();
-        final Translation2d predictedPos = getPredictedPosition(velocity, RAMP_TIME);
-        final double shotTime = getProjectileTime(getDist(predictedPos));
-        final Translation2d target = calculateTarget(Robot.getAlliance() == Alliance.Red ? speakerMidpointRed : speakerMidpointBlue, velocity, shotTime);
-        final double angle = getTurnAngle(predictedPos, target);
-        return angle;
-    }
-
-    public Translation2d getPredictedPosition(ChassisSpeeds velocity, double time) {
-        final Translation2d currentPosition = getPose().getTranslation();
-        return currentPosition.plus(new Translation2d(velocity.vxMetersPerSecond * time, velocity.vyMetersPerSecond * time));
-    }
-
-    public double getProjectileTime(double distance) {
-        return distance / ShooterConstants.PROJECTILE_SPEED;
-    }
-
     public Translation2d calculateTarget(Translation2d target, ChassisSpeeds velocity, double time) {
         return target.minus(new Translation2d(0, velocity.vyMetersPerSecond * time));
     }
@@ -141,7 +114,7 @@ public class Swerve extends SwerveBase {
     }
 
     public double getDist() {
-        return getDist(Robot.getAlliance() == Alliance.Red ? speakerMidpointRed : speakerMidpointBlue);
+        return getDist(allianceFlip(focalPoint));
     }
 
     public double getDist(Translation2d point) {
@@ -153,7 +126,7 @@ public class Swerve extends SwerveBase {
     }
 
     public double getTurnAngle() {
-        return getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
+        return getTurnAngle(allianceFlip(focalPoint));
     }
 
     public double getTurnAngle(Translation2d target) {
@@ -162,14 +135,10 @@ public class Swerve extends SwerveBase {
     }
 
     public double getTurnAngle(Translation2d robotPos, Translation2d targetPos) {
-        return Math.toDegrees(Math.atan2(targetPos.getY() - robotPos.getY(), targetPos.getX() - robotPos.getX())) + angleOffset;
+        return Math.toDegrees(Math.atan2(targetPos.getY() - robotPos.getY(), targetPos.getX() - robotPos.getX()));
     }
 
-    public Command turnInPlace(boolean moving) {
-        return turnInPlace(()-> moving ? getPredictedAngle() : getTurnAngle());
-    }
-
-    public Command turnInPlace(DoubleSupplier setpoint) {
+    public Command turnInPlace(DoubleSupplier setpoint, double timeout) {
         return new NAR_PIDCommand(
             TURN_CONTROLLER, 
             ()-> getYaw(), //measurement
@@ -187,6 +156,7 @@ public class Swerve extends SwerveBase {
 
                 Swerve.getInstance().drive(translation, Units.degreesToRadians(output), true);
             },
+            timeout,
             Swerve.getInstance()
         ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
     }

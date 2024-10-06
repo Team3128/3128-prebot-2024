@@ -7,6 +7,7 @@ import common.core.subsystems.ShooterTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
+import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,13 +25,16 @@ public class Shooter extends ShooterTemplate {
     private DigitalInput kickSensor, rollersSensor;
 
     private Shooter() {
-        super(new Controller(PIDConstants, Type.VELOCITY));
+        super(new Controller(PIDConstants, Type.VELOCITY), SHOOTER_MOTOR);
         setConstraints(MIN_RPM, MAX_RPM);
         setTolerance(TOLERANCE);
-        kickSensor = new DigitalInput(KICK_SENSOR_ID);
+
+        // kickSensor = new DigitalInput(KICK_SENSOR_ID);
         rollersSensor = new DigitalInput(ROLLERS_SENSOR_ID);
+        // NAR_Shuffleboard.addData
+
         configMotors();
-        initShuffleboard();
+        // initShuffleboard();
 
         ControllerBase controller = getController();
         controller.setkS(()-> controller.getkS());
@@ -62,28 +66,33 @@ public class Shooter extends ShooterTemplate {
         KICK_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
     }
 
-    @Override
-    public void startPID(double setpoint) {
-        enable();
-        getController().setSetpoint(setpoint);
-    }
+    //NOT USING PID FOR NOW
+    // @Override
+    // public void startPID(double setpoint) {
+    //     enable();
+    //     getController().setSetpoint(setpoint);
+    // }
 
-    @Override
-    protected void useOutput(double output, double setpoint) {
-        SHOOTER_MOTOR.setVolts(setpoint != 0 ? output + kF_Func.getAsDouble() : 0);
-    }
+    // @Override
+    // protected void useOutput(double output, double setpoint) {
+    //     SHOOTER_MOTOR.setVolts(setpoint != 0 ? output + kF_Func.getAsDouble() : 0);
+    // }
 
-    @Override
-    public double getMeasurement() {
-        return SHOOTER_MOTOR.getVelocity();
-    }
+    // @Override
+    // public double getMeasurement() {
+    //     return SHOOTER_MOTOR.getVelocity();
+    // }
 
-    public Command shoot(double setpoint) {
-        return runOnce(()-> startPID(setpoint));
+    // public Command shoot(double setpoint) {
+    //     return runOnce(()-> startPID(setpoint));
+    // }
+
+    public Command rampUpShooter(){
+        return runShooter(SHOOTER_RPM);
     }
 
     public Command runShooter(double power) {
-        return runOnce(()-> setPower(power));
+        return runOnce(()-> SHOOTER_MOTOR.set(power));
     }
 
     public Command runKickMotor(double power) {
@@ -97,17 +106,17 @@ public class Shooter extends ShooterTemplate {
         });
     }
 
-    public State getRunningState() {
-        if (SHOOTER_MOTOR.getState() != State.DISCONNECTED && KICK_MOTOR.getState() != State.DISCONNECTED)
-            return State.RUNNING;
-        if (SHOOTER_MOTOR.getState() != State.DISCONNECTED || KICK_MOTOR.getState() != State.DISCONNECTED)
-            return State.PARTIALLY_RUNNING;
-        return State.DISCONNECTED;
-    }
+    // public State getRunningState() {
+    //     if (SHOOTER_MOTOR.getState() != State.DISCONNECTED && KICK_MOTOR.getState() != State.DISCONNECTED)
+    //         return State.RUNNING;
+    //     if (SHOOTER_MOTOR.getState() != State.DISCONNECTED || KICK_MOTOR.getState() != State.DISCONNECTED)
+    //         return State.PARTIALLY_RUNNING;
+    //     return State.DISCONNECTED;
+    // }
 
-    public boolean noteInKick() {
-        return !kickSensor.get();
-    }
+    // public boolean noteInKick() {
+    //     return !kickSensor.get();
+    // }
 
     public boolean noteInRollers() {
         return !rollersSensor.get();

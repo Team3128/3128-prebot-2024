@@ -187,42 +187,6 @@ public class Constants {
  
         public static final Matrix<N3,N1> SVR_VISION_MEASUREMENT_STD = VecBuilder.fill(0.5,0.5,Units.degreesToRadians(5));
 
-        public static final HashMap<Integer,Pose2d> APRIL_TAG_POS = new HashMap<Integer,Pose2d>();
-
-        static {
-            APRIL_TAG_POS.put(1, new Pose2d(
-                new Translation2d(Units.inchesToMeters(610.77), Units.inchesToMeters(42.19)),
-                Rotation2d.fromDegrees(180))
-            );
-            APRIL_TAG_POS.put(2, new Pose2d(
-                new Translation2d(Units.inchesToMeters(610.77), Units.inchesToMeters(108.19)),
-                Rotation2d.fromDegrees(180))
-            );
-            APRIL_TAG_POS.put(3, new Pose2d(
-                new Translation2d(Units.inchesToMeters(610.77), Units.inchesToMeters(174.19)),
-                Rotation2d.fromDegrees(180))
-            );
-            APRIL_TAG_POS.put(4, new Pose2d(
-                new Translation2d(Units.inchesToMeters(636.96), Units.inchesToMeters(265.74)),
-                Rotation2d.fromDegrees(180))
-            );
-            APRIL_TAG_POS.put(5, new Pose2d(
-                new Translation2d(Units.inchesToMeters(14.25), Units.inchesToMeters(265.74)),
-                Rotation2d.fromDegrees(0))
-            );
-            APRIL_TAG_POS.put(6, new Pose2d(
-                new Translation2d( Units.inchesToMeters(40.45), Units.inchesToMeters(174.19)),
-                Rotation2d.fromDegrees(0))
-            );
-            APRIL_TAG_POS.put(7, new Pose2d(
-                new Translation2d(Units.inchesToMeters(40.45), Units.inchesToMeters(108.19)),
-                Rotation2d.fromDegrees(0))
-            );
-            APRIL_TAG_POS.put(8, new Pose2d(
-                new Translation2d(Units.inchesToMeters(40.45), Units.inchesToMeters(42.19)),
-                Rotation2d.fromDegrees(0))
-            );
-        } 
     }
     
     public static class FieldConstants{
@@ -342,7 +306,7 @@ public class Constants {
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
 
         public static final int ROLLER_MOTOR_ID = 30;
-        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID);
+        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
@@ -420,7 +384,7 @@ public class Constants {
     }
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 50;
-        public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
+        // public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
         public static final double MAX_VELOCTIY = 10000000;
@@ -441,7 +405,7 @@ public class Constants {
     public static class HopperConstants {
         public static final int HOPPER_MOTOR_ID = 40;
         public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
-        public static final int HOPPER_FRONT_SENSOR_ID = 1;
+        public static final int HOPPER_FRONT_SENSOR_ID = 0;
         public static final int HOPPER_BACK_SENSOR_ID = 2;
 
         public static final double STALL_CURRENT = 50;

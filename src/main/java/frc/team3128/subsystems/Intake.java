@@ -38,11 +38,13 @@ public class Intake extends PivotTemplate{
         super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), PIVOT_MOTOR);
 
         setkG_Function(()-> Math.cos(Units.degreesToRadians(getSetpoint())));
+
         setTolerance(ANGLE_TOLERANCE);
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
         setSafetyThresh(5);
-        initShuffleboard();
+        // initShuffleboard();
 
+        //TODO: remove once done testing
         this.setSafetyThresh(1000);
 
     }

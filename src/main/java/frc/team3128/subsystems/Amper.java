@@ -16,6 +16,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 public class Amper extends ElevatorTemplate {
     
     public enum Setpoint {
+        //TODO: correct EXTEND setpoints
         FULLEXTEND(21.25),
         PARTEXTEND(21.25*0.8),
         RETRACTED(0);
@@ -37,17 +38,17 @@ public class Amper extends ElevatorTemplate {
     private Amper() {
         super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), ELEV_MOTOR);
 
+        //TODO: remove once done testing
         this.setSafetyThresh(100);
         // setkG_Function(() ->  getMeasurement()*Math.sin(AMPER_ANGLE));
 
         setTolerance(POSITION_TOLERANCE);
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-        initShuffleboard();
+        // initShuffleboard();
     }
 
     @Override
     protected void configMotors() {
-        // TODO: figure unit conversion out
         ELEV_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
         ELEV_MOTOR.setCurrentLimit(CURRENT_LIMIT);
         ELEV_MOTOR.setInverted(true);
@@ -63,9 +64,11 @@ public class Amper extends ElevatorTemplate {
         ELEV_MOTOR.set(0, Control.Position);
         ELEV_MOTOR.setVolts(volts);
     }
+
     public double getVelocity() {
         return ELEV_MOTOR.getVelocity();
     }
+    
     public double getPosition() {
         return ELEV_MOTOR.getPosition();
     }

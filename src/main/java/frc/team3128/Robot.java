@@ -63,13 +63,6 @@ public class Robot extends NAR_Robot {
     public void robotInit(){
         timer.restart();
         
-        try {
-            Class<?> container = Class.forName("processor.ClassManager");
-            container.getDeclaredMethod("process").invoke(null);
-        } catch (Exception e) {
-            Log.info("Annotation Processor", "Failed to invoke ClassManager");
-            e.printStackTrace();
-        }
 
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();

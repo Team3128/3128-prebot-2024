@@ -128,10 +128,6 @@ public class RobotContainer {
         .onTrue(sequence(
             Shooter.getInstance().runKickMotor(.5),
             Hopper.getInstance().runManipulator(.8)
-        )).onFalse(sequence(
-            Shooter.getInstance().runKickMotor(0),
-            Hopper.getInstance().runManipulator(0),
-            Shooter.getInstance().stopMotors()
         ));
         
         new Trigger(()-> Shooter.getInstance().noteInRollers()).negate()

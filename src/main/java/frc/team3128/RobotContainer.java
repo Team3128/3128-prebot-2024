@@ -128,6 +128,11 @@ public class RobotContainer {
         .onTrue(sequence(
             Shooter.getInstance().runKickMotor(.5),
             Hopper.getInstance().runManipulator(.8)
+        ))
+        .onFalse(sequence(
+            Shooter.getInstance().runKickMotor(0),
+            Hopper.getInstance().runManipulator(0),
+            Shooter.getInstance().stopMotors()
         ));
         
         new Trigger(()-> Shooter.getInstance().noteInRollers()).negate()
@@ -191,25 +196,13 @@ public class RobotContainer {
     }
 
     public void initDashboard() {
-        dashboard = NarwhalDashboard.getInstance();
+        /*dashboard = NarwhalDashboard.getInstance();
         dashboard.addUpdate("time", ()-> Timer.getMatchTime());
         dashboard.addUpdate("voltage",()-> RobotController.getBatteryVoltage());
         dashboard.addUpdate("robotX", ()-> swerve.getPose().getX());
         dashboard.addUpdate("robotY", ()-> swerve.getPose().getY());
         dashboard.addUpdate("robotYaw", ()-> swerve.getPose().getRotation().getDegrees());
-
-        if (NAR_TalonFX.getNumFailedConfigs() + NAR_CANSpark.getNumFailedConfigs() > 0 || !isConnected()) {
-            Log.recoverable("Colors", "Errors configuring: " + NAR_CANSpark.getNumFailedConfigs() + NAR_TalonFX.getNumFailedConfigs());
-            Leds.getInstance().setLedColor(Colors.ERROR);
-        }
-        else if (!swerve.isConfigured()) {
-            Log.info("Colors", "Swerve Not Configured");
-            Leds.getInstance().setLedColor(Colors.RED);
-        }
-        else {
-            Log.info("Colors", "No errors configuring");
-            Leds.getInstance().setLedColor(Colors.CONFIGURED);
-        }
+        */
     }
 
     public boolean isConnected() {

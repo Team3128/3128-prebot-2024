@@ -63,7 +63,6 @@ public class Robot extends NAR_Robot {
     public void robotInit(){
         timer.restart();
         
-        
 
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();

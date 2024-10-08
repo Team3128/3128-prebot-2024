@@ -7,8 +7,12 @@ import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.team3128.Constants.LedConstants.*;
 
 import frc.team3128.Constants.LedConstants.Colors;
@@ -77,6 +81,14 @@ public class Leds extends SubsystemBase {
                 m_candle.setLEDs(color.r,color.g,color.b, WHITE_VALUE, STARTING_ID, PIVOT_COUNT);
                 break;
         }
+    }
+
+    public void blinkLEDColor(Colors blinkColor, Colors endColor, double duration) {
+        resetAnimationSlot(2);
+        m_candle.animate(new StrobeAnimation(blinkColor.r, blinkColor.g, blinkColor.b, WHITE_VALUE, 1,STARTING_ID + PIVOT_FRONT,STARTING_ID));
+        waitSeconds(duration);
+        setLedColor(endColor);
+        
     }
 
     public void resetAnimationSlot(int slots) {

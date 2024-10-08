@@ -39,7 +39,8 @@ public class Amper extends ElevatorTemplate {
         super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), ELEV_MOTOR);
 
         //TODO: remove once done testing
-        this.setSafetyThresh(100);
+        // this.setSafetyThresh(100);
+        
         // setkG_Function(() ->  getMeasurement()*Math.sin(AMPER_ANGLE));
 
         setTolerance(POSITION_TOLERANCE);

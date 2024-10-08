@@ -46,7 +46,7 @@ public class Intake extends PivotTemplate{
         initShuffleboard();
 
         //TODO: remove once done testing
-        this.setSafetyThresh(1000);
+        // this.setSafetyThresh(1000);
 
     }
 

@@ -274,8 +274,9 @@ public class Constants {
         public static final double MIDDLE_FEED_RPM = 4500;
         public static final double MIDDLE_FEED_ANGLE = 25;
         
-        public static final double INTAKE_POWER = 0.4;
-        public static final double KICK_POWER = 0.2;
+        public static final double INTAKE_POWER = 0.65;
+        public static final double KICK_POWER = 0.5;
+        public static final double KICK_SHOOTING_POWER = 0.8;
         public static final double CURRENT_TEST_POWER = 0;
         public static final double CURRENT_TEST_PLATEAU = 0;
         public static final double CURRENT_TEST_TIMEOUT = 0;
@@ -409,7 +410,7 @@ public class Constants {
         public static final int HOPPER_BACK_SENSOR_ID = 2;
 
         public static final double STALL_CURRENT = 50;
-        public static final double HOPPER_INTAKE_POWER = 0.5;
+        public static final double HOPPER_INTAKE_POWER = 0.8;
         public static final double HOPPER_OUTTAKE_POWER = -0.5;
         public static final double STALL_POWER = 0.05;
 

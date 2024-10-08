@@ -13,9 +13,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.ShooterConstants.EDGE_FEED_ANGLE;
 import static frc.team3128.Constants.ShooterConstants.EDGE_FEED_RPM;
+import static frc.team3128.Constants.ShooterConstants.KICK_POWER;
+import static frc.team3128.Constants.ShooterConstants.KICK_SHOOTING_POWER;
 import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
 import static frc.team3128.Constants.ShooterConstants.MIDDLE_FEED_ANGLE;
 import static frc.team3128.Constants.ShooterConstants.MIDDLE_FEED_RPM;
+import static frc.team3128.Constants.HopperConstants.HOPPER_INTAKE_POWER;
 import static frc.team3128.commands.CmdManager.*;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -117,7 +120,7 @@ public class RobotContainer {
 
         controller.getButton(XboxButton.kA).onTrue(Shooter.getInstance().runShooter(0.8));
         controller.getButton(XboxButton.kY).onTrue(Shooter.getInstance().runShooter(0));
-        controller.getButton(XboxButton.kB).onTrue(Shooter.getInstance().runKickMotor(0.8)).onFalse(Shooter.getInstance().runKickMotor(0));
+        controller.getButton(XboxButton.kB).onTrue(Shooter.getInstance().runKickMotor(KICK_SHOOTING_POWER)).onFalse(Shooter.getInstance().runKickMotor(0));
 
         controller.getButton(XboxButton.kY).whileTrue(ampUp()).onFalse(ampFinAndDown());
 
@@ -126,7 +129,7 @@ public class RobotContainer {
 
         new Trigger(()-> Shooter.getInstance().getShooting())
         .onTrue(sequence(
-            Shooter.getInstance().runKickMotor(.5),
+            Shooter.getInstance().runKickMotor(KICK_POWER),
             Hopper.getInstance().runManipulator(.8)
         ))
         .onFalse(sequence(
@@ -141,7 +144,7 @@ public class RobotContainer {
 
         new Trigger(()-> Intake.getInstance().getMeasurement() > 90)
         .and(()->!Hopper.getInstance().hasObjectPresent())
-        .onTrue(Hopper.getInstance().runManipulator(0.8))
+        .onTrue(Hopper.getInstance().runManipulator(HOPPER_INTAKE_POWER))
         .onFalse(Hopper.getInstance().runManipulator(0));
 
         new Trigger(()-> Intake.getInstance().getMeasurement() < 20)
@@ -152,8 +155,8 @@ public class RobotContainer {
         .and(()->Hopper.getInstance().hasObjectPresent())
         .and(() -> !Shooter.getInstance().getShooting())
         .onTrue(sequence(
-            Shooter.getInstance().runKickMotor(0.5),
-            Hopper.getInstance().runManipulator(0.8)
+            Shooter.getInstance().runKickMotor(KICK_POWER),
+            Hopper.getInstance().runManipulator(HOPPER_INTAKE_POWER)
         ))
         .onFalse(sequence(
             Shooter.getInstance().runKickMotor(-.1),

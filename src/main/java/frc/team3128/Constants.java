@@ -292,14 +292,14 @@ public class Constants {
         public static final int PIVOT_MOTOR_ID = 31;
         public static final NAR_CANSpark PIVOT_MOTOR = new NAR_CANSpark(PIVOT_MOTOR_ID);
 
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, 0.2, 0, 0, 0.3625);
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.15, 0, 0, -0.35, 0, 0, 0);
         public static final double MAX_VELOCITY = 1000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCITY, MAX_ACCELERATION);
 
         public static final double ANGLE_TOLERANCE = 3;
         public static final double MIN_SETPOINT = 0;
-        public static final double MAX_SETPOINT = 220;
+        public static final double MAX_SETPOINT = 147;
         public static final int CURRENT_LIMIT = 40;
 
         public static final double GEAR_RATIO = 1.0 / 40.0;
@@ -311,7 +311,7 @@ public class Constants {
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
         public static final double OUTTAKE_POWER = -0.3;
-        public static final double INTAKE_POWER = .5;
+        public static final double INTAKE_POWER = .65;
         public static final double VOLT_COMP = 9;
     }
 

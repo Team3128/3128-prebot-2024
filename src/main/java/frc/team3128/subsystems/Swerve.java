@@ -37,6 +37,8 @@ public class Swerve extends SwerveBase {
 
     public double throttle = 1;
 
+    private static double gyroOffset = 180;
+
     public Supplier<Double> yaw;
 
     public static synchronized Swerve getInstance() {
@@ -50,7 +52,7 @@ public class Swerve extends SwerveBase {
         super(swerveKinematics, SVR_STATE_STD, SVR_VISION_MEASUREMENT_STD, Mod0, Mod1, Mod2, Mod3);
         chassisVelocityCorrection = false;
         Timer.delay(1);
-        gyro = new Pigeon2(pigeonID);
+        gyro = new Pigeon2(pigeonID, "Drivetrain");
         Timer.delay(1);
         var x = gyro.getYaw();
         x.setUpdateFrequency(100);
@@ -85,7 +87,7 @@ public class Swerve extends SwerveBase {
 
     @Override
     public double getYaw() {
-        return yaw.get();
+        return yaw.get() - gyroOffset;
     }
 
     @Override
@@ -100,7 +102,8 @@ public class Swerve extends SwerveBase {
 
     @Override
     public void zeroGyro(double reset) {
-        gyro.setYaw(reset);
+        // gyro.setYaw(reset);
+        gyroOffset = getYaw();
     }
 
     public double getPredictedDistance() {
@@ -187,6 +190,7 @@ public class Swerve extends SwerveBase {
 
                 Swerve.getInstance().drive(translation, Units.degreesToRadians(output), true);
             },
+            2,
             Swerve.getInstance()
         ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
     }

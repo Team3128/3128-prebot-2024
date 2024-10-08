@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -20,6 +22,7 @@ import static frc.team3128.commands.CmdManager.*;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import frc.team3128.Constants.IntakeConstants;
 import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.commands.CmdSwerveDrive;
 import common.core.swerve.SwerveModule;
@@ -95,6 +98,8 @@ public class RobotContainer {
     }   
 
     private void configureButtonBindings() {
+        controller.getButton(XboxButton.kX).onTrue(Commands.runOnce(()-> swerve.zeroGyro(0)));
+
         controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> CmdSwerveDrive.setTurnSetpoint()));
         controller.getUpPOVButton().onTrue(runOnce(()-> {
             CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 180 : 0);
@@ -120,7 +125,6 @@ public class RobotContainer {
         controller.getButton(XboxButton.kB).onTrue(Shooter.getInstance().runKickMotor(0.8)).onFalse(Shooter.getInstance().runKickMotor(0));
 
         controller.getButton(XboxButton.kY).whileTrue(ampUp()).onFalse(ampFinAndDown());
-
 
         // new Trigger(()->true).onTrue(queueNote());
 
@@ -161,7 +165,6 @@ public class RobotContainer {
             Shooter.getInstance().runKickMotor(0)
         ));
         
-
     }
 
     @SuppressWarnings("unused")

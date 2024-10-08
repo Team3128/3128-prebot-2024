@@ -9,15 +9,16 @@ import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.team3128.Constants.IntakeConstants;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class Intake extends PivotTemplate{
 
     public enum Setpoint {
-        GROUND(200),
+        GROUND(MAX_SETPOINT),
         SOURCE(60),
-        NEUTRAL(0);
+        NEUTRAL(MIN_SETPOINT);
         
 
         public final double angle;
@@ -42,7 +43,7 @@ public class Intake extends PivotTemplate{
         setTolerance(ANGLE_TOLERANCE);
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
         setSafetyThresh(5);
-        // initShuffleboard();
+        initShuffleboard();
 
         //TODO: remove once done testing
         this.setSafetyThresh(1000);
@@ -51,7 +52,7 @@ public class Intake extends PivotTemplate{
 
     @Override
     protected void configMotors() {
-        PIVOT_MOTOR.setInverted(false);
+        PIVOT_MOTOR.setInverted(true);
         PIVOT_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
         PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
         PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
@@ -76,7 +77,7 @@ public class Intake extends PivotTemplate{
 
     @Override
     public double getMeasurement() {
-        return -1 * motors[0].getPosition();
+        return motors[0].getPosition();
     }
 
     public Command pivotTo (Setpoint setpoint) {
@@ -97,6 +98,10 @@ public class Intake extends PivotTemplate{
 
     public Command runRollers(double power) {
         return runOnce(()-> ROLLER_MOTOR.set(power));
+    }
+
+    public void setVoltage(double volts){
+        PIVOT_MOTOR.setVolts(volts);
     }
 
 }

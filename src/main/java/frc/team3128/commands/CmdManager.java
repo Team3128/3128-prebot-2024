@@ -97,16 +97,16 @@ public class CmdManager {
 
     public static Command intake(Intake.Setpoint setpoint) {
         return sequence(
-            // intake.pivotTo(setpoint),
-            intake.runIntakeRollers()
+            intake.runIntakeRollers(),
+            intake.pivotTo(setpoint)
         );
     }
 
     public static Command retractIntake() {
         return sequence(
-            intake.stopRollers()
+            intake.stopRollers(),
             // hopper.runManipulator(0),
-            // intake.retract()
+            intake.retract()
         );
     }
 

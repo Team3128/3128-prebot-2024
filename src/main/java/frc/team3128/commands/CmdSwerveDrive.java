@@ -60,7 +60,7 @@ public class CmdSwerveDrive extends Command {
             translation = translation.rotateBy(Rotation2d.fromDegrees(-90));
         }
 
-        final double zValue = -zAxis.getAsDouble();
+        final double zValue = zAxis.getAsDouble();
         
         rotation = Math.copySign(Math.pow(zValue, 3/2), zValue) * maxAngularVelocity * swerve.throttle; 
 

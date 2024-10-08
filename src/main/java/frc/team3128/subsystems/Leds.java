@@ -80,16 +80,16 @@ public class Leds extends SubsystemBase {
     }
 
     public void resetAnimationSlot(int slots) {
-        m_candle.setLEDs(0,0,0, WHITE_VALUE, STARTING_ID, PIVOT_COUNT);
-        for (int i = 0; i < slots; i++) {
-         m_candle.animate(null, i);
-        }
+        // m_candle.setLEDs(0,0,0, WHITE_VALUE, STARTING_ID, PIVOT_COUNT);
+        // for (int i = 0; i < slots; i++) {
+        //  m_candle.animate(null, i);
+        // }
      }
 
     public void resetAnimationSlot(int slots, int offset) {
-       for (int i = 0; i < slots; i++) {
-        m_candle.animate(null, i+offset);
-       }
+    //    for (int i = 0; i < slots; i++) {
+    //     m_candle.animate(null, i+offset);
+    //    }
     }    
 
 }

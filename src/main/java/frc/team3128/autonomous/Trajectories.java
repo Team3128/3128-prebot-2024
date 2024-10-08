@@ -104,7 +104,9 @@ public class Trajectories {
             setpoint, //setpoint
             (double output) -> {
                 Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            }
+            },
+            2,
+            Swerve.getInstance()
         ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
     }
 
@@ -119,7 +121,9 @@ public class Trajectories {
             setpoint, //setpoint
             (double output) -> {
                 Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            }
+            },
+            2,
+            Swerve.getInstance()
         ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
     }
 

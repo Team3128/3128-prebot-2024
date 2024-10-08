@@ -1,5 +1,7 @@
 package frc.team3128;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -25,6 +27,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.team3128.subsystems.Amper;
+import frc.team3128.subsystems.Hopper;
+import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
@@ -431,7 +436,7 @@ public class Constants {
 
     public static class HopperConstants {
         // Elevator Motor Constants
-        public static final int HPPR_MOTOR_ID = 21;
+        public static final int HPPR_MOTOR_ID = 40;
         public static final NAR_CANSpark HPPR_MOTOR = new NAR_CANSpark(HPPR_MOTOR_ID);
         public static final boolean HPPR_MOTOR_INVERT = false;
         public static final int HPPR_CURRENT_LIMIT = 40;
@@ -485,7 +490,25 @@ public class Constants {
         public static final double POSITION_TOLERANCE = 0.25;
 
         public static final double ROLLER_POWER = 0.5;
+        public static final double ROLLER_STALL_THRESHOLD = 50;
 
+    }
+
+    public static class Flags {
+        public static final BooleanSupplier shooterHasNote = ()-> Shooter.getInstance().hasObjectPresent();
+        public static final BooleanSupplier hopperHasNote = ()-> Hopper.getInstance().hasObjectPresent();
+        public static final BooleanSupplier amperHasStalled = ()-> Amper.getInstance().rollerHasStaller();
+        public static final BooleanSupplier hasTwoNotes = ()-> shooterHasNote.getAsBoolean() && hopperHasNote.getAsBoolean();
+        public static final BooleanSupplier hasNoNotes = ()-> !shooterHasNote.getAsBoolean() && !hopperHasNote.getAsBoolean();
+        public static final BooleanSupplier noteAdvanceRequired = ()-> hopperHasNote.getAsBoolean() && !shooterHasNote.getAsBoolean();
+
+        public static BooleanSupplier not(BooleanSupplier supplier) {
+            return ()-> !supplier.getAsBoolean();
+        }
+
+        public static BooleanSupplier and(BooleanSupplier supplier1, BooleanSupplier supplier2) {
+            return ()-> supplier1.getAsBoolean() && supplier2.getAsBoolean();
+        }
     }
 }
 

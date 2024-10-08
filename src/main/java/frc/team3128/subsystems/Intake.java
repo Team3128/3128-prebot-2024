@@ -1,6 +1,7 @@
 package frc.team3128.subsystems;
 
 import static frc.team3128.Constants.AmperConstants.POSITION_MAX;
+import static frc.team3128.Constants.Flags.hasTwoNotes;
 import static frc.team3128.Constants.IntakeConstants.*;
 
 import common.core.subsystems.PivotTemplate;
@@ -51,7 +52,6 @@ public class Intake extends PivotTemplate{
         setkG_Function(()-> Math.cos(Units.degreesToRadians(getSetpoint())));
 
         configController();
-        configTriggers();
         initShuffleboard();
 
         setDefaultCommand(setState(IntakeState.RETRACTED));
@@ -80,8 +80,7 @@ public class Intake extends PivotTemplate{
     }
 
     public void configTriggers(){
-        new Trigger(()-> Shooter.getInstance().hasObjectPresent())
-        .and(()-> Hopper.getInstance().hasObjectPresent())
+        new Trigger(hasTwoNotes)
         .onTrue(setState(IntakeState.RETRACTED));
     }
 
@@ -97,11 +96,11 @@ public class Intake extends PivotTemplate{
         );
     }
 
-    public IntakeState getGoalState() {
+    public static IntakeState getGoalState() {
         return goalState;
     }
 
-    public boolean goalStateIs(IntakeState state) {
+    public static boolean goalStateIs(IntakeState state) {
         return goalState == state;
     }
 

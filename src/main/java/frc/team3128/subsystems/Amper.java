@@ -1,6 +1,7 @@
 package frc.team3128.subsystems;
 
 import static frc.team3128.Constants.AmperConstants.*;
+import static frc.team3128.Constants.Flags.*;
 
 import common.core.subsystems.ElevatorTemplate;
 import common.hardware.motorcontroller.NAR_Motor.Control;
@@ -48,7 +49,6 @@ public class Amper extends ElevatorTemplate {
     private Amper() {
         super(CONTROLLER, ELEV_MOTOR);
         configController();
-        configTriggers();
         initShuffleboard();
 
         setState(AmpState.RETRACTED).schedule();
@@ -78,12 +78,11 @@ public class Amper extends ElevatorTemplate {
 
     public void configTriggers(){
         // assuming that we always want to amp two notes when given the chance
-        new Trigger(()-> Shooter.getInstance().hasObjectPresent())
-        .and(()-> !Hopper.getInstance().hasObjectPresent())
+        new Trigger(hasNoNotes)
         .debounce(0.25) // account for hopper to shooter transition
         .onTrue(setState(AmpState.RETRACTED));
 
-        new Trigger(()-> Shooter.getInstance().goalStateIs(ShooterState.SHOOT))
+        new Trigger(()-> Shooter.goalStateIs(ShooterState.SHOOT))
         .onTrue(setState(AmpState.RETRACTED));
     }
     
@@ -111,6 +110,10 @@ public class Amper extends ElevatorTemplate {
         return runOnce(() -> ROLLER_MOTOR.set(power));
     }
 
+    public boolean rollerHasStaller(){
+        return ROLLER_MOTOR.getStallCurrent() > ROLLER_STALL_THRESHOLD;
+    }
+
     public Command setState(AmpState state) {
         goalState = state;
         return sequence(
@@ -119,11 +122,11 @@ public class Amper extends ElevatorTemplate {
         );
     }
 
-    public AmpState getGoalState() {
+    public static AmpState getGoalState() {
         return goalState;
     }
 
-    public boolean goalStateIs(AmpState state) {
+    public static boolean goalStateIs(AmpState state) {
         return goalState == state;
     }
 }

@@ -27,6 +27,7 @@ import frc.team3128.commands.CmdSwerveDrive;
 
 import static frc.team3128.Constants.SwerveConstants.*;
 import static frc.team3128.Constants.FocalAimConstants.*;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.FieldConstants.*;
 
 public class Swerve extends SwerveBase {
@@ -139,6 +140,8 @@ public class Swerve extends SwerveBase {
     }
 
     public Command turnInPlace(DoubleSupplier setpoint, double timeout) {
+        if(setpoint == null) return none();
+
         return new NAR_PIDCommand(
             TURN_CONTROLLER, 
             ()-> getYaw(), //measurement

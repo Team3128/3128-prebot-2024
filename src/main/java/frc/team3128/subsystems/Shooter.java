@@ -6,8 +6,10 @@ import common.core.subsystems.ShooterTemplate;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team3128.subsystems.Amper.AmpState;
+import frc.team3128.subsystems.Hopper.HopperState;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+import static frc.team3128.Constants.Flags.*;
 import static frc.team3128.Constants.ShooterConstants.*;
 
 import java.util.function.DoubleSupplier;
@@ -21,7 +23,7 @@ public class Shooter extends ShooterTemplate {
         MIDDLE_FEED(MIDDLE_FEED_RPM, KICK_POWER, ()-> MIDDLE_FEED_ANGLE),
         PRIMED(AMP_RPM, 0, ()-> AMP_ANGLE),
         AMP(AMP_RPM, KICK_POWER, ()-> AMP_ANGLE),
-        HAND_OFF(0, KICK_POWER, ()-> AMP_ANGLE);
+        RECIEVE(0, KICK_POWER, ()-> AMP_ANGLE);
 
         private final double rmp; // can change to power if you want
         private final double kickPower;
@@ -60,7 +62,6 @@ public class Shooter extends ShooterTemplate {
 
         configMotors();
         configController();
-        configTriggers();
         initShuffleboard();
 
         setDefaultCommand(setState(ShooterState.IDLE));
@@ -88,25 +89,24 @@ public class Shooter extends ShooterTemplate {
     }
 
     public void configTriggers(){
-        new Trigger(()-> hasObjectPresent())
-        .and(()-> Amper.getInstance().goalStateIs(AmpState.PRIMED))
+        new Trigger(shooterHasNote)
+        .and(()-> Amper.goalStateIs(AmpState.PRIMED))
         .onTrue(setState(ShooterState.PRIMED));
 
-        new Trigger(()-> hasObjectPresent())
-        .and(()-> Amper.getInstance().goalStateIs(AmpState.AMP))
+        new Trigger(shooterHasNote)
+        .and(()-> Amper.goalStateIs(AmpState.AMP))
         .and(()-> Amper.getInstance().atSetpoint())
         .onTrue(setState(ShooterState.AMP));
 
-        new Trigger(()-> !hasObjectPresent())
-        .and(()-> !Hopper.getInstance().hasObjectPresent())
+        new Trigger(hasNoNotes)
         .onTrue(setState(ShooterState.IDLE));
 
         new Trigger(()-> goalStateIs(ShooterState.IDLE))
-        .and(()-> Hopper.getInstance().goalStateIs(Hopper.HopperState.IDLE))
-        .onTrue(setState(ShooterState.HAND_OFF));
+        .and(()-> Hopper.goalStateIs(HopperState.ADVANCE))
+        .onTrue(setState(ShooterState.RECIEVE));
 
-        new Trigger(()-> hasObjectPresent())
-        .and(()-> goalStateIs(ShooterState.HAND_OFF))
+        new Trigger(shooterHasNote)
+        .and(()-> goalStateIs(ShooterState.RECIEVE))
         .onTrue(setState(ShooterState.IDLE));
     }
 
@@ -125,19 +125,16 @@ public class Shooter extends ShooterTemplate {
                 shoot(state.getRPM()),
                 waitUntil(()-> atSetpoint())
             ),
-            either(  // comment this out if you dont want auto rotate when state change
-                Swerve.getInstance().turnInPlace(state.getRobotAngle(), 2), 
-                none(), 
-                ()-> state.getRobotAngle() != null
-            )
+            // comment this out if you dont want auto rotate when state change
+            Swerve.getInstance().turnInPlace(state.getRobotAngle(), 2)
         ).andThen(runKickMotor(state.getKickPower()));
     }
 
-    public ShooterState getGoalState(){
+    public static ShooterState getGoalState(){
         return goalState;
     }
 
-    public boolean goalStateIs(ShooterState state){
+    public static boolean goalStateIs(ShooterState state){
         return goalState == state;
     }
 }

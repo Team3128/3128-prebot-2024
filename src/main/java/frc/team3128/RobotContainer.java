@@ -100,11 +100,19 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
         initCameras();
 
+        initTriggers();
         configureButtonBindings();
 
         // NAR_Shuffleboard.addData("Limelight", "ValidTarget", ()-> limelight.hasValidTarget(), 0, 0);
         // NAR_Shuffleboard.addData("Limelight", "TX", ()-> limelight.getValue(LimelightKey.HORIZONTAL_OFFSET), 0, 1);
-    }   
+    }
+    
+    private void initTriggers(){
+        amper.configTriggers();
+        intake.configTriggers();
+        hopper.configTriggers();
+        shooter.configTriggers();
+    }
 
     private void configureButtonBindings() {
         controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> CmdSwerveDrive.setTurnSetpoint()));

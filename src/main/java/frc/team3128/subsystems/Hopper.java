@@ -7,6 +7,7 @@ import frc.team3128.subsystems.Intake.IntakeState;
 import frc.team3128.subsystems.Shooter.ShooterState;
 
 import static frc.team3128.Constants.HopperConstants.*;
+import static frc.team3128.Constants.Flags.*;
 
 public class Hopper extends ManipulatorTemplate {
 
@@ -14,7 +15,7 @@ public class Hopper extends ManipulatorTemplate {
         INTAKE(HPPR_INTAKE_POWER),
         OUTTAKE(HPPR_OUTTAKE_POWER),
         IDLE(HPPR_STALL_POWER),
-        HAND_OFF(HPPR_STALL_POWER);
+        ADVANCE(HPPR_STALL_POWER);
 
         private final double power;
 
@@ -39,7 +40,6 @@ public class Hopper extends ManipulatorTemplate {
     private Hopper() {
         super(STALL_CURRENT, HPPR_INTAKE_POWER, HPPR_OUTTAKE_POWER, HPPR_STALL_POWER, 0.3, HPPR_MOTOR);
 
-        configTriggers();
         // initShuffleboard();
 
         setDefaultCommand(setState(HopperState.IDLE));
@@ -56,19 +56,18 @@ public class Hopper extends ManipulatorTemplate {
     }
 
     public void configTriggers() {
-        new Trigger(()-> !hasObjectPresent())
-        .and(()-> Intake.getInstance().goalStateIs(IntakeState.INTAKE))
+
+        new Trigger(not(hopperHasNote))
+        .and(()-> Intake.goalStateIs(IntakeState.INTAKE))
         .onTrue(setState(HopperState.INTAKE));
 
-        new Trigger(()-> !Shooter.getInstance().hasObjectPresent())
-        .and(()-> hasObjectPresent())
-        .onTrue(setState(HopperState.HAND_OFF));
+        new Trigger(noteAdvanceRequired)
+        .onTrue(setState(HopperState.ADVANCE));
 
         // necessary to allow for two note intaking
-        new Trigger(()-> Shooter.getInstance().hasObjectPresent())
-        .and(()-> hasObjectPresent())
-        .or(()->Intake.getInstance().goalStateIs(IntakeState.RETRACTED) &&
-                Shooter.getInstance().goalStateIs(ShooterState.IDLE))
+        new Trigger(hasTwoNotes)
+        .or(()->Intake.goalStateIs(IntakeState.RETRACTED) &&
+                Shooter.goalStateIs(ShooterState.IDLE))
         .onTrue(setState(HopperState.IDLE));
     }
 
@@ -82,11 +81,11 @@ public class Hopper extends ManipulatorTemplate {
         return runManipulator(state.getPower());
     }
 
-    public HopperState getGoalState() {
+    public static HopperState getGoalState() {
         return goalState;
     }
 
-    public boolean goalStateIs(HopperState state) {
+    public static boolean goalStateIs(HopperState state) {
         return goalState == state;
     }
 }

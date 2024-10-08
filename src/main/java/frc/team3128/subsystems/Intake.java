@@ -41,11 +41,11 @@ public class Intake extends PivotTemplate{
 
         setTolerance(ANGLE_TOLERANCE);
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-        setSafetyThresh(5);
+        // setSafetyThresh(5);
         // initShuffleboard();
 
         //TODO: remove once done testing
-        this.setSafetyThresh(1000);
+        // this.setSafetyThresh(1000);
 
     }
 

@@ -9,6 +9,7 @@ import static frc.team3128.Constants.ShooterConstants.*;
 import common.hardware.input.NAR_XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.team3128.Robot;
@@ -172,6 +173,19 @@ public class CmdManager {
             waitUntil(() -> !shooter.getShooting()),
             amper.stopRollers(),
             amper.retract()
+        );
+    }
+
+    public static Command ejectNote(){
+        CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(hopper));
+        CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(intake));
+        return sequence(
+            intake.stopRollers(),
+            intake.retract(),
+            waitSeconds(0.3),
+            hopper.runManipulator(HOPPER_OUTTAKE_POWER),
+            waitSeconds(0.2),
+            hopper.runManipulator(0)
         );
     }
 }

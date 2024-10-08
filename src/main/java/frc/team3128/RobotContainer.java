@@ -59,6 +59,11 @@ import edu.wpi.first.apriltag.AprilTagFields;
 public class RobotContainer {
 
     private Swerve swerve;
+    private Hopper hopper;
+    private Intake intake;
+    private Shooter shooter;
+
+
     private Leds leds;
 
     // private NAR_ButtonBoard judgePad;
@@ -82,8 +87,13 @@ public class RobotContainer {
         controller = new NAR_XboxController(2);
         buttonPad = new NAR_ButtonBoard(3);
 
+        swerve = Swerve.getInstance();
+        hopper = Hopper.getInstance();
+        intake = Intake.getInstance();
+        shooter = Shooter.getInstance();
+
         //uncomment line below to enable driving
-        CommandScheduler.getInstance().setDefaultCommand(Swerve.getInstance(), new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
+        CommandScheduler.getInstance().setDefaultCommand(swerve, new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
 
         initRobotTest();
         
@@ -116,55 +126,87 @@ public class RobotContainer {
 
         controller.getButton(XboxButton.kLeftTrigger).onTrue(intake(Intake.Setpoint.GROUND));
         controller.getButton(XboxButton.kLeftBumper).onTrue(retractIntake());
-        controller.getButton(XboxButton.kRightTrigger).onTrue(Shooter.getInstance().rampUpShooter()).onFalse(Shooter.getInstance().setShooting(true));
+        controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.rampUpShooter()).onFalse(shooter.setShooting(true));
 
-        controller.getButton(XboxButton.kA).onTrue(Shooter.getInstance().runShooter(0.8));
-        controller.getButton(XboxButton.kY).onTrue(Shooter.getInstance().runShooter(0));
-        controller.getButton(XboxButton.kB).onTrue(Shooter.getInstance().runKickMotor(KICK_SHOOTING_POWER)).onFalse(Shooter.getInstance().runKickMotor(0));
+        controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
+        controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
+        controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
         controller.getButton(XboxButton.kY).whileTrue(ampUp()).onFalse(ampFinAndDown());
 
 
         // new Trigger(()->true).onTrue(queueNote());
 
-        new Trigger(()-> Shooter.getInstance().getShooting())
+        //Shooting
+        new Trigger(()-> shooter.getShooting())
         .onTrue(sequence(
-            Shooter.getInstance().runKickMotor(KICK_POWER),
-            Hopper.getInstance().runManipulator(.8)
+            shooter.runKickMotor(KICK_POWER),
+            hopper.runManipulator(.8)
         ))
         .onFalse(sequence(
-            Shooter.getInstance().runKickMotor(0),
-            Hopper.getInstance().runManipulator(0),
-            Shooter.getInstance().stopMotors()
+            hopper.runManipulator(0),
+            shooter.stopMotors()
         ));
         
-        new Trigger(()-> Shooter.getInstance().noteInRollers()).negate()
-        .and(()->Hopper.getInstance().hasObjectPresent()).negate()
-        .onTrue(Shooter.getInstance().setShooting(false));
+        //Stops shooting when all notes are gone
+        new Trigger(()-> shooter.noteInRollers()).negate()
+        .and(()->hopper.hasObjectPresent()).negate()
+        .onTrue(shooter.setShooting(false));
 
-        new Trigger(()-> Intake.getInstance().getMeasurement() > 90)
-        .and(()->!Hopper.getInstance().hasObjectPresent())
-        .onTrue(Hopper.getInstance().runManipulator(HOPPER_INTAKE_POWER))
-        .onFalse(Hopper.getInstance().runManipulator(0));
+        //Queues note to hopper
+        new Trigger(()-> intake.getMeasurement() > 90)
+        .and(()->!hopper.hasObjectPresent())
+        .onTrue(hopper.runManipulator(HOPPER_INTAKE_POWER))
+        .onFalse(hopper.runManipulator(0));
 
-        new Trigger(()-> Intake.getInstance().getMeasurement() < 20)
-        .and(()->Hopper.getInstance().hasObjectPresent()).negate()
-        .onTrue(Hopper.getInstance().runManipulator(0));
+        //Stops hopper if intake is retracted and is empty
+        new Trigger(()-> intake.getMeasurement() < 20)
+        .and(()->hopper.hasObjectPresent()).negate()
+        .onTrue(hopper.runManipulator(0));
 
-        new Trigger(()-> Shooter.getInstance().noteInRollers()).negate()
-        .and(()->Hopper.getInstance().hasObjectPresent())
-        .and(() -> !Shooter.getInstance().getShooting())
+        //Queues note to shooter
+        new Trigger(()-> shooter.noteInRollers()).negate()
+        .and(()->hopper.hasObjectPresent())
+        .and(() -> !shooter.getShooting())
         .onTrue(sequence(
-            Shooter.getInstance().runKickMotor(KICK_POWER),
-            Hopper.getInstance().runManipulator(HOPPER_INTAKE_POWER)
+            shooter.runKickMotor(KICK_POWER),
+            hopper.runManipulator(HOPPER_INTAKE_POWER)
         ))
         .onFalse(sequence(
-            Shooter.getInstance().runKickMotor(-.1),
+            shooter.runKickMotor(-.1),
             waitSeconds(.1),
-            Shooter.getInstance().runKickMotor(0)
+            shooter.runKickMotor(0)
         ));
         
+        // new Trigger(() -> shouldEjectNote()).onTrue(ejectNote());
 
+    }
+
+    private Timer ejecTimer = new Timer();
+    private boolean ejectTimerStarted = false;
+
+    private boolean shouldEjectNote(){
+        if(shooter.noteInRollers() && hopper.hasObjectPresent() && !ejectTimerStarted){
+            ejectTimerStarted = true;
+            ejecTimer.start();
+        }
+
+        else if(shooter.noteInRollers() && hopper.hasObjectPresent() && ejectTimerStarted){
+            if(ejecTimer.hasElapsed(2)){
+                ejectTimerStarted = false;
+                ejecTimer.stop();
+                ejecTimer.reset();
+                return true;
+            }
+        }
+
+        else{
+            ejectTimerStarted = false;
+            ejecTimer.stop();
+            ejecTimer.reset();
+        }
+    
+        return false;  
     }
 
     @SuppressWarnings("unused")

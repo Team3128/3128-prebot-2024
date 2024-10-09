@@ -130,22 +130,6 @@ public class CmdManager {
     //     );
     // }
 
-    // public static Command queueNote() {
-    //     return either(
-    //         none(), 
-    //         sequence(
-    //             shooter.runKickMotor(0.5),
-    //             hopper.runManipulator(HOPPER_INTAKE_POWER),
-    //             waitUntil(()-> shooter.noteInRollers()),
-    //             hopper.runManipulator(0),
-    //             shooter.runKickMotor(0)
-    //         ), 
-    //         () -> (!hopper.hasObjectPresent() || shooter.noteInRollers()),
-    //         hopper.runManipulator(0).onlyIf(()-> hopper.hasObjectPresent())
-
-    //     );
-    // }
-
     public static Command hopperOuttake() {
         return sequence(
             intake.pivotTo(Setpoint.NEUTRAL),
@@ -154,14 +138,6 @@ public class CmdManager {
             hopper.runManipulator(HOPPER_OUTTAKE_POWER),
             waitSeconds(0.35),
             hopper.runManipulator(0)
-        );
-    }
-
-    public static Command ampUp(){
-        return sequence(
-            amper.partExtend(),
-            amper.runRollers(),
-            shooter.runShooter(0.3)
         );
     }
 

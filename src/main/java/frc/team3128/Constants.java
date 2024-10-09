@@ -1,6 +1,7 @@
 package frc.team3128;
 
 import java.util.HashMap;
+import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -24,6 +25,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.team3128.subsystems.Amper;
+import frc.team3128.subsystems.Hopper;
+import frc.team3128.subsystems.Intake;
+import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
@@ -442,6 +447,37 @@ public class Constants {
         public static final double ROLLER_POWER = 0.8;
 
         public static final double AMPER_ANGLE = 31.96;
+    }
+
+    public static class Flags {
+        public static final BooleanSupplier hopperHasNote = ()-> Hopper.getInstance().hasObjectPresent();
+        public static final BooleanSupplier shooterHasNote = ()-> Shooter.getInstance().noteInRollers();
+        public static final BooleanSupplier hasNoNotes = both(not(hopperHasNote), not(shooterHasNote));
+        public static final BooleanSupplier hasOneNote = xor(hopperHasNote, shooterHasNote);
+        public static final BooleanSupplier hasTwoNotes = both(hopperHasNote, shooterHasNote);
+
+        public static final BooleanSupplier readyForAdvance = both(hopperHasNote, not(shooterHasNote));
+
+        public static final BooleanSupplier intakeOut = ()-> Intake.getInstance().getMeasurement() > 20;
+        public static final BooleanSupplier amperOut = ()-> Amper.getInstance().getMeasurement() > 3;
+
+        public static final BooleanSupplier shooterRunning = ()-> ShooterConstants.SHOOTER_MOTOR.getAppliedOutput() > 0.1;
+
+        public static final BooleanSupplier amperStalled = ()-> AmperConstants.ROLLER_MOTOR.getStallCurrent() > 40;
+        public static final BooleanSupplier hopperStalled = ()-> HopperConstants.HOPPER_MOTOR.getStallCurrent() > 40;
+        public static final BooleanSupplier intakeStalled = ()-> IntakeConstants.ROLLER_MOTOR.getStallCurrent() > 40;
+
+        public static BooleanSupplier not(BooleanSupplier a) {
+            return ()-> !a.getAsBoolean();
+        }
+
+        public static BooleanSupplier both(BooleanSupplier a, BooleanSupplier b) {
+            return ()-> a.getAsBoolean() && b.getAsBoolean();
+        }
+
+        public static BooleanSupplier xor(BooleanSupplier a, BooleanSupplier b) {
+            return ()-> a.getAsBoolean() ^ b.getAsBoolean();
+        }
     }
 }
 

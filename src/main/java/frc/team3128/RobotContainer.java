@@ -13,14 +13,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.team3128.Constants.ShooterConstants.EDGE_FEED_ANGLE;
-import static frc.team3128.Constants.ShooterConstants.EDGE_FEED_RPM;
-import static frc.team3128.Constants.ShooterConstants.KICK_POWER;
-import static frc.team3128.Constants.ShooterConstants.KICK_SHOOTING_POWER;
-import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
-import static frc.team3128.Constants.ShooterConstants.MIDDLE_FEED_ANGLE;
-import static frc.team3128.Constants.ShooterConstants.MIDDLE_FEED_RPM;
-import static frc.team3128.Constants.HopperConstants.HOPPER_INTAKE_POWER;
+import static frc.team3128.Constants.ShooterConstants.*;
+import static frc.team3128.Constants.IntakeConstants.*;
+import static frc.team3128.Constants.AmperConstants.*;
+import static frc.team3128.Constants.HopperConstants.*;
+import static frc.team3128.Constants.Flags.*;
 import static frc.team3128.commands.CmdManager.*;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -108,6 +105,7 @@ public class RobotContainer {
         initCameras();
 
         configureButtonBindings();
+        initTrigges();
 
 
         // NAR_Shuffleboard.addData("Limelight", "ValidTarget", ()-> limelight.hasValidTarget(), 0, 0);
@@ -144,7 +142,7 @@ public class RobotContainer {
         controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
-        controller.getButton(XboxButton.kY).whileTrue(ampUp()).onFalse(ampFinAndDown());
+        controller.getButton(XboxButton.kY).whileTrue(amper.partExtend()).onFalse(ampFinAndDown());
 
         controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset(0)));
         controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset(0)));
@@ -153,10 +151,79 @@ public class RobotContainer {
         
 
 
+        // // new Trigger(()->true).onTrue(queueNote());
+
+        // //Shooting
+        // new Trigger(()-> shooter.getShooting())
+        // .onTrue(sequence(
+        //     shooter.runKickMotor(KICK_POWER),
+        //     hopper.runManipulator(.8)
+        // ))
+        // .onFalse(sequence(
+        //     hopper.runManipulator(0),
+        //     shooter.stopMotors()
+        // ));
+        
+        // //Stops shooting when all notes are gone
+        // new Trigger(()-> !shooter.noteInRollers())
+        // .and(()-> !hopper.hasObjectPresent())
+        // .debounce(0.5)
+        // .onTrue(sequence(
+        //     shooter.setShooting(false),
+        //     runOnce(() -> leds.setLedColor(Colors.BLUE))
+        // ));
+
+        // //Queues note to hopper
+        // new Trigger(()-> intake.getMeasurement() > 90)
+        // .and(()->!hopper.hasObjectPresent())
+        // .onTrue(hopper.runManipulator(HOPPER_INTAKE_POWER))
+        // .onFalse(hopper.runManipulator(0));
+
+        // //Stops hopper if intake is retracted and is empty
+        // new Trigger(()-> intake.getMeasurement() < 20)
+        // .and(()->hopper.hasObjectPresent()).negate()
+        // .onTrue(hopper.runManipulator(0));
+
+        // //Queues note to shooter
+        // new Trigger(()-> shooter.noteInRollers()).negate()
+        // .and(()->hopper.hasObjectPresent())
+        // .and(() -> !shooter.getShooting())
+        // .onTrue(sequence(
+        //     runOnce(() -> leds.blinkLEDColor(Colors.RED, Colors.GREEN, .25)),
+        //     shooter.runKickMotor(KICK_POWER),
+        //     hopper.runManipulator(HOPPER_INTAKE_POWER)
+        // ))
+        // .onFalse(sequence(
+        //     shooter.runKickMotor(-.1),
+        //     waitSeconds(.1),
+        //     shooter.runKickMotor(0)
+        // ));
+
+        // // new Trigger(()-> !shooter.noteInRollers())
+        // // .debounce(0.25)
+        // // .onTrue(amper.retract());
+        
+        // // new Trigger(() -> shouldEjectNote()).onTrue(sequence(
+        // //     runOnce(() -> leds.setLedColor(Colors.PURPLE)),
+        // //     ejectNote()
+        // //     ));
+
+        // new Trigger(()-> amper.getMeasurement() > 3)
+        // .onTrue(amper.runRollers())
+        // .onFalse(amper.stopRollers());
+
+        // new Trigger(()-> amper.getMeasurement() > 3)
+        // .and(()-> !shooter.noteInRollers())
+        // .debounce(2)
+        // .onTrue(amper.retract());
+
+    }
+
+    private void initTrigges(){
         // new Trigger(()->true).onTrue(queueNote());
 
         //Shooting
-        new Trigger(()-> shooter.getShooting())
+        new Trigger(shooterRunning)
         .onTrue(sequence(
             shooter.runKickMotor(KICK_POWER),
             hopper.runManipulator(.8)
@@ -167,8 +234,7 @@ public class RobotContainer {
         ));
         
         //Stops shooting when all notes are gone
-        new Trigger(()-> !shooter.noteInRollers())
-        .and(()-> !hopper.hasObjectPresent())
+        new Trigger(hasNoNotes)
         .debounce(0.5)
         .onTrue(sequence(
             shooter.setShooting(false),
@@ -176,20 +242,20 @@ public class RobotContainer {
         ));
 
         //Queues note to hopper
-        new Trigger(()-> intake.getMeasurement() > 90)
-        .and(()->!hopper.hasObjectPresent())
+        new Trigger(intakeOut)
+        .and(not(hopperHasNote))
         .onTrue(hopper.runManipulator(HOPPER_INTAKE_POWER))
         .onFalse(hopper.runManipulator(0));
 
         //Stops hopper if intake is retracted and is empty
-        new Trigger(()-> intake.getMeasurement() < 20)
-        .and(()->hopper.hasObjectPresent()).negate()
+        new Trigger(not(intakeOut))
+        .and(not(hopperHasNote))
         .onTrue(hopper.runManipulator(0));
 
-        //Queues note to shooter
-        new Trigger(()-> shooter.noteInRollers()).negate()
-        .and(()->hopper.hasObjectPresent())
-        .and(() -> !shooter.getShooting())
+        //Queues note to shooter if not shooter and amper is retracted
+        new Trigger(readyForAdvance)
+        .and(not(shooterRunning))
+        .and(not(amperOut))
         .onTrue(sequence(
             runOnce(() -> leds.blinkLEDColor(Colors.RED, Colors.GREEN, .25)),
             shooter.runKickMotor(KICK_POWER),
@@ -201,6 +267,24 @@ public class RobotContainer {
             shooter.runKickMotor(0)
         ));
 
+        //Wait 0.5s and queue note to shooter is amper it out
+        new Trigger(readyForAdvance)
+        .and(amperOut)
+        .onTrue(
+            sequence(
+                runOnce(() -> leds.blinkLEDColor(Colors.RED, Colors.GREEN, .25)),
+                shooter.runKickMotor(KICK_POWER),
+                waitSeconds(0.5),
+                hopper.runManipulator(HOPPER_INTAKE_POWER)
+            )
+        ).onFalse(
+            sequence(
+                shooter.runKickMotor(-.1),
+                waitSeconds(.1),
+                shooter.runKickMotor(0)
+            )
+        );
+
         // new Trigger(()-> !shooter.noteInRollers())
         // .debounce(0.25)
         // .onTrue(amper.retract());
@@ -210,15 +294,18 @@ public class RobotContainer {
         //     ejectNote()
         //     ));
 
-        new Trigger(()-> amper.getMeasurement() > 3)
+        // run shooter is amper is out
+        new Trigger(amperOut)
+        .onTrue(shooter.runShooter(AMP_RPM));
+
+        new Trigger(amperOut)
         .onTrue(amper.runRollers())
         .onFalse(amper.stopRollers());
 
-        new Trigger(()-> amper.getMeasurement() > 3)
-        .and(()-> !shooter.noteInRollers())
+        new Trigger(amperOut)
+        .and(hasNoNotes)
         .debounce(2)
         .onTrue(amper.retract());
-
     }
 
     private Timer ejecTimer = new Timer();

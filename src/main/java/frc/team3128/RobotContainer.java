@@ -44,6 +44,7 @@ import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import common.utility.sysid.CmdSysId;
 import common.utility.tester.Tester;
+import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
 // import common.utility.tester.Tester.UnitTest;
@@ -62,6 +63,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 public class RobotContainer {
 
     private Swerve swerve;
+    private Amper amper;
     private Hopper hopper;
     private Intake intake;
     private Shooter shooter;
@@ -71,6 +73,7 @@ public class RobotContainer {
     private NAR_ButtonBoard buttonPad;
 
     public static NAR_XboxController controller;
+    public static NAR_XboxController controller2;
 
     private NarwhalDashboard dashboard;
 
@@ -87,8 +90,10 @@ public class RobotContainer {
         // judgePad = new NAR_ButtonBoard(1);
         controller = new NAR_XboxController(2);
         buttonPad = new NAR_ButtonBoard(3);
+        controller2 = new NAR_XboxController(4);
 
         swerve = Swerve.getInstance();
+        amper = Amper.getInstance();
         hopper = Hopper.getInstance();
         intake = Intake.getInstance();
         shooter = Shooter.getInstance();
@@ -128,8 +133,11 @@ public class RobotContainer {
             CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90);
         }));
 
+        controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
+
         controller.getButton(XboxButton.kLeftTrigger).onTrue(intake(Intake.Setpoint.GROUND));
         controller.getButton(XboxButton.kLeftBumper).onTrue(retractIntake());
+
         controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.rampUpShooter()).onFalse(shooter.setShooting(true));
 
         controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
@@ -137,6 +145,13 @@ public class RobotContainer {
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
         controller.getButton(XboxButton.kY).whileTrue(ampUp()).onFalse(ampFinAndDown());
+
+        controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset(0)));
+        controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset(0)));
+        controller2.getButton(XboxButton.kRightTrigger).onTrue(intake.runPivot(0.3));
+        controller2.getButton(XboxButton.kRightBumper).onTrue(intake.runPivot(-0.3));
+        
+
 
         // new Trigger(()->true).onTrue(queueNote());
 
@@ -152,8 +167,9 @@ public class RobotContainer {
         ));
         
         //Stops shooting when all notes are gone
-        new Trigger(()-> shooter.noteInRollers()).negate()
-        .and(()->hopper.hasObjectPresent()).negate()
+        new Trigger(()-> !shooter.noteInRollers())
+        .and(()-> !hopper.hasObjectPresent())
+        .debounce(0.5)
         .onTrue(sequence(
             shooter.setShooting(false),
             runOnce(() -> leds.setLedColor(Colors.BLUE))
@@ -184,11 +200,24 @@ public class RobotContainer {
             waitSeconds(.1),
             shooter.runKickMotor(0)
         ));
+
+        // new Trigger(()-> !shooter.noteInRollers())
+        // .debounce(0.25)
+        // .onTrue(amper.retract());
         
         // new Trigger(() -> shouldEjectNote()).onTrue(sequence(
         //     runOnce(() -> leds.setLedColor(Colors.PURPLE)),
         //     ejectNote()
         //     ));
+
+        new Trigger(()-> amper.getMeasurement() > 3)
+        .onTrue(amper.runRollers())
+        .onFalse(amper.stopRollers());
+
+        new Trigger(()-> amper.getMeasurement() > 3)
+        .and(()-> !shooter.noteInRollers())
+        .debounce(2)
+        .onTrue(amper.retract());
 
     }
 

@@ -169,10 +169,11 @@ public class CmdManager {
         return sequence(
             amper.fullExtend(),
             waitUntil(() -> amper.atSetpoint()),
-            shooter.setShooting(true),
-            waitUntil(() -> !shooter.getShooting()),
-            amper.stopRollers(),
-            amper.retract()
+            shooter.setShooting(true)
+            // waitUntil(() -> !shooter.getShooting())
+            // waitSeconds(1),
+            // amper.runRollers(0),
+            // amper.moveElevator(0)
         );
     }
 

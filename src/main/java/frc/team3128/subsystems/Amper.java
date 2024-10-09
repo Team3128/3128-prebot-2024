@@ -53,8 +53,9 @@ public class Amper extends ElevatorTemplate {
         ELEV_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
         ELEV_MOTOR.setCurrentLimit(CURRENT_LIMIT);
         ELEV_MOTOR.setInverted(true);
+        ROLLER_MOTOR.setInverted(true);
 
-        ELEV_MOTOR.setNeutralMode(Neutral.COAST);
+        ELEV_MOTOR.setNeutralMode(Neutral.BRAKE);
         ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
 
         ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);

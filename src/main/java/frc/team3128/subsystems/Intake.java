@@ -6,6 +6,7 @@ import common.core.controllers.TrapController;
 import common.core.subsystems.PivotTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
+import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -16,9 +17,8 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 public class Intake extends PivotTemplate{
 
     public enum Setpoint {
-        GROUND(MAX_SETPOINT),
-        SOURCE(60),
-        NEUTRAL(MIN_SETPOINT);
+        GROUND(138),
+        NEUTRAL(0);
         
 
         public final double angle;
@@ -67,12 +67,20 @@ public class Intake extends PivotTemplate{
     public Command retract() {
         return sequence(
             pivotTo(Setpoint.NEUTRAL),
-            waitUntil(()-> atSetpoint()).withTimeout(1.5),
-            runPivot(-0.2),
-            waitSeconds(0.1),
-            runPivot(0),
-            reset(0)
-        );
+            runOuttakeRollers(),
+            waitUntil(()-> atSetpoint()).withTimeout(1.5)
+            // reset(0)//,
+            // runPivot(-0.2),
+            // waitSeconds(0.1),
+            // runPivot(0),
+            // reset(0)
+        ).andThen(stopRollers());
+    }
+
+    @Override
+    public void initShuffleboard(){
+        super.initShuffleboard();
+        NAR_Shuffleboard.addData(getName(), "Current", ()-> ROLLER_MOTOR.getStallCurrent(), 4, 0);
     }
 
     @Override

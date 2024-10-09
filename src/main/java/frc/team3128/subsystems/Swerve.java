@@ -103,7 +103,7 @@ public class Swerve extends SwerveBase {
     @Override
     public void zeroGyro(double reset) {
         // gyro.setYaw(reset);
-        gyroOffset = getYaw();
+        gyroOffset = (Robot.getAlliance() == Alliance.Red ? 180 : 0) - gyro.getAngle();
     }
 
     public double getPredictedDistance() {

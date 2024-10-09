@@ -275,7 +275,7 @@ public class Constants {
         public static final double MIDDLE_FEED_ANGLE = 25;
         
         public static final double INTAKE_POWER = 0.65;
-        public static final double KICK_POWER = 0.5;
+        public static final double KICK_POWER = 0.4;
         public static final double KICK_SHOOTING_POWER = 0.8;
         public static final double CURRENT_TEST_POWER = 0;
         public static final double CURRENT_TEST_PLATEAU = 0;
@@ -312,7 +312,7 @@ public class Constants {
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
         public static final double OUTTAKE_POWER = -0.3;
-        public static final double INTAKE_POWER = .65;
+        public static final double INTAKE_POWER = .8;
         public static final double VOLT_COMP = 9;
     }
 
@@ -439,7 +439,7 @@ public class Constants {
         public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(0.9023) * Math.PI;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
 
-        public static final double ROLLER_POWER = 0.5;
+        public static final double ROLLER_POWER = 0.8;
 
         public static final double AMPER_ANGLE = 31.96;
     }

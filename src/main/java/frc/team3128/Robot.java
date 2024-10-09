@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 
 import common.core.misc.NAR_Robot;
 import common.hardware.camera.Camera;
+import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.Log;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
@@ -25,6 +26,7 @@ import frc.team3128.autonomous.AutoPrograms;
 import frc.team3128.commands.CmdManager;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Leds;
+import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
 
 /**

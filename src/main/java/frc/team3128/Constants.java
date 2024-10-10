@@ -18,6 +18,7 @@ import common.hardware.motorcontroller.NAR_TalonFX;
 import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
+import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
@@ -35,6 +36,8 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import common.utility.shuffleboard.NAR_Shuffleboard;
+
 
 
 public class Constants {
@@ -317,7 +320,7 @@ public class Constants {
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
         public static final double OUTTAKE_POWER = -0.3;
-        public static final double INTAKE_POWER = .8;
+        public static final double INTAKE_POWER = .75;
         public static final double VOLT_COMP = 9;
     }
 
@@ -388,6 +391,7 @@ public class Constants {
     
         }
     }
+    
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 50;
         // public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
@@ -416,7 +420,7 @@ public class Constants {
 
         public static final double STALL_CURRENT = 50;
         public static final double HOPPER_INTAKE_POWER = 0.8;
-        public static final double HOPPER_OUTTAKE_POWER = -0.5;
+        public static final double HOPPER_OUTTAKE_POWER = -1;
         public static final double STALL_POWER = 0.05;
 
         public static final double VOLT_COMP = 9;

@@ -45,6 +45,7 @@ public class Amper extends ElevatorTemplate {
 
         setTolerance(POSITION_TOLERANCE);
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
+        reset(0);
         // initShuffleboard();
     }
 

@@ -1,6 +1,7 @@
 package frc.team3128.commands;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+import static frc.team3128.Constants.Flags.shooterHasNote;
 import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
 import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
 import static frc.team3128.Constants.HopperConstants.*;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.team3128.Robot;
 import frc.team3128.RobotContainer;
+import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
@@ -162,6 +164,18 @@ public class CmdManager {
             waitSeconds(0.3),
             hopper.runManipulator(HOPPER_OUTTAKE_POWER),
             waitSeconds(0.2),
+            hopper.runManipulator(0)
+        );
+    }
+
+    public static Command feed(double rpm, double angle){
+        return sequence(
+            shooter.runShooter(rpm),
+            swerve.turnInPlace(()-> angle),
+            shooter.runKickMotor(KICK_POWER),
+            hopper.intake(),
+            waitSeconds(1),
+            shooter.stopMotors(),
             hopper.runManipulator(0)
         );
     }

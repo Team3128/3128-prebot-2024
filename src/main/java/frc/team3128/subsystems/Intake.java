@@ -17,7 +17,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 public class Intake extends PivotTemplate{
 
     public enum Setpoint {
-        GROUND(138),
+        GROUND(133),
         NEUTRAL(0);
         
 
@@ -44,6 +44,7 @@ public class Intake extends PivotTemplate{
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
         setSafetyThresh(5);
         initShuffleboard();
+        reset(0);
 
         //TODO: remove once done testing
         // this.setSafetyThresh(1000);

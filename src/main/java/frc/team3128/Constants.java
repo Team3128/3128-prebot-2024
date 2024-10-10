@@ -271,7 +271,7 @@ public class Constants {
 
     public static class FocalAimConstants {
         public static final double speakerLength = 1.043;
-        public static final double speakerMidpointY = Units.inchesToMeters(218.29);//5.4;
+        public static final double speakerMidpointY = Units.inchesToMeters(218.29);//5.54;
         
         ; //6.151 - speakerLength / 2;
         public static final double focalPointX = 0.1; //0.229; //1.4583577128;

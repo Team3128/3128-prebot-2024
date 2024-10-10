@@ -58,6 +58,36 @@
           "data": {
             "pathName": "note2.4-feedLow"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Outtake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "feedLow-note2.3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignCW"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "note2.3-farMid"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
         }
       ]
     }

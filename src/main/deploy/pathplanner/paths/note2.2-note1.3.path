@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.37,
-        "y": 5.554926415489055
+        "x": 5.451695806169391,
+        "y": 6.46541477342214
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8360874772918804,
-        "y": 4.762636265413899
+        "x": 2.79172933737717,
+        "y": 6.446233805477015
       },
       "isLocked": false,
-      "linkedName": "note1.2"
+      "linkedName": "note2.2"
+    },
+    {
+      "anchor": {
+        "x": 1.372815018357309,
+        "y": 5.429420604139013
+      },
+      "prevControl": {
+        "x": 1.4166440401846316,
+        "y": 6.1456129573701155
+      },
+      "nextControl": {
+        "x": 1.3407299382450175,
+        "y": 4.905131261799519
+      },
+      "isLocked": false,
+      "linkedName": "shoot"
     },
     {
       "anchor": {
         "x": 2.365351364715268,
-        "y": 7.018986774208668
+        "y": 4.066850704234323
       },
       "prevControl": {
-        "x": 1.3309751824116747,
-        "y": 7.0008148238022665
+        "x": 1.6973608829662796,
+        "y": 4.116610717547453
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "note1.1"
+      "linkedName": "note1.3"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +49,7 @@
   "eventMarkers": [
     {
       "name": "Shoot",
-      "waypointRelativePos": 0.3,
+      "waypointRelativePos": 0.9,
       "command": {
         "type": "parallel",
         "data": {

@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "middle-note1.3"
+            "pathName": "middle-note2.2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "note2.2-note1.3"
           }
         },
         {

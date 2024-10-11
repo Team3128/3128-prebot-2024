@@ -93,6 +93,7 @@ public class Shooter extends ShooterTemplate {
     public Command rampUpShooter(){
         return runShooter(SHOOTER_RPM);
     }
+    
 
     public Command runShooter(double power) {
         return runOnce(()-> SHOOTER_MOTOR.set(power));

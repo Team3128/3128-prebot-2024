@@ -28,7 +28,8 @@ public class AutoPrograms {
 
     private void initAutoSelector() {
         final String[] autoStrings = new String[] {
-
+            "middle_FU",
+            "top-3Rush"
         };
         
         NarwhalDashboard.getInstance().addAutos(autoStrings);

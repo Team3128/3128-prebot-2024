@@ -88,6 +88,12 @@ public class CmdManager {
         );
     }
 
+    public static Command autoShoot() {
+        return sequence(
+            shooter.rampUpShooter(),
+            shooter.setShooting(true));
+    }
+
     // public static Command autoShoot(boolean once) {
     //     return deadline(
     //         rampUpShoot(),

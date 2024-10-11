@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4,
-        "y": 5.55
+        "x": 2.45599147216813,
+        "y": 4.110705415855277
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4707106781186547,
-        "y": 5.479289321881345
+        "x": 1.0181175269787757,
+        "y": 4.954735580766425
       },
       "isLocked": false,
-      "linkedName": "middle"
+      "linkedName": "note1.3"
     },
     {
       "anchor": {
-        "x": 2.65,
-        "y": 4.4
+        "x": 2.3275430624965137,
+        "y": 6.3929658322269285
       },
       "prevControl": {
-        "x": 2.5792893218813453,
-        "y": 4.470710678118655
+        "x": 1.1713292222910554,
+        "y": 5.997465874560346
+      },
+      "nextControl": {
+        "x": 2.9543812474062854,
+        "y": 6.607385057265402
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.45802347623512,
+        "y": 7.09726455563919
+      },
+      "prevControl": {
+        "x": 5.45802347623512,
+        "y": 7.09726455563919
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,16 +48,16 @@
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "intakeAndStop",
-      "waypointRelativePos": 0,
+      "name": "Shoot",
+      "waypointRelativePos": 0.4,
       "command": {
-        "type": "parallel",
+        "type": "sequential",
         "data": {
           "commands": [
             {
               "type": "named",
               "data": {
-                "name": "intakeAndStop"
+                "name": "Shoot"
               }
             }
           ]
@@ -51,14 +67,14 @@
   ],
   "globalConstraints": {
     "maxVelocity": 5.6,
-    "maxAcceleration": 6.0,
+    "maxAcceleration": 5.5,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 135.0,
-    "rotateFast": true
+    "velocity": 0,
+    "rotation": 180.0,
+    "rotateFast": false
   },
   "reversed": false,
   "folder": null,

@@ -315,7 +315,7 @@ public class Constants {
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
 
         public static final int ROLLER_MOTOR_ID = 30;
-        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
+        public static final NAR_TalonFX ROLLER_MOTOR = new NAR_TalonFX(ROLLER_MOTOR_ID);
 
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;

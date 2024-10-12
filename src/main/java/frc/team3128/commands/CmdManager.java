@@ -174,13 +174,30 @@ public class CmdManager {
         );
     }
 
-    public static Command feed(double rpm, double angle){
+    // public static Command feed(double rpm, double angle){
+    //     return sequence(
+    //         shooter.runShooter(rpm),
+    //         swerve.turnInPlace(()-> angle),
+    //         shooter.runKickMotor(KICK_POWER),
+    //         hopper.intake(),
+    //         waitSeconds(1),
+    //         shooter.stopMotors(),
+    //         hopper.runManipulator(0)
+    //     );
+    // }
+
+    //better feed logic UNTESTED
+    public Command feed(double shooterPower, double angle){
         return sequence(
-            shooter.runShooter(rpm),
-            swerve.turnInPlace(()-> angle),
+            parallel(
+                swerve.turnInPlace(()-> angle),
+                shooter.runShooter(shooterPower)
+            ),
             shooter.runKickMotor(KICK_POWER),
-            hopper.intake(),
-            waitSeconds(1),
+            waitSeconds(0.25),
+            hopper.runManipulator(HOPPER_INTAKE_POWER),
+            waitUntil(()-> !shooter.noteInRollers() || !hopper.hasObjectPresent()),
+            waitSeconds(0.5),
             shooter.stopMotors(),
             hopper.runManipulator(0)
         );

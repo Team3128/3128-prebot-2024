@@ -58,10 +58,14 @@ public class Trajectories {
 
         // TODO: add commands
         NamedCommands.registerCommand("Shoot", CmdManager.autoShoot());
+        
         NamedCommands.registerCommand("Spit", CmdManager.autoShoot());
         NamedCommands.registerCommand("intakeDown", CmdManager.intake(Intake.Setpoint.GROUND));
         NamedCommands.registerCommand("intakeUp", CmdManager.retractIntake());
 
+        NamedCommands.registerCommand("ramShoot", CmdManager.ramShoot(true));
+        NamedCommands.registerCommand("ramShootNoStop", CmdManager.ramShootNoStop(true));
+        NamedCommands.registerCommand("intakeAndStop", CmdManager.intakeAndStop(Intake.Setpoint.GROUND));
         AutoBuilder.configureHolonomic(
             swerve::getPose,
             swerve::resetOdometry,

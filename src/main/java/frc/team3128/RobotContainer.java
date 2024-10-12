@@ -45,7 +45,6 @@ import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
 // import common.utility.tester.Tester.UnitTest;
-import frc.team3128.subsystems.Leds;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
 import java.util.ArrayList;
@@ -64,7 +63,6 @@ public class RobotContainer {
     private Hopper hopper;
     private Intake intake;
     private Shooter shooter;
-    private Leds leds;
 
     // private NAR_ButtonBoard judgePad;
     private NAR_ButtonBoard buttonPad;
@@ -94,7 +92,6 @@ public class RobotContainer {
         hopper = Hopper.getInstance();
         intake = Intake.getInstance();
         shooter = Shooter.getInstance();
-        leds = Leds.getInstance();
 
         //uncomment line below to enable driving
         CommandScheduler.getInstance().setDefaultCommand(swerve, new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
@@ -170,8 +167,7 @@ public class RobotContainer {
         .and(()-> !hopper.hasObjectPresent())
         .debounce(0.5)
         .onTrue(sequence(
-            shooter.setShooting(false),
-            runOnce(() -> leds.setLedColor(Colors.BLUE))
+            shooter.setShooting(false)
         ));
 
         //Queues note to hopper
@@ -191,7 +187,6 @@ public class RobotContainer {
         .and(()->hopper.hasObjectPresent())
         .and(() -> !shooter.getShooting())
         .onTrue(sequence(
-            runOnce(() -> leds.blinkLEDColor(Colors.RED, Colors.GREEN, .25)),
             shooter.runKickMotor(KICK_POWER),
             hopper.runManipulator(HOPPER_INTAKE_POWER)
         ))
@@ -246,7 +241,6 @@ public class RobotContainer {
         if(shooter.noteInRollers() && hopper.hasObjectPresent() && !ejectTimerStarted){
             ejectTimerStarted = true;
             ejecTimer.start();
-            runOnce(() -> leds.blinkLEDColor(Colors.RED, Colors.ORANGE, .25));
         }
 
         else if(shooter.noteInRollers() && hopper.hasObjectPresent() && ejectTimerStarted){

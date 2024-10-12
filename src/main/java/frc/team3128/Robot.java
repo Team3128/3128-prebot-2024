@@ -25,7 +25,6 @@ import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.autonomous.AutoPrograms;
 import frc.team3128.commands.CmdManager;
 import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Leds;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
 
@@ -121,7 +120,6 @@ public class Robot extends NAR_Robot {
         Camera.enableAll();
         Camera.overrideThreshold = 0;
         Camera.validDist = 30;
-        Leds.getInstance().setDefaultColor();
         Command m_autonomousCommand = autoPrograms.getAutonomousCommand();
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
@@ -166,14 +164,12 @@ public class Robot extends NAR_Robot {
         ).schedule();
 
         if (hasInitialized) {
-            Leds.getInstance().setLedColor(Colors.AMP);
         }
         hasInitialized = true;
     }
 
     @Override
     public void disabledExit() {
-        Leds.getInstance().setDefaultColor();
         Swerve.getInstance().setBrakeMode(true
         );
     }

@@ -4,10 +4,12 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.Flags.shooterHasNote;
 import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
 import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
+import static frc.team3128.Constants.FieldConstants.*;
 import static frc.team3128.Constants.HopperConstants.*;
 import static frc.team3128.Constants.ShooterConstants.*;
 
 import common.hardware.input.NAR_XboxController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -66,6 +68,17 @@ public class CmdManager {
             )
         );
     }
+
+    public static Command ramShootTriggerless(){
+        return sequence(
+            shooter.runShooter(0.8),
+            waitSeconds(0.5),
+            shooter.runKickMotor(KICK_POWER),
+            waitSeconds(1),
+            shooter.stopMotors()
+        );
+    }
+
 
     public static Command ramShoot(boolean once) {
         return sequence(
@@ -138,6 +151,22 @@ public class CmdManager {
     //     );
     // }
 
+    public static Command outtake(){
+        return sequence(
+            shooter.runKickMotor(-1),
+            hopper.runManipulator(-1),
+            intake.outtake()
+        );
+    }
+
+    public static Command stop(){
+        return sequence(
+            shooter.runKickMotor(0),
+            hopper.runManipulator(0),
+            intake.retract()
+        );
+    }
+
     public static Command hopperOuttake() {
         return sequence(
             intake.pivotTo(Setpoint.NEUTRAL),
@@ -153,6 +182,7 @@ public class CmdManager {
         return sequence(
             amper.fullExtend(),
             waitUntil(() -> amper.atSetpoint()),
+            waitSeconds(0.25),
             shooter.setShooting(true)
             // waitUntil(() -> !shooter.getShooting())
             // waitSeconds(1),
@@ -187,10 +217,10 @@ public class CmdManager {
     // }
 
     //better feed logic UNTESTED
-    public Command feed(double shooterPower, double angle){
+    public static Command feed(double shooterPower, double angle){
         return sequence(
             parallel(
-                swerve.turnInPlace(()-> angle),
+                swerve.turnInPlace(()-> allianceFlip(Rotation2d.fromDegrees(angle)).getDegrees()),
                 shooter.runShooter(shooterPower)
             ),
             shooter.runKickMotor(KICK_POWER),

@@ -38,6 +38,7 @@ public class Shooter extends ShooterTemplate {
 
         configMotors();
         // initShuffleboard();
+        // NAR_Shuffleboard.addData(getName(), "Velocity", ()-> SHOOTER_MOTOR.getVelocity(), 5, 5);
 
         ControllerBase controller = getController();
         controller.setkS(()-> controller.getkS());

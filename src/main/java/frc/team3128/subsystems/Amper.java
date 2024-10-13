@@ -18,7 +18,7 @@ public class Amper extends ElevatorTemplate {
     public enum Setpoint {
         //TODO: correct EXTEND setpoints
         FULLEXTEND(21.25),
-        PARTEXTEND(21.25*0.8),
+        PARTEXTEND(21.25*0.7),
         RETRACTED(0);
 
         private double setpoint;
@@ -47,6 +47,8 @@ public class Amper extends ElevatorTemplate {
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
         reset(0);
         // initShuffleboard();
+
+        // NAR_Shuffleboard.addData(getName(), "Roll ber Velocity", ()-> ROLLER_MOTOR.getVelocity(), 7, 4);
     }
 
     @Override

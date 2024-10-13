@@ -18,6 +18,7 @@ public class Intake extends PivotTemplate{
 
     public enum Setpoint {
         GROUND(133),
+        OUTTAKE(90),
         NEUTRAL(0);
         
 
@@ -42,7 +43,7 @@ public class Intake extends PivotTemplate{
 
         setTolerance(ANGLE_TOLERANCE);
         setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-        setSafetyThresh(5);
+        setSafetyThresh(1.5);
         initShuffleboard();
         reset(0);
 
@@ -70,12 +71,15 @@ public class Intake extends PivotTemplate{
             pivotTo(Setpoint.NEUTRAL),
             runOuttakeRollers(),
             waitUntil(()-> atSetpoint()).withTimeout(1.5)
-            // reset(0)//,
-            // runPivot(-0.2),
-            // waitSeconds(0.1),
-            // runPivot(0),
-            // reset(0)
-        ).andThen(stopRollers());
+        ).andThen(runRollers(0));
+    }
+
+    public Command outtake(){
+        return sequence(
+            pivotTo(Setpoint.OUTTAKE),
+            runRollers(-1)
+        );
+
     }
 
     @Override

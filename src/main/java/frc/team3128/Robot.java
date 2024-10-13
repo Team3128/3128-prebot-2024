@@ -33,7 +33,7 @@ import frc.team3128.subsystems.Swerve;
  * each mode, as described in the TimedRobot documentation.
  */
 public class Robot extends NAR_Robot {
-    private Timer timer = new Timer();
+    private Timer m_gcTimer = new Timer();
 
     private boolean hasInitialized = false;
     private int notePlateuCount = 0;
@@ -62,7 +62,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void robotInit(){
-        timer.restart();
+        m_gcTimer.restart();
         
 
         autoPrograms = new AutoPrograms();
@@ -103,6 +103,9 @@ public class Robot extends NAR_Robot {
     @Override
     public void robotPeriodic(){
         Camera.updateAll();
+        if(m_gcTimer.advanceIfElapsed(5)) {
+            System.gc();
+        }
         // TODO: this may break everything
         // if (Hopper.getInstance().hasObjectPresent()) {
         //     if (timer.hasElapsed(2.5)) {

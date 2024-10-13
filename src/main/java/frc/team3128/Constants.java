@@ -117,9 +117,9 @@ public class Constants {
         // Theoretical: v = 4.96824, omega = 11.5
         // Real: v = 4.5, omega = 10
         // For safety, use less than theoretical and real values
-        public static final double maxSpeed = 3;//4.8; //meters per second - 16.3 ft/sec
+        public static final double maxSpeed = 4.57;//4.8; //meters per second - 16.3 ft/sec
         public static final double maxAttainableSpeed = maxSpeed; //Stole from citrus.
-        public static final double maxAcceleration = 1;
+        public static final double maxAcceleration = 5;
         public static final double maxAngularVelocity = 8; //3; //11.5; // citrus: 10 - Mason look at this later wtf
         public static final double maxAngularAcceleration = 2 * Math.PI; //I stole from citrus.
 
@@ -295,13 +295,15 @@ public class Constants {
         public static final double SHOOTER_TEST_TIMEOUT = 2.5;
 
         public static final double PROJECTILE_SPEED = 100; // m/s
+
+        public static final double AMP_SHOOTER_POWER = 1;
     }
 
     public static class IntakeConstants {
         public static final int PIVOT_MOTOR_ID = 31;
         public static final NAR_CANSpark PIVOT_MOTOR = new NAR_CANSpark(PIVOT_MOTOR_ID);
 
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.15, 0, 0, -0.35, 0, 0, 0);
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, -0.35, 0, 0, 0);
         public static final double MAX_VELOCITY = 1000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCITY, MAX_ACCELERATION);
@@ -448,7 +450,7 @@ public class Constants {
         public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(0.9023) * Math.PI;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
 
-        public static final double ROLLER_POWER = 0.8;
+        public static final double ROLLER_POWER = 0.9;
 
         public static final double AMPER_ANGLE = 31.96;
     }

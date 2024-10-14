@@ -104,8 +104,6 @@ public class RobotContainer {
         configureButtonBindings();
 
 
-        NAR_Shuffleboard.addData("Sensors", "Hopper", ()-> hopper.hasObjectPresent(), 0, 0);
-        NAR_Shuffleboard.addData("Sensor", "Shooter", () -> shooter.noteInRollers(), 0, 1);
         // NAR_Shuffleboard.addData("Limelight", "ValidTarget", ()-> limelight.hasValidTarget(), 0, 0);
         // NAR_Shuffleboard.addData("Limelight", "TX", ()-> limelight.getValue(LimelightKey.HORIZONTAL_OFFSET), 0, 1);
     }   
@@ -138,39 +136,184 @@ public class RobotContainer {
 
         controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
         controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
-        // controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
+        controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
         controller.getButton(XboxButton.kY).whileTrue(amper.partExtend()).onFalse(ampFinAndDown());
-        controller.getButton(XboxButton.kRightBumper).whileTrue(outtake()).onFalse(stop());
-
-        //feed
-        controller.getButton(XboxButton.kB).onTrue(feed(1, EDGE_FEED_ANGLE));
+        controller.getButton(XboxButton.kRightBumper).whileTrue(intake.runRollers(-1)).onFalse(intake.runRollers(0));
 
         controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset(0)));
         controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset(0)));
         controller2.getButton(XboxButton.kRightTrigger).onTrue(intake.runPivot(0.3));
         controller2.getButton(XboxButton.kRightBumper).onTrue(intake.runPivot(-0.3));
-        controller2.getButton(XboxButton.kLeftTrigger).onTrue(amper.runElevator(0.3));
-        controller2.getButton(XboxButton.kLeftBumper).onTrue(amper.runElevator(-0.3));
+        
 
-        // eject
-        new Trigger(()-> hopper.hasObjectPresent())
-        .and(()-> shooter.noteInRollers())
-        .debounce(2)
-        .onTrue(
-            sequence(
-                hopper.outtake().onlyIf(()-> !(SHOOTER_MOTOR.getAppliedOutput() > 0.1)),
-                waitSeconds(0.35)
-            )
-        );
 
         // new Trigger(()->true).onTrue(queueNote());
 
-        new Trigger(shooterHasNote).onTrue(vibrateController());
+        //Shooting
+        new Trigger(()-> shooter.getShooting())
+        .onTrue(sequence(
+            shooter.runKickMotor(KICK_POWER),
+            waitSeconds(0.25),
+            hopper.runManipulator(.8)
+        ))
+        .onFalse(sequence(
+            hopper.runManipulator(0),
+            shooter.stopMotors()
+        ));
+        
+        //Stops shooting when all notes are gone
+        new Trigger(()-> !shooter.noteInRollers())
+        .and(()-> !hopper.hasObjectPresent())
+        .debounce(0.5)
+        .onTrue(sequence(
+            shooter.setShooting(false)
+        ));
 
-        // //Shooting
-        // new Trigger(()-> shooter.getShooting())
-        // .onTrue(sequence(
-        //     shoTTT5555
+        //Queues note to hopper
+        new Trigger(()-> intake.getMeasurement() > 90)
+        .and(()->!hopper.hasObjectPresent())
+        .onTrue(hopper.runManipulator(HOPPER_INTAKE_POWER))
+        .onFalse(hopper.runManipulator(0));
+
+        //Stops hopper if intake is retracted and is empty
+        new Trigger(()-> intake.getMeasurement() < 20)
+        .and(()->hopper.hasObjectPresent()).negate()
+        .debounce(0.5)
+        .onTrue(hopper.runManipulator(0));
+
+        //Queues note to shooter
+        new Trigger(()-> shooter.noteInRollers()).negate()
+        .and(()->hopper.hasObjectPresent())
+        .and(() -> !shooter.getShooting())
+        .onTrue(sequence(
+            shooter.runKickMotor(KICK_POWER),
+            hopper.runManipulator(HOPPER_INTAKE_POWER)
+        ))
+        .onFalse(sequence(
+            shooter.runKickMotor(-.1),
+            waitSeconds(.1),
+            shooter.runKickMotor(0)
+        ));
+
+        // new Trigger(()-> !shooter.noteInRollers())
+        // .debounce(0.25)
+        // .onTrue(amper.retract());
+        
+        // new Trigger(() -> shouldEjectNote()).onTrue(sequence(
+        //     runOnce(() -> leds.setLedColor(Colors.PURPLE)),
+        //     ejectNote()
+        //     ));
+
+        new Trigger(()-> hopper.hasObjectPresent())
+        .and(()-> shooter.noteInRollers())
+        .onTrue(intake.pivotTo(Intake.Setpoint.NEUTRAL)
+                .andThen(intake.runRollers(0)));
+
+        new Trigger(()-> amper.getMeasurement() > 3)
+        .and(()-> shooter.noteInRollers())
+        .onTrue(shooter.runShooter(AMP_RPM));
+
+        new Trigger(()-> amper.getMeasurement() > 3)
+        .onTrue(amper.runRollers())
+        .onFalse(amper.stopRollers());
+
+        new Trigger(()-> amper.getMeasurement() > 3)
+        .and(()-> !shooter.noteInRollers())
+        .debounce(0.5)
+        .onTrue(amper.retract());
+
+        new Trigger(()-> hopper.hasObjectPresent())
+        .debounce(2)
+        .onTrue(
+            sequence(
+                hopper.outtake().onlyIf(()-> !(amper.getMeasurement() > 3)),
+                waitSeconds(0.3)
+            )
+        );
+
+    }
+
+    private Timer ejecTimer = new Timer();
+    private boolean ejectTimerStarted = false;
+
+    private boolean shouldEjectNote(){
+        if(shooter.noteInRollers() && hopper.hasObjectPresent() && !ejectTimerStarted){
+            ejectTimerStarted = true;
+            ejecTimer.start();
+        }
+
+        else if(shooter.noteInRollers() && hopper.hasObjectPresent() && ejectTimerStarted){
+            if(ejecTimer.hasElapsed(2)){
+                ejectTimerStarted = false;
+                ejecTimer.stop();
+                ejecTimer.reset();
+                return true;
+            }
+        }
+
+        else{
+            ejectTimerStarted = false;
+            ejecTimer.stop();
+            ejecTimer.reset();
+        }
+    
+        return false;  
+    }
+
+    @SuppressWarnings("unused")
+    public void initCameras() {
+        Camera.disableAll();
+        Camera.setResources(()-> swerve.getYaw(),  (pose, time) -> swerve.addVisionMeasurement(pose, time), AprilTagFields.k2024Crescendo.loadAprilTagLayoutField(), () -> swerve.getPose());
+        Camera.setThresholds(5, 0.5);
+        // Camera.overrideThreshold = 30;
+        // Camera.validDist = 0.5;
+        // Camera.addIgnoredTags(13.0, 14.0);
+
+        if (Robot.isReal()) {
+            // final Camera camera = new Camera("FRONT_LEFT", Units.inchesToMeters(10.055), Units.inchesToMeters(9.79), Units.degreesToRadians(30), Units.degreesToRadians(-28.125), 0);
+            // final Camera camera2 = new Camera("FRONT_RIGHT", Units.inchesToMeters(10.055), -Units.inchesToMeters(9.79), Units.degreesToRadians(-30), Units.degreesToRadians(-28.125), 0);
+            // camera.setCamDistanceThreshold(3.5);
+            // camera2.setCamDistanceThreshold(5);
+        }
+        // final Camera camera3 = new Camera("LEFT", Units.inchesToMeters(-3.1), Units.inchesToMeters(12.635), Units.degreesToRadians(90), Units.degreesToRadians(-10), 0);
+        // final Camera camera4 = new Camera("RIGHT", Units.inchesToMeters(-3.1), Units.inchesToMeters(-12.635), Units.degreesToRadians(-90), Units.degreesToRadians(0), 0);
+
+        // sideCams.add(camera3);
+        // sideCams.add(camera4);
+
+        // limelight = new Limelight("limelight-mason", 0, 0, 0);
+    }
+
+    public static void toggleSideCams(boolean enable) {
+        for (Camera camera : sideCams) {
+            if (enable) camera.enable();
+            else camera.disable();
+        }
+    }
+
+    public void initDashboard() {
+        /*dashboard = NarwhalDashboard.getInstance();
+        dashboard.addUpdate("time", ()-> Timer.getMatchTime());
+        dashboard.addUpdate("voltage",()-> RobotController.getBatteryVoltage());
+        dashboard.addUpdate("robotX", ()-> swerve.getPose().getX());
+        dashboard.addUpdate("robotY", ()-> swerve.getPose().getY());
+        dashboard.addUpdate("robotYaw", ()-> swerve.getPose().getRotation().getDegrees());
+        */
+    }
+
+    public boolean isConnected() {
+        for (SwerveModule module : swerve.getModules()) {
+            if (module.getRunningState() != State.RUNNING) {
+                Log.info("State Check", "Module " + module.moduleNumber +" failed.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void initRobotTest() {
+        // Tester tester = Tester.getInstance();
+        // tester.getTest("Robot").setTimeBetweenTests(0.5);
     }
 }

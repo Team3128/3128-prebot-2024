@@ -129,8 +129,8 @@ public class RobotContainer {
 
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
-        controller.getButton(XboxButton.kLeftTrigger).onTrue(intake(Intake.Setpoint.GROUND));
-        controller.getButton(XboxButton.kLeftBumper).onTrue(retractIntake());
+        controller.getButton(XboxButton.kLeftTrigger).onTrue(intake.setState(Intake.IntakeState.GROUND, 0));
+        controller.getButton(XboxButton.kLeftBumper).onTrue(intake.setState(Intake.IntakeState.NEUTRAL, 0));
 
         controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.rampUpShooter()).onFalse(shooter.setShooting(true));
 
@@ -138,13 +138,13 @@ public class RobotContainer {
         controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
-        controller.getButton(XboxButton.kY).whileTrue(amper.partExtend()).onFalse(ampFinAndDown());
+        controller.getButton(XboxButton.kY).whileTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(ampFinAndDown());
         controller.getButton(XboxButton.kRightBumper).whileTrue(intake.runRollers(-1)).onFalse(intake.runRollers(0));
 
-        controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset(0)));
-        controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset(0)));
-        controller2.getButton(XboxButton.kRightTrigger).onTrue(intake.runPivot(0.3));
-        controller2.getButton(XboxButton.kRightBumper).onTrue(intake.runPivot(-0.3));
+        controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.pivot.reset(0)));
+        controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
+        controller2.getButton(XboxButton.kRightTrigger).onTrue(intake.pivot.runPivot(0.3));
+        controller2.getButton(XboxButton.kRightBumper).onTrue(intake.pivot.runPivot(-0.3));
         
 
 
@@ -163,7 +163,7 @@ public class RobotContainer {
         ));
         
         //Stops shooting when all notes are gone
-        new Trigger(()-> !shooter.noteInRollers())
+        new Trigger(()-> !shooter.hasObjectPresent())
         .and(()-> !hopper.hasObjectPresent())
         .debounce(0.5)
         .onTrue(sequence(
@@ -171,19 +171,19 @@ public class RobotContainer {
         ));
 
         //Queues note to hopper
-        new Trigger(()-> intake.getMeasurement() > 90)
+        new Trigger(()-> intake.pivot.getMeasurement() > 90)
         .and(()->!hopper.hasObjectPresent())
         .onTrue(hopper.runManipulator(HOPPER_INTAKE_POWER))
         .onFalse(hopper.runManipulator(0));
 
         //Stops hopper if intake is retracted and is empty
-        new Trigger(()-> intake.getMeasurement() < 20)
+        new Trigger(()-> intake.pivot.getMeasurement() < 20)
         .and(()->hopper.hasObjectPresent()).negate()
         .debounce(0.5)
         .onTrue(hopper.runManipulator(0));
 
         //Queues note to shooter
-        new Trigger(()-> shooter.noteInRollers()).negate()
+        new Trigger(()-> shooter.hasObjectPresent()).negate()
         .and(()->hopper.hasObjectPresent())
         .and(() -> !shooter.getShooting())
         .onTrue(sequence(
@@ -206,28 +206,28 @@ public class RobotContainer {
         //     ));
 
         new Trigger(()-> hopper.hasObjectPresent())
-        .and(()-> shooter.noteInRollers())
-        .onTrue(intake.pivotTo(Intake.Setpoint.NEUTRAL)
+        .and(()-> shooter.hasObjectPresent())
+        .onTrue(intake.setState(Intake.IntakeState.NEUTRAL, 0)
                 .andThen(intake.runRollers(0)));
 
-        new Trigger(()-> amper.getMeasurement() > 3)
-        .and(()-> shooter.noteInRollers())
+        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED))
+        .and(()-> shooter.hasObjectPresent())
         .onTrue(shooter.runShooter(AMP_RPM));
 
-        new Trigger(()-> amper.getMeasurement() > 3)
-        .onTrue(amper.runRollers())
-        .onFalse(amper.stopRollers());
+        // new Trigger(()-> amper.getMeasurement() > 3)
+        // .onTrue(amper.runRollers())
+        // .onFalse(amper.stopRollers());
 
-        new Trigger(()-> amper.getMeasurement() > 3)
-        .and(()-> !shooter.noteInRollers())
+        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED))
+        .and(()-> !shooter.hasObjectPresent())
         .debounce(0.5)
-        .onTrue(amper.retract());
+        .onTrue(amper.setState(Amper.AmpState.RETRACTED));
 
         new Trigger(()-> hopper.hasObjectPresent())
         .debounce(2)
         .onTrue(
             sequence(
-                hopper.outtake().onlyIf(()-> !(amper.getMeasurement() > 3)),
+                hopper.outtake().onlyIf(()-> !((amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED)))),
                 waitSeconds(0.3)
             )
         );
@@ -238,12 +238,12 @@ public class RobotContainer {
     private boolean ejectTimerStarted = false;
 
     private boolean shouldEjectNote(){
-        if(shooter.noteInRollers() && hopper.hasObjectPresent() && !ejectTimerStarted){
+        if(shooter.hasObjectPresent() && hopper.hasObjectPresent() && !ejectTimerStarted){
             ejectTimerStarted = true;
             ejecTimer.start();
         }
 
-        else if(shooter.noteInRollers() && hopper.hasObjectPresent() && ejectTimerStarted){
+        else if(shooter.hasObjectPresent() && hopper.hasObjectPresent() && ejectTimerStarted){
             if(ejecTimer.hasElapsed(2)){
                 ejectTimerStarted = false;
                 ejecTimer.stop();

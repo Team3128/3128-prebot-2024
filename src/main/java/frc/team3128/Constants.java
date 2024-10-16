@@ -308,6 +308,11 @@ public class Constants {
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCITY, MAX_ACCELERATION);
 
+        public static final PIDFFConfig ROLLER_PID = new PIDFFConfig(12/5500, 0, 0, 0, 0.00179104, 0);;
+        public static final double ROLLER_TOLERANCE = 100;
+        public static final double ROLLER_MAX_RPM = 5500;
+        public static final double ROLLER_MIN_RPM = 0;
+
         public static final double ANGLE_TOLERANCE = 3;
         public static final double MIN_SETPOINT = 0;
         public static final double MAX_SETPOINT = 147;
@@ -316,8 +321,11 @@ public class Constants {
         public static final double GEAR_RATIO = 1.0 / 40.0;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
 
-        public static final int ROLLER_MOTOR_ID = 31;
-        public static final NAR_TalonFX ROLLER_MOTOR = new NAR_TalonFX(ROLLER_MOTOR_ID);
+        public static final int ROLLER_MOTOR_ID1 = 31;
+        public static final NAR_TalonFX ROLLER_MOTOR1 = new NAR_TalonFX(ROLLER_MOTOR_ID1);
+        
+        public static final int ROLLER_MOTOR_ID2 = 32; //TODO: ADD
+        public static final NAR_TalonFX ROLLER_MOTOR2 = new NAR_TalonFX(ROLLER_MOTOR_ID2);
 
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
@@ -436,10 +444,15 @@ public class Constants {
         public static final int ROLLER_MOTOR_ID = 20;
         public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.75, 0, 0, 0.21115, 0.00182, 0.00182, 0.0);
+        public static final PIDFFConfig ELEVATOR_PID = new PIDFFConfig(0.75, 0, 0, 0.21115, 0.00182, 0.00182, 0.0);
         public static final double MAX_VELOCTIY = 10000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
+
+        public static final PIDFFConfig ROLLER_PID = new PIDFFConfig(12/5500, 0, 0, 0, 0.00179104, 0);;
+        public static final double ROLLER_TOLERANCE = 100;
+        public static final double ROLLER_MAX_RPM = 5500;
+        public static final double ROLLER_MIN_RPM = 0;
 
         public static final double POSITION_TOLERANCE = 0.25;
         public static final double MIN_SETPOINT = 0;
@@ -456,34 +469,34 @@ public class Constants {
     }
 
     public static class Flags {
-        public static final BooleanSupplier hopperHasNote = ()-> Hopper.getInstance().hasObjectPresent();
-        public static final BooleanSupplier shooterHasNote = ()-> Shooter.getInstance().noteInRollers();
-        public static final BooleanSupplier hasNoNotes = both(not(hopperHasNote), not(shooterHasNote));
-        public static final BooleanSupplier hasOneNote = xor(hopperHasNote, shooterHasNote);
-        public static final BooleanSupplier hasTwoNotes = both(hopperHasNote, shooterHasNote);
+        // public static final BooleanSupplier hopperHasNote = ()-> Hopper.getInstance().hasObjectPresent();
+        // public static final BooleanSupplier shooterHasNote = ()-> Shooter.getInstance().hasObjectPresent();
+        // public static final BooleanSupplier hasNoNotes = both(not(hopperHasNote), not(shooterHasNote));
+        // public static final BooleanSupplier hasOneNote = xor(hopperHasNote, shooterHasNote);
+        // public static final BooleanSupplier hasTwoNotes = both(hopperHasNote, shooterHasNote);
 
-        public static final BooleanSupplier readyForAdvance = both(hopperHasNote, not(shooterHasNote));
+        // public static final BooleanSupplier readyForAdvance = both(hopperHasNote, not(shooterHasNote));
 
-        public static final BooleanSupplier intakeOut = ()-> Intake.getInstance().getMeasurement() > 20;
-        public static final BooleanSupplier amperOut = ()-> Amper.getInstance().getMeasurement() > 3;
+        // public static final BooleanSupplier intakeOut = ()-> Intake.pivot.getMeasurement() > 20;
+        // public static final BooleanSupplier amperOut = ()-> Amper.elevator.getMeasurement() > 3;
 
-        public static final BooleanSupplier shooterRunning = ()-> ShooterConstants.SHOOTER_MOTOR.getAppliedOutput() > 0.1;
+        // public static final BooleanSupplier shooterRunning = ()-> ShooterConstants.SHOOTER_MOTOR.getAppliedOutput() > 0.1;
 
-        public static final BooleanSupplier amperStalled = ()-> AmperConstants.ROLLER_MOTOR.getStallCurrent() > 40;
-        public static final BooleanSupplier hopperStalled = ()-> HopperConstants.HOPPER_MOTOR.getStallCurrent() > 40;
-        public static final BooleanSupplier intakeStalled = ()-> IntakeConstants.ROLLER_MOTOR.getStallCurrent() > 40;
+        // public static final BooleanSupplier amperStalled = ()-> AmperConstants.ROLLER_MOTOR.getStallCurrent() > 40;
+        // public static final BooleanSupplier hopperStalled = ()-> HopperConstants.HOPPER_MOTOR.getStallCurrent() > 40;
+        // public static final BooleanSupplier intakeStalled = ()-> IntakeConstants.ROLLER_MOTOR1.getStallCurrent() > 40;
 
-        public static BooleanSupplier not(BooleanSupplier a) {
-            return ()-> !a.getAsBoolean();
-        }
+        // public static BooleanSupplier not(BooleanSupplier a) {
+        //     return ()-> !a.getAsBoolean();
+        // }
 
-        public static BooleanSupplier both(BooleanSupplier a, BooleanSupplier b) {
-            return ()-> a.getAsBoolean() && b.getAsBoolean();
-        }
+        // public static BooleanSupplier both(BooleanSupplier a, BooleanSupplier b) {
+        //     return ()-> a.getAsBoolean() && b.getAsBoolean();
+        // }
 
-        public static BooleanSupplier xor(BooleanSupplier a, BooleanSupplier b) {
-            return ()-> a.getAsBoolean() ^ b.getAsBoolean();
-        }
+        // public static BooleanSupplier xor(BooleanSupplier a, BooleanSupplier b) {
+        //     return ()-> a.getAsBoolean() ^ b.getAsBoolean();
+        // }
     }
 }
 

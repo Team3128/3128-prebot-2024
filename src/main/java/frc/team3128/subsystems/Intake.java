@@ -29,8 +29,8 @@ public class Intake extends SubsystemBase {
             setTolerance(ANGLE_TOLERANCE);
             setConstraints(MIN_SETPOINT, MAX_SETPOINT);
             setSafetyThresh(1.5);
-            initShuffleboard();
             reset(0);
+            initShuffleboard();
         }
 
         @Override
@@ -47,21 +47,21 @@ public class Intake extends SubsystemBase {
             super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), ROLLER_MOTOR1, ROLLER_MOTOR2);
             setTolerance(ROLLER_TOLERANCE);
             setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
+            initShuffleboard();
         }
 
         @Override
         protected void configMotors() {
             ROLLER_MOTOR1.setVelocityStatusFrames();
-            ROLLER_MOTOR1.setInverted(true);
+            ROLLER_MOTOR1.setInverted(false);
             ROLLER_MOTOR1.setNeutralMode(Neutral.COAST);
             ROLLER_MOTOR1.setCurrentLimit(CURRENT_LIMIT);
 
             ROLLER_MOTOR2.setVelocityStatusFrames();
-            ROLLER_MOTOR2.setInverted(false);
+            ROLLER_MOTOR2.setInverted(true);
             ROLLER_MOTOR2.setNeutralMode(Neutral.COAST);
             ROLLER_MOTOR2.setCurrentLimit(CURRENT_LIMIT);
         }
-    
     }
 
     public IntakePivot pivot;
@@ -73,8 +73,8 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeState {
-        GROUND(133, 3000),
-        OUTTAKE(90, -3000),
+        GROUND(133, 4500),
+        OUTTAKE(90, -4500),
         NEUTRAL(0, 0, true);
         
         private double pivotSetpoint;
@@ -128,8 +128,8 @@ public class Intake extends SubsystemBase {
         Intake.state = state;
         return sequence(
             rollers.shoot(state.getIntakeRollerSetpoint()),
-            pivot.pivotTo(state.getIntakePivotSetpoint()),
-            Commands.either(disable(), waitUntil(()-> pivot.atSetpoint()), ()-> true).withTimeout(1.5)
+            pivot.pivotTo(state.getIntakePivotSetpoint())
+            // Commands.either(disable(), waitUntil(()-> pivot.atSetpoint()), () -> state.disableOnCompletion)
         );
     }
 
@@ -192,7 +192,8 @@ public class Intake extends SubsystemBase {
     // }
 
     public Command runRollers(double power) {
-        return runOnce(()-> ROLLER_MOTOR1.set(power));
+        disable().schedule();
+        return runOnce(()-> ROLLER_MOTOR1.set(power)).andThen(()-> ROLLER_MOTOR2.set(power));
     }
 
     // public void setVoltage(double volts){

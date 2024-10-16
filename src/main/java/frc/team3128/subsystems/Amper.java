@@ -106,7 +106,7 @@ public class Amper extends SubsystemBase{
         elevator = new AmpElevator();
         manipulator = new AmpManipulator();
 
-        setDefaultCommand(setState(AmpState.RETRACTED));
+        // setDefaultCommand(setState(AmpState.RETRACTED));
     }
 
     public Command setState(AmpState state) {

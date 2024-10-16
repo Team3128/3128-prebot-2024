@@ -308,8 +308,8 @@ public class Constants {
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCITY, MAX_ACCELERATION);
 
-        public static final PIDFFConfig ROLLER_PID = new PIDFFConfig(12/5500, 0, 0, 0, 0.00179104, 0);;
-        public static final double ROLLER_TOLERANCE = 100;
+        public static final PIDFFConfig ROLLER_PID = new PIDFFConfig(0.00218, 0, 0, 0, 0.002, 0);;
+        public static final double ROLLER_TOLERANCE = 300;
         public static final double ROLLER_MAX_RPM = 5500;
         public static final double ROLLER_MIN_RPM = 0;
 

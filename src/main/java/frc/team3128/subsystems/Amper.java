@@ -95,10 +95,9 @@ public class Amper extends SubsystemBase{
 
     private static Amper instance;
 
-    public static AmpElevator elevator;
-    public static AmpManipulator manipulator;
+    public AmpElevator elevator;
+    public AmpManipulator manipulator;
 
-    public AmpState currentState = Amper.AmpState.IDLE;
 
     public static synchronized Amper getInstance() {
         if (instance == null)
@@ -109,8 +108,6 @@ public class Amper extends SubsystemBase{
     private Amper() {
         elevator = new AmpElevator();
         manipulator = new AmpManipulator();
-        NAR_Shuffleboard.addData(getName(), "Extended", ()-> isState(Amper.AmpState.EXTENDED), 0, 0);
-        // setDefaultCommand(setState(AmpState.RETRACTED));
     }
 
     public Command setState(AmpState state) {
@@ -118,22 +115,19 @@ public class Amper extends SubsystemBase{
     }
 
     public Command setState(AmpState state, double delay) {
-        currentState = state;
         return sequence(
             manipulator.shoot(state.getRollerSetpoint()),
             elevator.moveElevator(state.getElevatorSetpoint()),
             waitSeconds(delay),
+            waitUntil(()-> atSetpoint()),
             Commands.either(disable(), waitUntil(()-> atSetpoint()), ()-> state.disableOnCompletion())
         );
     }
 
-    public AmpState getState() {
-        return currentState;
-    }
-
     public boolean isState(AmpState state) {
         return state.getElevatorSetpoint() == elevator.getSetpoint()
-        && state.getRollerSetpoint() == manipulator.getSetpoint();
+        && state.getRollerSetpoint() == manipulator.getSetpoint()
+        && atSetpoint();
     }
 
     public boolean atSetpoint() {

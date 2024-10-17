@@ -134,7 +134,7 @@ public class CmdManager {
         return sequence(
             shooter.runKickMotor(-1),
             hopper.runManipulator(-1),
-            intake.setState(Intake.IntakeState.OUTTAKE, 0)
+            intake.setState(Intake.IntakeState.OUTTAKE)
         );
     }
 

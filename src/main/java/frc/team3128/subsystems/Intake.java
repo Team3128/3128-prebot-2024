@@ -103,16 +103,10 @@ public class Intake extends SubsystemBase {
         public boolean getDisableOnCompletion() {
             return disableOnCompletion;
         }
-
-        // public final double angle;
-        // private IntakeState(double angle) {
-        //     this.angle = angle;
-        // }
     }
 
     private static Intake instance;
 
-    private static IntakeState state;
 
     public static synchronized Intake getInstance() {
         if (instance == null)
@@ -120,16 +114,17 @@ public class Intake extends SubsystemBase {
         return instance;
     }
 
-    public IntakeState getState() {
-        return state;
+    public Command setState(IntakeState state) {
+        return setState(state, 0);
     }
 
     public Command setState(IntakeState state, double delay) {
-        Intake.state = state;
         return sequence(
             rollers.shoot(state.getIntakeRollerSetpoint()),
-            pivot.pivotTo(state.getIntakePivotSetpoint())
-            // Commands.either(disable(), waitUntil(()-> pivot.atSetpoint()), () -> state.disableOnCompletion)
+            pivot.pivotTo(state.getIntakePivotSetpoint()),
+            waitSeconds(delay),
+            waitUntil(()-> atSetpoint()),
+            Commands.either(disable(), waitUntil(()-> pivot.atSetpoint()), () -> state.disableOnCompletion)
         );
     }
 
@@ -141,11 +136,20 @@ public class Intake extends SubsystemBase {
     }
 
     public boolean isState(IntakeState state) {
-        return Intake.state == state;
+        return state.getIntakePivotSetpoint() == pivot.getSetpoint()
+        && state.getIntakeRollerSetpoint() == rollers.getSetpoint()
+        && atSetpoint();
     }
 
     public boolean atSetpoint() {
         return pivot.atSetpoint() && rollers.atSetpoint();
+    }
+
+    public  Command reset() {
+        return sequence(
+            disable(),
+            pivot.reset(0)
+        );
     }
 
     // public Command retract() {
@@ -190,11 +194,6 @@ public class Intake extends SubsystemBase {
     // public Command stopRollers() {
     //     return runRollers(0);
     // }
-
-    public Command runRollers(double power) {
-        disable().schedule();
-        return runOnce(()-> ROLLER_MOTOR1.set(power)).andThen(()-> ROLLER_MOTOR2.set(power));
-    }
 
     // public void setVoltage(double volts){
     //     PIVOT_MOTOR.setVolts(volts);

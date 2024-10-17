@@ -11,6 +11,8 @@ import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import common.utility.shuffleboard.NAR_Shuffleboard;
+
 
 import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
@@ -23,7 +25,8 @@ public class Amper extends SubsystemBase{
         private AmpElevator() {
             super(new TrapController(ELEVATOR_PID, TRAP_CONSTRAINTS), ELEV_MOTOR);
             setTolerance(POSITION_TOLERANCE);
-            setConstraints(MIN_SETPOINT, MAX_SETPOINT);    
+            setConstraints(MIN_SETPOINT, MAX_SETPOINT);
+            initShuffleboard();
         }
     
         @Override
@@ -43,6 +46,7 @@ public class Amper extends SubsystemBase{
             super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), ROLLER_MOTOR);
             setTolerance(ROLLER_TOLERANCE);
             setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
+            initShuffleboard();
         }
     
         @Override
@@ -94,7 +98,7 @@ public class Amper extends SubsystemBase{
     public static AmpElevator elevator;
     public static AmpManipulator manipulator;
 
-    private static AmpState state;
+    public AmpState currentState = Amper.AmpState.IDLE;
 
     public static synchronized Amper getInstance() {
         if (instance == null)
@@ -105,7 +109,7 @@ public class Amper extends SubsystemBase{
     private Amper() {
         elevator = new AmpElevator();
         manipulator = new AmpManipulator();
-
+        NAR_Shuffleboard.addData(getName(), "Extended", ()-> isState(Amper.AmpState.EXTENDED), 0, 0);
         // setDefaultCommand(setState(AmpState.RETRACTED));
     }
 
@@ -114,7 +118,7 @@ public class Amper extends SubsystemBase{
     }
 
     public Command setState(AmpState state, double delay) {
-        Amper.state = state;
+        currentState = state;
         return sequence(
             manipulator.shoot(state.getRollerSetpoint()),
             elevator.moveElevator(state.getElevatorSetpoint()),
@@ -124,11 +128,12 @@ public class Amper extends SubsystemBase{
     }
 
     public AmpState getState() {
-        return state;
+        return currentState;
     }
 
     public boolean isState(AmpState state) {
-        return Amper.state == state;
+        return state.getElevatorSetpoint() == elevator.getSetpoint()
+        && state.getRollerSetpoint() == manipulator.getSetpoint();
     }
 
     public boolean atSetpoint() {

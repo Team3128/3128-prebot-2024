@@ -59,7 +59,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 public class RobotContainer {
 
     private Swerve swerve;
-    // private Amper amper;
+    private Amper amper;
     private Hopper hopper;
     private Intake intake;
     private Shooter shooter;
@@ -88,7 +88,7 @@ public class RobotContainer {
         controller2 = new NAR_XboxController(4);
 
         swerve = Swerve.getInstance();
-        // amper = Amper.getInstance();
+        amper = Amper.getInstance();
         hopper = Hopper.getInstance();
         intake = Intake.getInstance();
         shooter = Shooter.getInstance();
@@ -135,7 +135,7 @@ public class RobotContainer {
         controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.rampUpShooter()).onFalse(shooter.setShooting(true));
 
         controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
-        controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
+        controller.getButton(XboxButton.kY).onTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(amper.setState(Amper.AmpState.EXTENDED));
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
         // controller.getButton(XboxButton.kY).whileTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(ampFinAndDown());
@@ -201,30 +201,48 @@ public class RobotContainer {
 
         // new Trigger(()-> !shooter.noteInRollers())
         // .debounce(0.25)
-        // .onTrue(amper.retract());
+        // .onTrue(amper.setState(Amper.AmpState.RETRACTED));
         
         // new Trigger(() -> shouldEjectNote()).onTrue(sequence(
         //     runOnce(() -> leds.setLedColor(Colors.PURPLE)),
         //     ejectNote()
         //     ));
 
+        //
         new Trigger(()-> hopper.hasObjectPresent())
         .and(()-> shooter.hasObjectPresent())
         .onTrue(intake.setState(Intake.IntakeState.NEUTRAL, 0)
                 .andThen(intake.runRollers(0)));
 
-        // new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED))
-        // .and(()-> shooter.hasObjectPresent())
-        // .onTrue(shooter.runShooter(AMP_RPM));
+        //shooter ramp for amp
+        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED))
+        .and(()-> shooter.hasObjectPresent())
+        .onTrue(shooter.runShooter(AMP_RPM))
+        .onFalse(sequence(
+            hopper.runManipulator(0),
+            shooter.stopMotors()
+        ));
 
         // new Trigger(()-> amper.getMeasurement() > 3)
         // .onTrue(amper.runRollers())
         // .onFalse(amper.stopRollers());
 
-        // new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED))
-        // .and(()-> !shooter.hasObjectPresent())
-        // .debounce(0.5)
-        // .onTrue(amper.setState(Amper.AmpState.RETRACTED));
+
+        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
+        .and(()-> shooter.hasObjectPresent())
+        .debounce(0.25)
+        .onTrue(sequence(
+            shooter.runKickMotor(KICK_POWER),
+            waitSeconds(0.5),
+            hopper.runManipulator(1)
+        ));
+
+        //retract if no note THIS DOES NOT WORK
+        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED))
+        .and(()-> !shooter.hasObjectPresent())
+        .debounce(0.5)
+        .onTrue(amper.setState(Amper.AmpState.IDLE));
+        
 
         new Trigger(()-> hopper.hasObjectPresent())
         .debounce(2)

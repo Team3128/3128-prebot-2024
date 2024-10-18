@@ -132,11 +132,10 @@ public class RobotContainer {
         controller.getButton(XboxButton.kLeftTrigger).onTrue(intake.setState(Intake.IntakeState.GROUND, 0));
         controller.getButton(XboxButton.kLeftBumper).onTrue(intake.setState(Intake.IntakeState.NEUTRAL, 0));
 
-        controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.rampUpShooter()).onFalse(shooter.setShooting(true));
-
-        controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
-        controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
-        controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
+        controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.setState(Shooter.ShooterState.SHOOTPRIME)).onFalse(shooter.setState(Shooter.ShooterState.SHOOTSHOOT));
+        
+        
+        controller.getButton(XboxButton.kB).onTrue(shooter.setState(Shooter.ShooterState.KICK)).onFalse(shooter.runKickMotor(0));
 
         controller.getButton(XboxButton.kY).whileTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(ampFinAndDown());
         controller.getButton(XboxButton.kRightBumper).whileTrue(intake.runRollers(-1)).onFalse(intake.runRollers(0));
@@ -151,15 +150,15 @@ public class RobotContainer {
         // new Trigger(()->true).onTrue(queueNote());
 
         //Shooting
-        new Trigger(()-> shooter.getShooting())
+        new Trigger(()-> shooter.isState(Shooter.ShooterState.SHOOTSHOOT))
+        .or(()-> shooter.isState(Shooter.ShooterState.AMPSHOOT))
         .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),
             waitSeconds(0.25),
             hopper.runManipulator(.8)
         ))
         .onFalse(sequence(
             hopper.runManipulator(0),
-            shooter.stopMotors()
+            shooter.setState(Shooter.ShooterState.IDLE)
         ));
         
         //Stops shooting when all notes are gone
@@ -167,7 +166,7 @@ public class RobotContainer {
         .and(()-> !hopper.hasObjectPresent())
         .debounce(0.5)
         .onTrue(sequence(
-            shooter.setShooting(false)
+            shooter.setState(Shooter.ShooterState.IDLE)
         ));
 
         //Queues note to hopper
@@ -178,16 +177,16 @@ public class RobotContainer {
 
         //Stops hopper if intake is retracted and is empty
         new Trigger(()-> intake.pivot.getMeasurement() < 20)
-        .and(()->hopper.hasObjectPresent()).negate()
+        .and(()->!hopper.hasObjectPresent())
         .debounce(0.5)
         .onTrue(hopper.runManipulator(0));
 
         //Queues note to shooter
-        new Trigger(()-> shooter.hasObjectPresent()).negate()
+        new Trigger(()-> !shooter.hasObjectPresent())
         .and(()->hopper.hasObjectPresent())
-        .and(() -> !shooter.getShooting())
+        .and(() -> shooter.isState(Shooter.ShooterState.SHOOTSHOOT) ||( shooter.isState(Shooter.ShooterState.AMPSHOOT)))
         .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),
+            shooter.setState(Shooter.ShooterState.KICK),
             hopper.runManipulator(HOPPER_INTAKE_POWER)
         ))
         .onFalse(sequence(
@@ -210,9 +209,13 @@ public class RobotContainer {
         .onTrue(intake.setState(Intake.IntakeState.NEUTRAL, 0)
                 .andThen(intake.runRollers(0)));
 
-        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED) || amper.isState(Amper.AmpState.PRIMED))
+        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
         .and(()-> shooter.hasObjectPresent())
-        .onTrue(shooter.runShooter(AMP_RPM));
+        .onTrue(shooter.setState(Shooter.ShooterState.AMPSHOOT));
+
+        new Trigger(()-> amper.isState(Amper.AmpState.PRIMED))
+        .and(()-> shooter.hasObjectPresent())
+        .onTrue(shooter.setState(Shooter.ShooterState.AMPPRIME));
 
         // new Trigger(()-> amper.getMeasurement() > 3)
         // .onTrue(amper.runRollers())
@@ -234,32 +237,7 @@ public class RobotContainer {
 
     }
 
-    private Timer ejecTimer = new Timer();
-    private boolean ejectTimerStarted = false;
-
-    private boolean shouldEjectNote(){
-        if(shooter.hasObjectPresent() && hopper.hasObjectPresent() && !ejectTimerStarted){
-            ejectTimerStarted = true;
-            ejecTimer.start();
-        }
-
-        else if(shooter.hasObjectPresent() && hopper.hasObjectPresent() && ejectTimerStarted){
-            if(ejecTimer.hasElapsed(2)){
-                ejectTimerStarted = false;
-                ejecTimer.stop();
-                ejecTimer.reset();
-                return true;
-            }
-        }
-
-        else{
-            ejectTimerStarted = false;
-            ejecTimer.stop();
-            ejecTimer.reset();
-        }
     
-        return false;  
-    }
 
     @SuppressWarnings("unused")
     public void initCameras() {

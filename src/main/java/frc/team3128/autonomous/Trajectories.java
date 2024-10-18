@@ -30,6 +30,8 @@ import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
 import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
 import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
 import static frc.team3128.Constants.SwerveConstants.*;
+import static frc.team3128.commands.CmdManager.intake;
+import static frc.team3128.commands.CmdManager.retractIntake;
 
 import frc.team3128.Constants.AutoConstants;
 import frc.team3128.Constants.ShooterConstants;
@@ -59,13 +61,14 @@ public class Trajectories {
         // TODO: add commands
         NamedCommands.registerCommand("Shoot", CmdManager.autoShoot());
         
-        NamedCommands.registerCommand("Spit", CmdManager.autoShoot());
-        NamedCommands.registerCommand("intakeDown", CmdManager.intake(Intake.Setpoint.GROUND));
-        NamedCommands.registerCommand("intakeUp", CmdManager.retractIntake());
+        NamedCommands.registerCommand("Intake", intake(Intake.Setpoint.GROUND));
+        NamedCommands.registerCommand("Neutral", retractIntake());
+        // NamedCommands.registerCommand("intakeDown", CmdManager.intake(Intake.Setpoint.GROUND));
+        // NamedCommands.registerCommand("intakeUp", CmdManager.retractIntake());
 
-        NamedCommands.registerCommand("ramShoot", CmdManager.ramShoot(true));
-        NamedCommands.registerCommand("ramShootNoStop", CmdManager.ramShootNoStop(true));
-        NamedCommands.registerCommand("intakeAndStop", CmdManager.intakeAndStop(Intake.Setpoint.GROUND));
+        // NamedCommands.registerCommand("ramShoot", CmdManager.ramShoot(true));
+        // NamedCommands.registerCommand("ramShootNoStop", CmdManager.ramShootNoStop(true));
+        // NamedCommands.registerCommand("intakeAndStop", CmdManager.intakeAndStop(Intake.Setpoint.GROUND));
         AutoBuilder.configureHolonomic(
             swerve::getPose,
             swerve::resetOdometry,

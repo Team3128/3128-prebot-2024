@@ -2,32 +2,101 @@ package frc.team3128.subsystems;
 
 import static frc.team3128.Constants.AmperConstants.*;
 
+import common.core.controllers.Controller;
 import common.core.controllers.TrapController;
 import common.core.subsystems.ElevatorTemplate;
+import common.core.subsystems.ShooterTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
-import common.hardware.motorcontroller.NAR_Motor.Control;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
-import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import common.utility.shuffleboard.NAR_Shuffleboard;
+
 
 import static edu.wpi.first.wpilibj2.command.Commands.sequence;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
-public class Amper extends ElevatorTemplate {
+public class Amper extends SubsystemBase{
     
-    public enum Setpoint {
-        //TODO: correct EXTEND setpoints
-        FULLEXTEND(21.25),
-        PARTEXTEND(21.25*0.7),
-        RETRACTED(0);
+    public class AmpElevator extends ElevatorTemplate {
+    
+        private AmpElevator() {
+            super(new TrapController(ELEVATOR_PID, TRAP_CONSTRAINTS), ELEV_MOTOR);
+            setTolerance(POSITION_TOLERANCE);
+            setConstraints(MIN_SETPOINT, MAX_SETPOINT);
+            initShuffleboard();
+        }
+    
+        @Override
+        protected void configMotors(){
+            ELEV_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
+            ELEV_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+            ELEV_MOTOR.setInverted(true);
+            ELEV_MOTOR.setNeutralMode(Neutral.BRAKE);
+            ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
+        }
+    
+    }
+    
+    public class AmpManipulator extends ShooterTemplate {
+    
+        private AmpManipulator() {
+            super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), ROLLER_MOTOR);
+            setTolerance(ROLLER_TOLERANCE);
+            setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
+            initShuffleboard();
+        }
+    
+        @Override
+        protected void configMotors(){
+            ROLLER_MOTOR.setVelocityStatusFrames();
+            ROLLER_MOTOR.setInverted(true);
+            ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
+            ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+        }
+    }
+    
 
-        private double setpoint;
-        private Setpoint(double setpoint) {
-            this.setpoint = setpoint;
+    public enum AmpState {
+        EXTENDED(21.25, 5500),
+        PRIMED(21.25*0.7, 5500),
+        IDLE(0, 0, true);
+
+        private double elevatorSetpoint;
+        private double rollerSetpoint;
+        private boolean disableOnCompletion;
+
+        private AmpState(double elevatorSetpoint, double rollerSetpoint, boolean disableOnCompletion){
+            this.elevatorSetpoint = elevatorSetpoint;
+            this.rollerSetpoint = rollerSetpoint;
+            this.disableOnCompletion = disableOnCompletion;
+        }
+       
+        private AmpState(double elevatorSetpoint, double rollerSetpoint) {
+            this.elevatorSetpoint = elevatorSetpoint;
+            this.rollerSetpoint = rollerSetpoint;
+        }
+
+        public double getElevatorSetpoint() {
+            return elevatorSetpoint;
+        }
+
+        public double getRollerSetpoint() {
+            return rollerSetpoint;
+        }
+
+        public boolean disableOnCompletion() {
+            return disableOnCompletion;
         }
     }
 
     private static Amper instance;
+
+    public AmpElevator elevator;
+    public AmpManipulator manipulator;
+
 
     public static synchronized Amper getInstance() {
         if (instance == null)
@@ -36,80 +105,51 @@ public class Amper extends ElevatorTemplate {
     }
 
     private Amper() {
-        super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), ELEV_MOTOR);
+        elevator = new AmpElevator();
+        manipulator = new AmpManipulator();
 
-        //TODO: remove once done testing
-        // this.setSafetyThresh(100);
-        
-        // setkG_Function(() ->  getMeasurement()*Math.sin(AMPER_ANGLE));
-
-        setTolerance(POSITION_TOLERANCE);
-        setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-        reset(0);
-        // initShuffleboard();
-
-        // NAR_Shuffleboard.addData(getName(), "Roll ber Velocity", ()-> ROLLER_MOTOR.getVelocity(), 7, 4);
+        NAR_Shuffleboard.addData(getName(), "At Sepoint", ()-> atSetpoint(), 2, 2);
+        // NAR_Shuffleboard.addData(getName(), "Retracted", ()-> isState(Amper.AmpState.RETRACTED), 0, 0);
+        NAR_Shuffleboard.addData(getName(), "Primed", ()-> isState(Amper.AmpState.PRIMED), 1, 0);
+        NAR_Shuffleboard.addData(getName(), "Extended", ()-> isState(Amper.AmpState.EXTENDED), 0, 1);
     }
 
-    @Override
-    protected void configMotors() {
-        ELEV_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
-        ELEV_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-        ELEV_MOTOR.setInverted(true);
-        ROLLER_MOTOR.setInverted(true);
-
-        ELEV_MOTOR.setNeutralMode(Neutral.BRAKE);
-        ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
-
-        ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
-        ROLLER_MOTOR.setDefaultStatusFrames();
+    public Command setState(AmpState state) {
+        return setState(state, 0);
     }
+
+    public Command setState(AmpState state, double delay) {
+        return sequence(
+            manipulator.shoot(state.getRollerSetpoint()),
+            elevator.moveElevator(state.getElevatorSetpoint()),
+            waitSeconds(delay),
+            waitUntil(()-> atSetpoint()),
+            Commands.either(disable(), waitUntil(()-> atSetpoint()), ()-> state.disableOnCompletion())
+        );
+    }
+
+    public boolean isState(AmpState state) {
+        return state.getElevatorSetpoint() == elevator.getSetpoint()
+        && state.getRollerSetpoint() == manipulator.getSetpoint()
+        && atSetpoint();
+    }
+
+    public boolean atSetpoint() {
+        return elevator.atSetpoint() && manipulator.atSetpoint();
+    }
+
+    public  Command reset() {
+        return sequence(
+            disable(),
+            elevator.reset(0)
+        );
     
-    public void setVoltage(double volts) {
-        ELEV_MOTOR.set(0, Control.Position);
-        ELEV_MOTOR.setVolts(volts);
     }
 
-    public double getVelocity() {
-        return ELEV_MOTOR.getVelocity();
+    public Command disable() {
+        return sequence(
+            Commands.runOnce(()-> elevator.disable()),
+            Commands.runOnce(()-> manipulator.disable())
+        ).ignoringDisable(true);
     }
-    
-    public double getPosition() {
-        return ELEV_MOTOR.getPosition();
-    }
-
-    @Override
-    public void initShuffleboard(){
-        super.initShuffleboard();
-
-        NAR_Shuffleboard.addData(getName(), "Measurement2", ()-> getPosition(), 5, 1);
-        NAR_Shuffleboard.addData(getName(), "Current", ()-> ELEV_MOTOR.getStallCurrent(), 5, 2);
-        NAR_Shuffleboard.addData(getName(), "Voltage", ()-> ELEV_MOTOR.getMotor().getBusVoltage(), 5, 3);
-        NAR_Shuffleboard.addData(getName(), "Velocity", ()-> getVelocity(), 1,0);
-    }
-
-    public Command runRollers() {
-        return runRollers(ROLLER_POWER);
-    }
-
-    public Command stopRollers(){
-        return runRollers(0);
-    }
-
-    public Command runRollers(double power) {
-        return runOnce(() -> ROLLER_MOTOR.set(power));
-    }  
-
-    public Command partExtend() {
-        return moveElevator(Setpoint.PARTEXTEND.setpoint);
-    }
-
-    public Command fullExtend(){
-        return moveElevator(Setpoint.FULLEXTEND.setpoint);
-    }
-
-    public Command retract() {
-        return moveElevator(Setpoint.RETRACTED.setpoint);
-    }
-
 }

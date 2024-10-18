@@ -61,7 +61,7 @@ public class Trajectories {
         // TODO: add commands
         NamedCommands.registerCommand("Shoot", CmdManager.autoShoot());
         
-        NamedCommands.registerCommand("Intake", intake(Intake.Setpoint.GROUND));
+        NamedCommands.registerCommand("Intake", intake());
         NamedCommands.registerCommand("Neutral", retractIntake());
         // NamedCommands.registerCommand("intakeDown", CmdManager.intake(Intake.Setpoint.GROUND));
         // NamedCommands.registerCommand("intakeUp", CmdManager.retractIntake());

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -47,6 +48,9 @@ import frc.team3128.subsystems.Intake;
 // import common.utility.tester.Tester.UnitTest;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Amper.AmpState;
+import frc.team3128.subsystems.Intake.IntakeState;
+
 import java.util.ArrayList;
 import edu.wpi.first.apriltag.AprilTagFields;
 
@@ -129,7 +133,7 @@ public class RobotContainer {
 
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
-        controller.getButton(XboxButton.kLeftTrigger).onTrue(intake(Intake.Setpoint.GROUND));
+        controller.getButton(XboxButton.kLeftTrigger).onTrue(intake());
         controller.getButton(XboxButton.kLeftBumper).onTrue(retractIntake());
 
         controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.rampUpShooter()).onFalse(shooter.setShooting(true));
@@ -138,13 +142,27 @@ public class RobotContainer {
         controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
-        controller.getButton(XboxButton.kY).whileTrue(amper.partExtend()).onFalse(ampFinAndDown());
-        controller.getButton(XboxButton.kRightBumper).whileTrue(intake.runRollers(-1)).onFalse(intake.runRollers(0));
+        controller.getButton(XboxButton.kY).whileTrue(amper.setState(AmpState.PRIMED)).onFalse(ampFinAndDown());
+        controller.getButton(XboxButton.kRightBumper).whileTrue(sequence(
+            shooter.runKickMotor(-KICK_POWER),
+            hopper.runManipulator(-HOPPER_INTAKE_POWER),
+            intake.setState(IntakeState.OUTTAKE)
+        )).onFalse(sequence(
+            shooter.runKickMotor(0),
+            hopper.runManipulator(0),
+            intake.setState(IntakeState.NEUTRAL)
+        ));
+        controller.getButton(XboxButton.kBack).onTrue(sequence(
+            intake.setState(IntakeState.NEUTRAL),
+            amper.setState(AmpState.IDLE),
+            shooter.shoot(0),
+            hopper.runManipulator(0)
+        ));
 
-        controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset(0)));
-        controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset(0)));
-        controller2.getButton(XboxButton.kRightTrigger).onTrue(intake.runPivot(0.3));
-        controller2.getButton(XboxButton.kRightBumper).onTrue(intake.runPivot(-0.3));
+        controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset()));
+        controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
+        controller2.getButton(XboxButton.kRightTrigger).onTrue(intake.pivot.runPivot(0.3));
+        controller2.getButton(XboxButton.kRightBumper).onTrue(intake.pivot.runPivot(-0.3));
         
 
 
@@ -171,13 +189,13 @@ public class RobotContainer {
         ));
 
         //Queues note to hopper
-        new Trigger(()-> intake.getMeasurement() > 90)
+        new Trigger(()-> intake.pivot.getMeasurement() > 90)
         .and(()->!hopper.hasObjectPresent())
         .onTrue(hopper.runManipulator(HOPPER_INTAKE_POWER))
         .onFalse(hopper.runManipulator(0));
 
         //Stops hopper if intake is retracted and is empty
-        new Trigger(()-> intake.getMeasurement() < 20)
+        new Trigger(()-> intake.pivot.getMeasurement() < 20)
         .and(()->hopper.hasObjectPresent()).negate()
         .debounce(0.5)
         .onTrue(hopper.runManipulator(0));
@@ -207,27 +225,26 @@ public class RobotContainer {
 
         new Trigger(()-> hopper.hasObjectPresent())
         .and(()-> shooter.noteInRollers())
-        .onTrue(intake.pivotTo(Intake.Setpoint.NEUTRAL)
-                .andThen(intake.runRollers(0)));
+        .onTrue(retractIntake());
 
-        new Trigger(()-> amper.getMeasurement() > 3)
+        new Trigger(()-> amper.elevator.getMeasurement() > 3)
         .and(()-> shooter.noteInRollers())
         .onTrue(shooter.runShooter(AMP_RPM));
 
-        new Trigger(()-> amper.getMeasurement() > 3)
-        .onTrue(amper.runRollers())
-        .onFalse(amper.stopRollers());
+        new Trigger(()-> amper.elevator.getMeasurement() > 3)
+        .onTrue(amper.manipulator.shoot(5500))
+        .onFalse(amper.manipulator.shoot(0));
 
-        new Trigger(()-> amper.getMeasurement() > 3)
+        new Trigger(()-> amper.elevator.getMeasurement() > 3)
         .and(()-> !shooter.noteInRollers())
         .debounce(0.5)
-        .onTrue(amper.retract());
+        .onTrue(amper.setState(AmpState.IDLE));
 
         new Trigger(()-> hopper.hasObjectPresent())
         .debounce(2)
         .onTrue(
             sequence(
-                hopper.outtake().onlyIf(()-> !(amper.getMeasurement() > 3)),
+                hopper.outtake().onlyIf(()-> !(amper.elevator.getMeasurement() > 3)),
                 waitSeconds(0.3)
             )
         );

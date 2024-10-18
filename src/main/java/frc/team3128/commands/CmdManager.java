@@ -1,7 +1,6 @@
 package frc.team3128.commands;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.team3128.Constants.Flags.shooterHasNote;
 import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
 import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
 import static frc.team3128.Constants.FieldConstants.*;
@@ -21,10 +20,11 @@ import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
-import frc.team3128.subsystems.Intake.Setpoint;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Amper.AmpState;
 // import frc.team3128.subsystems.Climber;
+import frc.team3128.subsystems.Intake.IntakeState;
 
 public class CmdManager {
 
@@ -117,26 +117,21 @@ public class CmdManager {
     //     ).andThen(ramShoot(once)).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
     // }
 
-    public static Command intake(Intake.Setpoint setpoint) {
-        return sequence(
-            intake.runIntakeRollers(),
-            intake.pivotTo(setpoint)
-        );
+    public static Command intake() {
+        return intake.setState(IntakeState.GROUND);
+        // return sequence(
+        //     intake.runIntakeRollers(),
+        //     intake.pivotTo(setpoint)
+        // );
     }
 
     public static Command retractIntake() {
-        return sequence(
-            intake.stopRollers(),
-            // hopper.runManipulator(0),
-            intake.retract()
-        );
-    }
-
-    public static Command intakeAndStop(Intake.Setpoint setpoint) {
-        return sequence(
-            intake(setpoint),
-            retractIntake()
-        );
+        return intake.setState(IntakeState.NEUTRAL);
+        // return sequence(
+        //     intake.stopRollers(),
+        //     // hopper.runManipulator(0),
+        //     intake.retract()
+        // );
     }
 
     // public static Command feed(double rpm, double angle, boolean once) {
@@ -155,7 +150,7 @@ public class CmdManager {
         return sequence(
             shooter.runKickMotor(-1),
             hopper.runManipulator(-1),
-            intake.outtake()
+            intake.setState(IntakeState.OUTTAKE)
         );
     }
 
@@ -163,13 +158,13 @@ public class CmdManager {
         return sequence(
             shooter.runKickMotor(0),
             hopper.runManipulator(0),
-            intake.retract()
+            retractIntake()
         );
     }
 
     public static Command hopperOuttake() {
         return sequence(
-            intake.pivotTo(Setpoint.NEUTRAL),
+            retractIntake(),
             // TODO: will this slow things down
             waitSeconds(0.3),
             hopper.runManipulator(HOPPER_OUTTAKE_POWER),
@@ -180,7 +175,7 @@ public class CmdManager {
 
     public static Command ampFinAndDown(){
         return sequence(
-            amper.fullExtend(),
+            amper.setState(AmpState.EXTENDED),
             waitUntil(() -> amper.atSetpoint()),
             waitSeconds(0.25),
             shooter.setShooting(true)
@@ -195,8 +190,7 @@ public class CmdManager {
         CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(hopper));
         CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(intake));
         return sequence(
-            intake.stopRollers(),
-            intake.retract(),
+            retractIntake(),
             waitSeconds(0.3),
             hopper.runManipulator(HOPPER_OUTTAKE_POWER),
             waitSeconds(0.2),

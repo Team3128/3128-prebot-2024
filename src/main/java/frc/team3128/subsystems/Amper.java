@@ -108,6 +108,11 @@ public class Amper extends SubsystemBase{
     private Amper() {
         elevator = new AmpElevator();
         manipulator = new AmpManipulator();
+
+        NAR_Shuffleboard.addData(getName(), "At Sepoint", ()-> atSetpoint(), 2, 2);
+        NAR_Shuffleboard.addData(getName(), "Retracted", ()-> isState(Amper.AmpState.RETRACTED), 0, 0);
+        NAR_Shuffleboard.addData(getName(), "Primed", ()-> isState(Amper.AmpState.PRIMED), 1, 0);
+        NAR_Shuffleboard.addData(getName(), "Extended", ()-> isState(Amper.AmpState.EXTENDED), 0, 1);
     }
 
     public Command setState(AmpState state) {

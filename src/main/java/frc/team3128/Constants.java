@@ -457,7 +457,7 @@ public class Constants {
         public static final double POSITION_TOLERANCE = 0.25;
         public static final double MIN_SETPOINT = 0;
         public static final double MAX_SETPOINT = 21.25;
-        public static final int CURRENT_LIMIT = 40;
+        public static final int CURRENT_LIMIT = 80;
 
         public static final double GEAR_RATIO = 1.0 / (6 + 2/3);
         public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(0.9023) * Math.PI;

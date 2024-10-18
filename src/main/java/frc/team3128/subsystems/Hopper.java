@@ -4,6 +4,8 @@ import common.core.subsystems.ManipulatorTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.wpilibj.DigitalInput;
+import common.utility.shuffleboard.NAR_Shuffleboard;
+
 
 import static frc.team3128.Constants.HopperConstants.*;
 
@@ -25,6 +27,7 @@ public class Hopper extends ManipulatorTemplate {
         frontSensor = new DigitalInput(HOPPER_FRONT_SENSOR_ID);
         // backSensor = new DigitalInput(HOPPER_BACK_SENSOR_ID);
         configMotors();
+        NAR_Shuffleboard.addData(getName(), "Has Object Present", ()-> hasObjectPresent(), 0, 0);
         // initShuffleboard();
     }
 
@@ -48,25 +51,4 @@ public class Hopper extends ManipulatorTemplate {
     public boolean noteInFront() {
         return !frontSensor.get();
     }
-
-    // public Command runHopper(double power){
-    //     return runOnce(() -> HOPPER_MOTOR.set(power));
-    // }
-
-    // public Command intakeHopper(){
-    //     return runHopper(HOPPER_INTAKE_POWER);
-    // }
-
-    // public Command outtakeHopper(){
-    //     return runHopper(HOPPER_OUTTAKE_POWER);
-    // }
-
-    // public Command stopHopper(){
-    //     return runHopper(0);
-    // }
-
-    // // intake side
-    // public boolean noteInBack() {
-    //     return !backSensor.get();
-    // }
 }

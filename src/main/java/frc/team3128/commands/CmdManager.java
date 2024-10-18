@@ -140,9 +140,10 @@ public class CmdManager {
 
     public static Command stop(){
         return sequence(
-            shooter.runKickMotor(0),
-            hopper.runManipulator(0),
-            intake.setState(Intake.IntakeState.NEUTRAL, 0)
+            intake.setState(Intake.IntakeState.NEUTRAL, 0),
+            amper.setState(Amper.AmpState.IDLE),
+            shooter.stopMotors(),
+            hopper.runManipulator(0)
         );
     }
 

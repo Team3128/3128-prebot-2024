@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj2.command.Command;
 
+import static edu.wpi.first.wpilibj2.command.Commands.sequence;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.team3128.Constants.ShooterConstants.*;
 
 import java.util.function.DoubleSupplier;
@@ -61,7 +63,12 @@ public class Shooter extends ShooterTemplate {
     }
 
     public Command rampUpShooter(){
-        return runShooter(SHOOTER_RPM);
+        return sequence(
+            runKickMotor(-0.1),
+            waitSeconds(0.1),
+            runKickMotor(0),
+            runShooter(SHOOTER_RPM)
+        );
     } 
 
     public Command runShooter(double power) {

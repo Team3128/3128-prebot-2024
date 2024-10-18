@@ -140,6 +140,7 @@ public class RobotContainer {
 
         // controller.getButton(XboxButton.kY).whileTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(ampFinAndDown());
         controller.getButton(XboxButton.kRightBumper).whileTrue(outtake()).onFalse(stop());
+        controller.getButton(XboxButton.kBack).onTrue(stop());
 
         controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.pivot.reset(0)));
         controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
@@ -151,56 +152,33 @@ public class RobotContainer {
         controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
 
 
+        // STOP ALL IF NO NOTES (Other triggers should be able to override)
+        
+        new Trigger(()-> !shooter.hasObjectPresent())               //IF No Notes in Shooter
+        .and(()-> !hopper.hasObjectPresent())                       //AND No Notes in Hopper
+        .debounce(0.5)                                              //FOR 0.5 seconds
+        .onTrue(sequence(
+            amper.setState(Amper.AmpState.IDLE),                    //THEN Retract Amp
+            shooter.setShooting(false),                        //AND THEN Stop Shooter
+            shooter.stopMotors(),
+            hopper.runManipulator(0)
+        ));
+        
+
+
         // INTAKING TRIGGERS
 
         new Trigger(()-> shooter.hasObjectPresent())
         .and(()-> hopper.hasObjectPresent())
         .onTrue(intake.setState(Intake.IntakeState.NEUTRAL));
 
-        //Queues note to hopper
-        new Trigger(()-> intake.isState(Intake.IntakeState.GROUND)) //IF Intake state is GROUND
-        .and(()->!hopper.hasObjectPresent())                        //AND Hopper is empty
-        .onTrue(hopper.runManipulator(HOPPER_INTAKE_POWER))         //THEN Run Hopper Forwards
-        .onFalse(hopper.runManipulator(0));                   //ELSE Stop Hopper
-
+        
         //Stops hopper if intake is retracted and is empty
         new Trigger(()-> intake.isState(Intake.IntakeState.NEUTRAL)) //IF Intake state is NEUTRAL
         .and(()-> !hopper.hasObjectPresent())                        //AND Hopper is empty
         .debounce(0.25)                                              //FOR 0.25 seconds
         .onTrue(hopper.runManipulator(0));                     //THEN Stop Hopper
 
-        //Queues note to shooter
-        new Trigger(()-> !shooter.hasObjectPresent())               //IF No Notes in Shooter
-        .and(()->hopper.hasObjectPresent())                         //AND Notes in Hopper
-        .and(() -> !shooter.getShooting())                          //AND Shooter is not shooting
-        .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),                       //THEN Run Kick Motor
-            hopper.runManipulator(HOPPER_INTAKE_POWER)              //AND Run Hopper Forwards
-        ))
-        .onFalse(sequence(
-            shooter.runKickMotor(0)                           //ELSE Stop Kick Motor
-        ));
-
-
-        new Trigger(()-> shooter.getShooting())
-        .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),
-            waitSeconds(0.25),
-            hopper.runManipulator(.8)
-        ))
-        .onFalse(sequence(
-            hopper.runManipulator(0),
-            shooter.stopMotors()
-        ));
-        
-
-        new Trigger(()-> !shooter.hasObjectPresent())               //IF No Notes in Shooter
-        .and(()-> !hopper.hasObjectPresent())                       //AND No Notes in Hopper
-        .debounce(0.5)                                              //FOR 0.5 seconds
-        .onTrue(sequence(
-            amper.setState(Amper.AmpState.IDLE),                    //THEN Retract Amp
-            shooter.setShooting(false)                        //AND THEN Stop Shooter
-        ));
         
         //
         new Trigger(()-> hopper.hasObjectPresent())                 //IF Notes in Hopper
@@ -216,7 +194,25 @@ public class RobotContainer {
         //shooter ramp for amp extended
         new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
         .and(()-> shooter.hasObjectPresent())
-        .onTrue(shooter.runShooter(AMP_RPM));
+        .onTrue(sequence(
+            waitUntil(()->amper.atSetpoint()),
+            shooter.runShooter(AMP_RPM)
+        ))
+        .onFalse(shooter.stopMotors());
+
+
+        //Queues note to shooter
+        new Trigger(()-> !shooter.hasObjectPresent())               //IF No Notes in Shooter
+        .and(()->hopper.hasObjectPresent())                         //AND Notes in Hopper
+        .onTrue(sequence(
+            shooter.runKickMotor(KICK_POWER),                       //THEN Run Kick Motor
+            hopper.runManipulator(HOPPER_INTAKE_POWER),
+            waitUntil(()->shooter.hasObjectPresent())             //AND Run Hopper Forwards
+        ))
+        .onFalse(sequence(
+            waitUntil(()->shooter.hasObjectPresent()),             //AND Run Hopper Forwards
+            shooter.stopMotors()                           //ELSE Stop Kick Motor
+        ));
 
         // note advance for amping
         new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
@@ -224,7 +220,7 @@ public class RobotContainer {
         .debounce(0.25)
         .onTrue(sequence(
             shooter.runKickMotor(KICK_POWER),
-            waitSeconds(0.5),
+            waitUntil(()->amper.atSetpoint()),
             hopper.runManipulator(1)
         ));
 
@@ -237,33 +233,27 @@ public class RobotContainer {
             )
         );
 
-    }
+        new Trigger(()-> shooter.getShooting() && (shooter.hasObjectPresent() || hopper.hasObjectPresent()))
+        .onTrue(sequence(
+            shooter.runKickMotor(KICK_POWER),
+            waitSeconds(0.25),
+            hopper.runManipulator(.8)
+        ))
+        .onFalse(sequence(
+            hopper.runManipulator(0),
+            shooter.stopMotors()
+        ));
 
-    private Timer ejecTimer = new Timer();
-    private boolean ejectTimerStarted = false;
+        //Queues note to hopper
+        new Trigger(()-> intake.isState(Intake.IntakeState.GROUND))
+        .and(()->!hopper.hasObjectPresent())
+        .onTrue(sequence(
+            hopper.runManipulator(HOPPER_INTAKE_POWER),
+            shooter.runKickMotor(KICK_POWER).onlyIf(()-> !shooter.hasObjectPresent())
+        ))
+        .onFalse(sequence(waitSeconds(0.3),hopper.runManipulator(0)));
 
-    private boolean shouldEjectNote(){
-        if(shooter.hasObjectPresent() && hopper.hasObjectPresent() && !ejectTimerStarted){
-            ejectTimerStarted = true;
-            ejecTimer.start();
-        }
 
-        else if(shooter.hasObjectPresent() && hopper.hasObjectPresent() && ejectTimerStarted){
-            if(ejecTimer.hasElapsed(2)){
-                ejectTimerStarted = false;
-                ejecTimer.stop();
-                ejecTimer.reset();
-                return true;
-            }
-        }
-
-        else{
-            ejectTimerStarted = false;
-            ejecTimer.stop();
-            ejecTimer.reset();
-        }
-    
-        return false;  
     }
 
     @SuppressWarnings("unused")

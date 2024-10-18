@@ -59,11 +59,16 @@ public class Intake extends PivotTemplate{
         PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
         PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
 
-        // ROLLER_MOTOR.setInverted(false);
-        // ROLLER_MOTOR.enableVoltageCompensation(VOLT_COMP);
-        // ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
-        // ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-        // ROLLER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+        ROLLER_MOTOR.setInverted(false);
+        ROLLER_MOTOR.enableVoltageCompensation(VOLT_COMP);
+        ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
+        ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+        
+        ROLLER_MOTOR2.setInverted(false);
+        ROLLER_MOTOR2.enableVoltageCompensation(VOLT_COMP);
+        ROLLER_MOTOR2.setNeutralMode(Neutral.COAST);
+        ROLLER_MOTOR2.setCurrentLimit(CURRENT_LIMIT);
+        ROLLER_MOTOR2.follow(ROLLER_MOTOR);
     }
 
     public Command retract() {

@@ -318,6 +318,9 @@ public class Constants {
 
         public static final int ROLLER_MOTOR_ID = 31;
         public static final NAR_TalonFX ROLLER_MOTOR = new NAR_TalonFX(ROLLER_MOTOR_ID);
+        
+        public static final int ROLLER_MOTOR_ID2 = 32;
+        public static final NAR_TalonFX ROLLER_MOTOR2 = new NAR_TalonFX(ROLLER_MOTOR_ID2);
 
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;

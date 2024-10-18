@@ -4,7 +4,6 @@ import static frc.team3128.Constants.IntakeConstants.*;
 
 import common.core.controllers.Controller;
 import common.core.controllers.TrapController;
-import common.core.subsystems.ManipulatorTemplate;
 import common.core.subsystems.PivotTemplate;
 import common.core.subsystems.ShooterTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
@@ -12,11 +11,8 @@ import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.team3128.Constants.IntakeConstants;
-import frc.team3128.subsystems.Amper.AmpState;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
@@ -120,6 +116,12 @@ public class Intake extends SubsystemBase {
         return instance;
     }
 
+    public void initTriggers() {
+        new Trigger(()-> isState(IntakeState.GROUND))
+        .and(()-> Hopper.hasTwoObjects())
+        .onTrue(setState(IntakeState.NEUTRAL));
+    }
+
     public Command setState(IntakeState state) {
         return setState(state, 0);
     }
@@ -130,14 +132,15 @@ public class Intake extends SubsystemBase {
             pivot.pivotTo(state.getIntakePivotSetpoint()),
             waitSeconds(delay),
             waitUntil(()-> atSetpoint()),
-            Commands.either(disable(), waitUntil(()-> pivot.atSetpoint()), () -> state.disableOnCompletion)
+            either(disable(), waitUntil(()-> pivot.atSetpoint()), () -> state.disableOnCompletion)
         );
     }
 
     public Command disable() {
         return sequence(
-            Commands.runOnce(()-> pivot.disable()),
-            Commands.runOnce(()-> rollers.disable())
+            setState(IntakeState.NEUTRAL),
+            runOnce(()-> pivot.disable()),
+            runOnce(()-> rollers.disable())
         ).ignoringDisable(true);
     }
 

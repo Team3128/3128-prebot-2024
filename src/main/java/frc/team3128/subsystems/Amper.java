@@ -11,6 +11,7 @@ import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 
 
@@ -62,8 +63,7 @@ public class Amper extends SubsystemBase{
     public enum AmpState {
         EXTENDED(21.25, 5500),
         PRIMED(21.25*0.7, 5500),
-        IDLE(0, 0, true),
-        RETRACTED(0, 5500, true);
+        IDLE(0, 0, true);
 
         private double elevatorSetpoint;
         private double rollerSetpoint;
@@ -110,9 +110,16 @@ public class Amper extends SubsystemBase{
         manipulator = new AmpManipulator();
 
         NAR_Shuffleboard.addData(getName(), "At Sepoint", ()-> atSetpoint(), 2, 2);
-        NAR_Shuffleboard.addData(getName(), "Retracted", ()-> isState(Amper.AmpState.RETRACTED), 0, 0);
+        NAR_Shuffleboard.addData(getName(), "IDLE", ()-> isState(Amper.AmpState.IDLE), 0, 0);
         NAR_Shuffleboard.addData(getName(), "Primed", ()-> isState(Amper.AmpState.PRIMED), 1, 0);
         NAR_Shuffleboard.addData(getName(), "Extended", ()-> isState(Amper.AmpState.EXTENDED), 0, 1);
+    }
+
+    public void initTriggers() {
+        new Trigger(()-> isState(AmpState.EXTENDED))
+        .and(()-> Hopper.hasNoObjects())
+        .debounce(0.5)
+        .onTrue(setState(AmpState.IDLE));
     }
 
     public Command setState(AmpState state) {
@@ -144,11 +151,11 @@ public class Amper extends SubsystemBase{
             disable(),
             elevator.reset(0)
         );
-    
     }
 
     public Command disable() {
         return sequence(
+            setState(AmpState.IDLE),
             Commands.runOnce(()-> elevator.disable()),
             Commands.runOnce(()-> manipulator.disable())
         ).ignoringDisable(true);

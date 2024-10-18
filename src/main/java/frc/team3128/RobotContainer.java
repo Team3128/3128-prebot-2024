@@ -1,54 +1,34 @@
 package frc.team3128;
 
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.DriverStation.MatchType;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.team3128.Constants.ShooterConstants.*;
-import static frc.team3128.Constants.IntakeConstants.*;
-import static frc.team3128.Constants.AmperConstants.*;
-import static frc.team3128.Constants.HopperConstants.*;
-import static frc.team3128.Constants.Flags.*;
 import static frc.team3128.commands.CmdManager.*;
 
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-
-import frc.team3128.Constants.IntakeConstants;
-import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.commands.CmdSwerveDrive;
 import common.core.swerve.SwerveModule;
 import common.hardware.camera.Camera;
-// import common.hardware.camera.OffseasonAprilTags;
 import common.hardware.input.NAR_ButtonBoard;
 import common.hardware.input.NAR_XboxController;
 import common.hardware.input.NAR_XboxController.XboxButton;
 import common.hardware.limelight.Limelight;
-import common.hardware.limelight.LimelightKey;
 import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_TalonFX;
 import common.utility.Log;
 import common.utility.narwhaldashboard.NarwhalDashboard;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
-import common.utility.sysid.CmdSysId;
-import common.utility.tester.Tester;
 import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
-// import common.utility.tester.Tester.UnitTest;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Hopper.HopperState;
+
 import java.util.ArrayList;
-import edu.wpi.first.apriltag.AprilTagFields;
 
 /**
  * Command-based is a "declarative" paradigm, very little robot logic should
@@ -101,6 +81,11 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
         initCameras();
 
+        amper.initTriggers();
+        hopper.initTriggers();
+        intake.initTriggers();
+        shooter.initTriggers();
+
         configureButtonBindings();
 
 
@@ -127,20 +112,33 @@ public class RobotContainer {
             CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90);
         }));
 
+        // zero gyro
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
+        // intake ground and then neutral
         controller.getButton(XboxButton.kLeftTrigger).onTrue(intake.setState(Intake.IntakeState.GROUND)).onFalse(intake.setState(Intake.IntakeState.NEUTRAL));
+
+        // intake neutral
         controller.getButton(XboxButton.kLeftBumper).onTrue(intake.setState(Intake.IntakeState.NEUTRAL));
 
-        controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.rampUpShooter()).onFalse(shooter.setShooting(true));
+        // ramp shooter and then run hopper
+        // shooter and hopper will stop if no notes
+        controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.setState(Shooter.ShooterState.SHOOT)).onFalse(hopper.setState(Hopper.HopperState.SHOOT));
 
-        controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
+        // shooter ramp amp
+        controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));
+
+        // amper primed and then extended
         controller.getButton(XboxButton.kY).onTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(amper.setState(Amper.AmpState.EXTENDED));
-        controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
-        // controller.getButton(XboxButton.kY).whileTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(ampFinAndDown());
+        // manual hopper button
+        controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());
+
+        // runs everything in reverse at max power and then go to neutral
         controller.getButton(XboxButton.kRightBumper).whileTrue(outtake()).onFalse(stop());
-        controller.getButton(XboxButton.kBack).onTrue(stop());
+
+        // disables all subsystems
+        controller.getButton(XboxButton.kBack).onTrue(disableAll());
 
         controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.pivot.reset(0)));
         controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
@@ -150,110 +148,6 @@ public class RobotContainer {
         controller2.getButton(XboxButton.kLeftBumper).whileTrue(amper.elevator.runElevator(-0.3)).onFalse(amper.elevator.runElevator(0));
         controller2.getButton(XboxButton.kY).onTrue(intake.rollers.runShooter(0.65)).onFalse(intake.rollers.runShooter(0));
         controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
-
-
-        // STOP ALL IF NO NOTES (Other triggers should be able to override)
-        
-        new Trigger(()-> !shooter.hasObjectPresent())               //IF No Notes in Shooter
-        .and(()-> !hopper.hasObjectPresent())                       //AND No Notes in Hopper
-        .debounce(0.5)                                              //FOR 0.5 seconds
-        .onTrue(sequence(
-            amper.setState(Amper.AmpState.IDLE),                    //THEN Retract Amp
-            shooter.setShooting(false),                        //AND THEN Stop Shooter
-            shooter.stopMotors(),
-            hopper.runManipulator(0)
-        ));
-        
-
-
-        // INTAKING TRIGGERS
-
-        new Trigger(()-> shooter.hasObjectPresent())
-        .and(()-> hopper.hasObjectPresent())
-        .onTrue(intake.setState(Intake.IntakeState.NEUTRAL));
-
-        
-        //Stops hopper if intake is retracted and is empty
-        new Trigger(()-> intake.isState(Intake.IntakeState.NEUTRAL)) //IF Intake state is NEUTRAL
-        .and(()-> !hopper.hasObjectPresent())                        //AND Hopper is empty
-        .debounce(0.25)                                              //FOR 0.25 seconds
-        .onTrue(hopper.runManipulator(0));                     //THEN Stop Hopper
-
-        
-        //
-        new Trigger(()-> hopper.hasObjectPresent())                 //IF Notes in Hopper
-        .and(()-> shooter.hasObjectPresent())                       //AND Notes in Shooter
-        .onTrue(intake.setState(Intake.IntakeState.NEUTRAL));       //THEN Retract Intake            
-
-
-        //shooter ramp for amp primed
-        new Trigger(()-> amper.isState(Amper.AmpState.PRIMED))
-        .and(()-> shooter.hasObjectPresent())
-        .onTrue(shooter.runShooter(AMP_RPM));
-
-        //shooter ramp for amp extended
-        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
-        .and(()-> shooter.hasObjectPresent())
-        .onTrue(sequence(
-            waitUntil(()->amper.atSetpoint()),
-            shooter.runShooter(AMP_RPM)
-        ))
-        .onFalse(shooter.stopMotors());
-
-
-        //Queues note to shooter
-        new Trigger(()-> !shooter.hasObjectPresent())               //IF No Notes in Shooter
-        .and(()->hopper.hasObjectPresent())                         //AND Notes in Hopper
-        .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),                       //THEN Run Kick Motor
-            hopper.runManipulator(HOPPER_INTAKE_POWER),
-            waitUntil(()->shooter.hasObjectPresent())             //AND Run Hopper Forwards
-        ))
-        .onFalse(sequence(
-            waitUntil(()->shooter.hasObjectPresent()),             //AND Run Hopper Forwards
-            shooter.stopMotors()                           //ELSE Stop Kick Motor
-        ));
-
-        // note advance for amping
-        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
-        .and(()-> shooter.hasObjectPresent())
-        .debounce(0.25)
-        .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),
-            waitUntil(()->amper.atSetpoint()),
-            hopper.runManipulator(1)
-        ));
-
-        new Trigger(()-> hopper.hasObjectPresent())
-        .debounce(2)
-        .onTrue(
-            sequence(
-                hopper.outtake(),
-                waitSeconds(0.3)
-            )
-        );
-
-        new Trigger(()-> shooter.getShooting() && (shooter.hasObjectPresent() || hopper.hasObjectPresent()))
-        .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),
-            waitSeconds(0.25),
-            hopper.runManipulator(.8)
-        ))
-        .onFalse(sequence(
-            hopper.runManipulator(0),
-            shooter.stopMotors()
-        ));
-
-        //Queues note to hopper
-        new Trigger(()-> intake.isState(Intake.IntakeState.GROUND))
-        .and(()->!hopper.hasObjectPresent())
-        .onTrue(sequence(
-            hopper.runManipulator(HOPPER_INTAKE_POWER),
-            shooter.runKickMotor(KICK_POWER).onlyIf(()-> !shooter.hasObjectPresent())
-        ))
-        .onFalse(sequence(waitSeconds(0.3),hopper.runManipulator(0)));
-
-
     }
 
     @SuppressWarnings("unused")

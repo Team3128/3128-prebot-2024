@@ -32,8 +32,7 @@ public class AutoPrograms {
 
     private void initAutoSelector() {
         final String[] autoStrings = new String[] {
-            "middle_FU",
-            "top-3Rush"
+            "middleClose_3note"
         };
         
         NarwhalDashboard.getInstance().addAutos(autoStrings);
@@ -44,26 +43,22 @@ public class AutoPrograms {
     }
 
     public Command getAutonomousCommand() {
-        // String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
-        String hardcode = "default";
-        //"" = no auto
-        //"default" just shoots
-        //"middle_FU"
-        //"top-3Rush"
+        String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
+        // selectedAutoName = "middleClose_3note";
         
-        Command autoCommand;
-        if (hardcode.equals("")) {
+        if (selectedAutoName.equals("")) {
             return none();
         }
-        else if (hardcode.equals("default")) {
+        else if (selectedAutoName.equals("default")) {
             return defaultAuto();
         }
-        autoCommand = autoMap.get(hardcode);
 
-        return autoCommand.beforeStarting(Trajectories.resetAuto());
+        return autoMap.get(selectedAutoName).beforeStarting(Trajectories.resetAuto());
     }
 
     private Command defaultAuto(){
-        return ramShootTriggerless();
+        return sequence(
+            ramShootTriggerless()
+        );
     }
 }

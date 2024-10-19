@@ -79,17 +79,7 @@ public class Shooter extends SubsystemBase{
 
     public void initTriggers() {
 
-        // stop if no notes
-        new Trigger(()-> Hopper.hasNoObjects())
-        .debounce(0.25)
-        .onTrue(setState(ShooterState.IDLE));
-        
-        //follow amper
-        new Trigger(()-> Amper.getInstance().isState(Amper.AmpState.PRIMED))
-        .onTrue(setState(ShooterState.AMP));
-
-        new Trigger(()-> Amper.getInstance().isState(Amper.AmpState.EXTENDED))
-        .onTrue(setState(ShooterState.AMP));
+    
     }
 
     public Command setState(ShooterState state){

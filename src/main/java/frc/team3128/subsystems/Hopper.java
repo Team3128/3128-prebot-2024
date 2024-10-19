@@ -132,24 +132,7 @@ public class Hopper {
     }
 
     public void initTriggers() {
-        new Trigger(()-> isState(HopperState.SHOOT))
-        .and(()-> hasNoObjects())
-        .debounce(0.25)
-        .onTrue(setState(HopperState.IDLE));
-
-        new Trigger(()-> Intake.getInstance().isState(Intake.IntakeState.GROUND))
-        .onTrue(setState(HopperState.INTAKE));
-
-        new Trigger(()-> isState(HopperState.INTAKE))
-        .and(()-> hasTwoObjects())
-        .onTrue(setState(HopperState.IDLE));
-
-        new Trigger(()-> Intake.getInstance().isState(Intake.IntakeState.NEUTRAL))
-        .and(()-> !isState(HopperState.SHOOT))
-        .onTrue(setState(HopperState.IDLE));
-
-        new Trigger(()-> Amper.getInstance().isState(Amper.AmpState.EXTENDED))
-        .onTrue(setState(HopperState.SHOOT));
+        
     }
 
     public Command setState(HopperState state) {

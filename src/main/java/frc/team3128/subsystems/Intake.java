@@ -117,9 +117,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void initTriggers() {
-        new Trigger(()-> isState(IntakeState.GROUND))
-        .and(()-> Hopper.hasTwoObjects())
-        .onTrue(setState(IntakeState.NEUTRAL));
+        
     }
 
     public Command setState(IntakeState state) {

@@ -1,14 +1,12 @@
 package frc.team3128;
 
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.team3128.commands.CmdManager.*;
+import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static frc.team3128.commands.CmdManager.disableAll;
+import static frc.team3128.commands.CmdManager.outtake;
+import static frc.team3128.commands.CmdManager.stop;
 
-import frc.team3128.commands.CmdSwerveDrive;
+import java.util.ArrayList;
+
 import common.core.swerve.SwerveModule;
 import common.hardware.camera.Camera;
 import common.hardware.input.NAR_ButtonBoard;
@@ -21,14 +19,22 @@ import common.utility.Log;
 import common.utility.narwhaldashboard.NarwhalDashboard;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.team3128.commands.CmdSwerveDrive;
 import frc.team3128.subsystems.Amper;
+import frc.team3128.subsystems.Amper.AmpState;
 import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Intake;
-import frc.team3128.subsystems.Shooter;
-import frc.team3128.subsystems.Swerve;
 import frc.team3128.subsystems.Hopper.HopperState;
-
-import java.util.ArrayList;
+import frc.team3128.subsystems.Intake;
+import frc.team3128.subsystems.Intake.IntakeState;
+import frc.team3128.subsystems.Shooter;
+import frc.team3128.subsystems.Shooter.ShooterState;
+import frc.team3128.subsystems.Swerve;
 
 /**
  * Command-based is a "declarative" paradigm, very little robot logic should
@@ -148,6 +154,51 @@ public class RobotContainer {
         controller2.getButton(XboxButton.kLeftBumper).whileTrue(amper.elevator.runElevator(-0.3)).onFalse(amper.elevator.runElevator(0));
         controller2.getButton(XboxButton.kY).onTrue(intake.rollers.runShooter(0.65)).onFalse(intake.rollers.runShooter(0));
         controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
+
+        //HOPPER TRIGGERS (LOWEST PRIO)
+        new Trigger(()-> hopper.isState(HopperState.SHOOT))
+        .and(()-> Hopper.hasNoObjects())
+        .debounce(0.25)
+        .onTrue(hopper.setState(HopperState.IDLE));
+
+        new Trigger(()-> intake.isState(Intake.IntakeState.GROUND))
+        .onTrue(hopper.setState(HopperState.INTAKE));
+
+        new Trigger(()-> hopper.isState(HopperState.INTAKE))
+        .and(()-> Hopper.hasTwoObjects())
+        .onTrue(hopper.setState(HopperState.IDLE));
+
+        new Trigger(()-> intake.isState(Intake.IntakeState.NEUTRAL))
+        .and(()-> !hopper.isState(HopperState.SHOOT))
+        .onTrue(hopper.setState(HopperState.IDLE));
+
+        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
+        .onTrue(hopper.setState(HopperState.SHOOT));
+
+        //INTAKE TRIGGERS
+        new Trigger(()-> intake.isState(IntakeState.GROUND))
+        .and(()-> Hopper.hasTwoObjects())
+        .onTrue(intake.setState(IntakeState.NEUTRAL));
+
+        //AMPER TRIGGERS
+        new Trigger(()-> amper.isState(AmpState.EXTENDED))
+        .and(()-> Hopper.hasNoObjects())
+        .debounce(0.5)
+        .onTrue(amper.setState(AmpState.IDLE));
+
+        //SHOOTER TRIGGERS (HIGHEST PRIO)
+        // stop if no notes
+        new Trigger(()-> Hopper.hasNoObjects())
+        .debounce(0.25)
+        .onTrue(shooter.setState(ShooterState.IDLE));
+        
+        //follow amper
+        new Trigger(()-> Amper.getInstance().isState(Amper.AmpState.PRIMED))
+        .onTrue(shooter.setState(ShooterState.AMP));
+
+        new Trigger(()-> Amper.getInstance().isState(Amper.AmpState.EXTENDED))
+        .onTrue(shooter.setState(ShooterState.AMP));
+
     }
 
     @SuppressWarnings("unused")

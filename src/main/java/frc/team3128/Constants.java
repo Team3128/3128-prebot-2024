@@ -26,6 +26,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PWM;
 import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
@@ -404,7 +405,10 @@ public class Constants {
     
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 50;
-        // public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
+        public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
+
+        public static final int PWM_SERVO_ID = 0;
+        public static final PWM SERVO = new PWM(PWM_SERVO_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
         public static final double MAX_VELOCTIY = 10000000;
@@ -413,7 +417,7 @@ public class Constants {
 
         public static final double POSITION_TOLERANCE = 0.5;
         public static final double MIN_SETPOINT = 0;
-        public static final double MAX_SETPOINT = 30;
+        public static final double MAX_SETPOINT = 75;
         public static final int CURRENT_LIMIT = 40;
 
         public static final double GEAR_RATIO = 1.0 / 15.0;

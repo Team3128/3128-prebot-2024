@@ -11,7 +11,6 @@ import common.utility.narwhaldashboard.NarwhalDashboard;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.ShooterConstants.KICK_POWER;
 import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
-import static frc.team3128.commands.CmdManager.ramShootTriggerless;
 
 import java.util.HashMap;
 
@@ -57,8 +56,6 @@ public class AutoPrograms {
     }
 
     private Command defaultAuto(){
-        return sequence(
-            ramShootTriggerless()
-        );
+        return none();
     }
 }

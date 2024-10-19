@@ -6,13 +6,28 @@
 // import common.hardware.motorcontroller.NAR_Motor.Neutral;
 // import edu.wpi.first.wpilibj2.command.Command;
 
+// import common.core.controllers.Controller;
+// import common.core.controllers.TrapController;
+// import common.core.subsystems.ManipulatorTemplate;
+// import common.core.subsystems.PivotTemplate;
+// import common.core.subsystems.ShooterTemplate;
+// import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
+// import common.hardware.motorcontroller.NAR_Motor.Neutral;
+// import common.utility.shuffleboard.NAR_Shuffleboard;
+// import edu.wpi.first.math.util.Units;
+// import edu.wpi.first.wpilibj2.command.Command;
+// import edu.wpi.first.wpilibj2.command.Commands;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+// import static edu.wpi.first.wpilibj2.command.Commands.*;
+
 // import static frc.team3128.Constants.ClimberConstants.*;
 
 // public class Climber extends ElevatorTemplate {
 
 //     public enum Setpoint {
-//         //TODO: correct EXTEND setpoint
-//         EXTENDED(30),
+//         EXTENDED(70),
 //         RETRACTED(0);
 
 //         private double setpoint;
@@ -22,6 +37,7 @@
 //     }
 
 //     private static Climber instance;
+//     private double currentSetpoint = Setpoint.RETRACTED.setpoint;
 
 //     public static synchronized Climber getInstance() {
 //         if (instance == null)
@@ -39,6 +55,14 @@
 //         initShuffleboard();
 //     }
 
+//     public void setSetpoint(Setpoint setpoint) {
+//         currentSetpoint = setpoint.setpoint;
+//     }
+
+//     public double getSetpoint() {
+//         return currentSetpoint;
+//     }
+
 //     @Override
 //     protected void configMotors() {
 //         // TODO: figure unit conversion out
@@ -51,12 +75,32 @@
 //         CLIMB_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
 //     }
 
+//     @Override
+//     public boolean atSetpoint(){
+//         return Math.abs(CLIMB_MOTOR.getPosition() - getSetpoint()) < POSITION_TOLERANCE;
+//     }
+
 //     public Command extendElevator() {
-//         return moveElevator(Setpoint.EXTENDED.setpoint);
+//         return sequence(
+//             runOnce(()-> SERVO.setPosition(1)),
+//             runOnce(()-> setSetpoint(Setpoint.EXTENDED)),
+//             waitSeconds(0.2),
+//             runOnce(()->CLIMB_MOTOR.set(0.7)),
+//             waitUntil(()-> atSetpoint()),
+//             runOnce(()->CLIMB_MOTOR.set(0))
+//         );
 //     }
 
 //     public Command retractElevator() {
-//         return moveElevator(Setpoint.RETRACTED.setpoint);
+//         return sequence(
+//             runOnce(()-> SERVO.setPosition(0)),
+//             runOnce(()-> setSetpoint(Setpoint.RETRACTED)),
+//             waitSeconds(0.2),
+//             runOnce(()->CLIMB_MOTOR.set(-0.7)),
+//             waitUntil(()-> atSetpoint()),
+//             runOnce(()->CLIMB_MOTOR.set(0))
+            
+//         );
 //     }
 
 // }

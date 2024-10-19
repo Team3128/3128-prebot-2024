@@ -116,10 +116,7 @@ public class Amper extends SubsystemBase{
     }
 
     public void initTriggers() {
-        new Trigger(()-> isState(AmpState.EXTENDED))
-        .and(()-> Hopper.hasNoObjects())
-        .debounce(0.5)
-        .onTrue(setState(AmpState.IDLE));
+        
     }
 
     public Command setState(AmpState state) {

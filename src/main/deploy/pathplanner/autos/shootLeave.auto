@@ -2,15 +2,28 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2,
-      "y": 2
+      "x": 0.7036808379666589,
+      "y": 4.265328388308022
     },
-    "rotation": 0
+    "rotation": 120.0
   },
   "command": {
     "type": "sequential",
     "data": {
-      "commands": []
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "leave"
+          }
+        }
+      ]
     }
   },
   "folder": null,

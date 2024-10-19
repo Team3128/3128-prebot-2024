@@ -32,7 +32,8 @@ public class AutoPrograms {
 
     private void initAutoSelector() {
         final String[] autoStrings = new String[] {
-            "middleClose_3note"
+            "middleClose_3note",
+            "shootLeave"
         };
         
         NarwhalDashboard.getInstance().addAutos(autoStrings);

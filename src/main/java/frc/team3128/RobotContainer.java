@@ -138,7 +138,7 @@ public class RobotContainer {
 
         controller.getButton(XboxButton.kRightTrigger).onTrue(
             sequence(shooter.runKickMotor(-.1),
-            waitSeconds(.1),
+            waitSeconds(.2),
             shooter.runKickMotor(0),shooter.rampUpShooter())
         ).onFalse(shooter.setShooting(true));
 

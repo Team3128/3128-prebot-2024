@@ -24,9 +24,12 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.autonomous.AutoPrograms;
 import frc.team3128.commands.CmdManager;
+import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
+import frc.team3128.subsystems.Intake;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Amper.AmpElevator;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -68,6 +71,8 @@ public class Robot extends NAR_Robot {
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();
         LiveWindow.disableAllTelemetry();
+        Amper.getInstance().elevator.zero();
+        Intake.getInstance().pivot.zero();
         // runOnce(()-> Swerve.getInstance().zeroGyro(Robot.getAlliance() == Alliance.Red ? 0 : 180));
         // Swerve.getInstance().resetOdometry((new Pose2d(new Translation2d(1.45, 4.1), Rotation2d.fromDegrees(180)))); //1.45, 4.1
         // Alliance allianceTemp = getAlliance();

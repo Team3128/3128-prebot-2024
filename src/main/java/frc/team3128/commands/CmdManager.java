@@ -75,7 +75,8 @@ public class CmdManager {
             waitSeconds(0.5),
             shooter.runKickMotor(KICK_POWER),
             waitSeconds(1),
-            shooter.stopMotors()
+            shooter.stopMotors(),
+            runOnce(()->shooter.disable())
         );
     }
 

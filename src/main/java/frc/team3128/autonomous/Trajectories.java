@@ -31,6 +31,7 @@ import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
 import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
 import static frc.team3128.Constants.SwerveConstants.*;
 import static frc.team3128.commands.CmdManager.intake;
+import static frc.team3128.commands.CmdManager.ramShootTriggerless;
 import static frc.team3128.commands.CmdManager.retractIntake;
 
 import frc.team3128.Constants.AutoConstants;
@@ -59,7 +60,7 @@ public class Trajectories {
         Pathfinding.setPathfinder(new LocalADStar());
 
         // TODO: add commands
-        NamedCommands.registerCommand("Shoot", CmdManager.autoShoot());
+        NamedCommands.registerCommand("Shoot", ramShootTriggerless());
         
         NamedCommands.registerCommand("Intake", intake());
         NamedCommands.registerCommand("Neutral", retractIntake());

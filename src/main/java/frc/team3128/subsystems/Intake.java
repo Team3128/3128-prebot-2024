@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
             setConstraints(MIN_SETPOINT, MAX_SETPOINT);
             setSafetyThresh(1.5);
             reset(0);
-            initShuffleboard();
+            // initShuffleboard();
         }
 
         @Override
@@ -39,6 +39,10 @@ public class Intake extends SubsystemBase {
             PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
             PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
         }
+
+        public void zero() {
+            PIVOT_MOTOR.resetPosition(0);
+        }
     }
 
     public class IntakeRollers extends ShooterTemplate {
@@ -46,7 +50,7 @@ public class Intake extends SubsystemBase {
             super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), ROLLER_MOTOR1, ROLLER_MOTOR2);
             setTolerance(ROLLER_TOLERANCE);
             setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
-            initShuffleboard();
+            // initShuffleboard();
         }
 
         @Override

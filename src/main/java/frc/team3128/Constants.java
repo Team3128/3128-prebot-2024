@@ -274,7 +274,7 @@ public class Constants {
         public static final double MAX_RPM = 5500;
         public static final double MIN_RPM = 0;
         public static final double TOLERANCE = 150;
-        public static final double AMP_RPM = 2500;
+        public static final double AMP_RPM = 1500;
         public static final double SHOOTER_RPM = 4500;
         
         public static final double EDGE_FEED_RPM = 5000;

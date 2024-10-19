@@ -46,6 +46,7 @@ public class AutoPrograms {
         String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
         // selectedAutoName = "middleClose_3note";
         
+        if (selectedAutoName == null) return defaultAuto();
         if (selectedAutoName.equals("")) {
             return defaultAuto();
         }

@@ -405,10 +405,10 @@ public class Constants {
     
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 50;
-        public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
+        // public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
 
         public static final int PWM_SERVO_ID = 0;
-        public static final PWM SERVO = new PWM(PWM_SERVO_ID);
+        // public static final PWM SERVO = new PWM(PWM_SERVO_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
         public static final double MAX_VELOCTIY = 10000000;

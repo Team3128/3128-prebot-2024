@@ -26,7 +26,8 @@ public class Amper extends SubsystemBase{
             super(new TrapController(ELEVATOR_PID, TRAP_CONSTRAINTS), ELEV_MOTOR);
             setTolerance(POSITION_TOLERANCE);
             setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-            // initShuffleboard();
+            initShuffleboard();
+
         }
     
         @Override
@@ -51,6 +52,7 @@ public class Amper extends SubsystemBase{
             setTolerance(ROLLER_TOLERANCE);
             setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
             // initShuffleboard();
+            NAR_Shuffleboard.addData(getName(), "measurement", ()->elevator.getMeasurement());
         }
     
         @Override
@@ -64,8 +66,8 @@ public class Amper extends SubsystemBase{
     
 
     public enum AmpState {
-        EXTENDED(21.25, 5500),
-        PRIMED(21.25*0.7, 5500),
+        EXTENDED(30, 5500), // 21.25
+        PRIMED(0.7 * 30, 5500), // 21.25 * 0.7
         IDLE(0, 0, true);
 
         private double elevatorSetpoint;

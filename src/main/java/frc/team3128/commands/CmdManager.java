@@ -8,6 +8,7 @@ import static frc.team3128.Constants.HopperConstants.*;
 import static frc.team3128.Constants.ShooterConstants.*;
 
 import common.hardware.input.NAR_XboxController;
+import common.utility.Log;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -179,7 +180,15 @@ public class CmdManager {
             amper.setState(AmpState.EXTENDED),
             waitUntil(() -> amper.atSetpoint()),
             waitSeconds(0.25),
-            shooter.setShooting(true)
+            shooter.runKickMotor(KICK_POWER),
+            waitSeconds(0.25),
+            hopper.runManipulator(.8),
+            waitSeconds(0.25),
+            runOnce(()->Log.info("shooter", "set shooting to faslse")),
+            // shooter.setShooting(false),
+            runOnce(()->shooter.disable()),
+            shooter.stopMotors(),
+            hopper.runManipulator(0)
             // waitUntil(() -> !shooter.getShooting())
             // waitSeconds(1),
             // amper.runRollers(0),

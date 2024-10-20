@@ -37,15 +37,14 @@ public class Shooter extends ShooterTemplate {
         // NAR_Shuffleboard.addData
 
         configMotors();
-        // initShuffleboard();
         // NAR_Shuffleboard.addData(getName(), "getShooting", ()->getShooting());
         // NAR_Shuffleboard.addData(getName(), "Velocity", ()-> SHOOTER_MOTOR.getVelocity(), 5, 5);
 
-        ControllerBase controller = getController();
-        controller.setkS(()-> super.controller.getkS());
-        controller.setkV(()-> super.controller.getkV());
-        controller.setkG(()-> super.controller.getkG());
-        controller.setTolerance(TOLERANCE);
+        // ControllerBase controller = getController();
+        // controller.setkS(()-> super.controller.getkS());
+        // controller.setkV(()-> super.controller.getkV());
+        // controller.setkG(()-> super.controller.getkG());
+        // controller.setTolerance(TOLERANCE);
     }
 
     public static synchronized Shooter getInstance(){

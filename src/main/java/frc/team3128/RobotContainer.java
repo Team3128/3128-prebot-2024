@@ -48,6 +48,7 @@ import frc.team3128.subsystems.Intake;
 // import common.utility.tester.Tester.UnitTest;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Amper.AmpElevator;
 import frc.team3128.subsystems.Amper.AmpState;
 import frc.team3128.subsystems.Intake.IntakeState;
 
@@ -107,10 +108,15 @@ public class RobotContainer {
 
         configureButtonBindings();
 
+        NAR_Shuffleboard.addData("Shooter", "Velocity", ()-> SHOOTER_MOTOR.getVelocity(), 5, 5);
 
-        // NAR_Shuffleboard.addData("Limelight", "ValidTarget", ()-> limelight.hasValidTarget(), 0, 0);
-        // NAR_Shuffleboard.addData("Limelight", "TX", ()-> limelight.getValue(LimelightKey.HORIZONTAL_OFFSET), 0, 1);
-    }   
+        NAR_Shuffleboard.addData("RunningIan", "INTAKE", ()-> (ROLLER_MOTOR1.getStallCurrent() > 2.5 || ROLLER_MOTOR2.getStallCurrent() > 2.5), 0, 0);
+        NAR_Shuffleboard.addData("RunningIan", "HOPPER", ()-> hopper.getCurrent() > 2.5, 1, 0);
+        NAR_Shuffleboard.addData("RunningIan", "SHOOTER", ()-> SHOOTER_MOTOR.getStallCurrent() > 2.5, 2, 0);
+        NAR_Shuffleboard.addData("RunningIan", "AMP", ()-> ROLLER_MOTOR.getStallCurrent() > 2.5, 3, 0);
+        NAR_Shuffleboard.addData("RunningIan", "InShooter", ()-> shooter.noteInRollers(), 3, 0);
+        NAR_Shuffleboard.addData("RunningIan", "SHOOTERKICKER", ()-> KICK_MOTOR.getStallCurrent() > 2.5, 4, 0);
+        }   
 
     private void configureButtonBindings() {
         controller.getButton(XboxButton.kX).onTrue(Commands.runOnce(()-> swerve.zeroGyro(0)));
@@ -134,7 +140,7 @@ public class RobotContainer {
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
         controller.getButton(XboxButton.kLeftTrigger).onTrue(intake());
-        controller.getButton(XboxButton.kLeftBumper).onTrue(retractIntake());
+        controller.getButton(XboxButton.kLeftBumper).onTrue(retractIntake()).onFalse(intake.rollers.shoot(0));
 
         controller.getButton(XboxButton.kRightTrigger).onTrue(
             sequence(shooter.runKickMotor(-.1),
@@ -143,7 +149,7 @@ public class RobotContainer {
         ).onFalse(shooter.setShooting(true));
 
         controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
-        controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
+        // controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
         controller.getButton(XboxButton.kY).onTrue(sequence(
@@ -152,10 +158,12 @@ public class RobotContainer {
             shooter.runKickMotor(0),amper.setState(AmpState.PRIMED))
         ).onFalse(ampFinAndDown());
         controller.getButton(XboxButton.kRightBumper).whileTrue(sequence(
+            shooter.runShooter(-0.4),
             shooter.runKickMotor(-KICK_POWER),
             hopper.runManipulator(-HOPPER_INTAKE_POWER),
             intake.setState(IntakeState.OUTTAKE)
         )).onFalse(sequence(
+            shooter.runShooter(0),
             shooter.runKickMotor(0),
             hopper.runManipulator(0),
             intake.setState(IntakeState.NEUTRAL)
@@ -164,14 +172,17 @@ public class RobotContainer {
             intake.setState(IntakeState.NEUTRAL),
             amper.setState(AmpState.IDLE),
             shooter.runKickMotor(0),
+            shooter.setShooting(false),
             runOnce(()->shooter.disable()),
-            hopper.runManipulator(0)
+            hopper.runManipulator(0),
+            shooter.setShooting(false)
         ));
 
         controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset()).andThen(runOnce(()-> amper.disable())).andThen(amper.reset()));
         controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
         controller2.getButton(XboxButton.kRightTrigger).onTrue(intake.pivot.runPivot(0.3));
         controller2.getButton(XboxButton.kRightBumper).onTrue(intake.pivot.runPivot(-0.3));
+        // controller2.getButton(XboxButton.kLeftBumper).onTrue(new CmdSysId("Amper Elevator", (voltage)->ELEV_MOTOR.setVolts(voltage),()-> ELEV_MOTOR.getVelocity(), ()->ELEV_MOTOR.getPosition(), 2, 0.5, 30.0, true, amper));
         
 
 
@@ -186,7 +197,8 @@ public class RobotContainer {
         ))
         .onFalse(sequence(
             hopper.runManipulator(0),
-            shooter.stopMotors()
+            shooter.stopMotors(),
+            runOnce(()->shooter.disable())
         ));
         
         //Stops shooting when all notes are gone
@@ -214,7 +226,7 @@ public class RobotContainer {
         .and(()->hopper.hasObjectPresent())
         .and(() -> !shooter.getShooting())
         .onTrue(sequence(
-            shooter.runKickMotor(KICK_POWER),
+            shooter.runKickMotor(0.2), // KICK_POWER
             hopper.runManipulator(HOPPER_INTAKE_POWER)
         ))
         .onFalse(sequence(
@@ -248,7 +260,7 @@ public class RobotContainer {
         .onTrue(amper.setState(AmpState.IDLE));
 
         new Trigger(()-> hopper.hasObjectPresent())
-        .debounce(2)
+        .debounce(2.5)
         .onTrue(
             sequence(
                 hopper.outtake().onlyIf(()-> !(amper.elevator.getMeasurement() > 3 || hopper.getCurrent() > 2.5)),

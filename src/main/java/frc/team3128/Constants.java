@@ -274,7 +274,7 @@ public class Constants {
         public static final double MAX_RPM = 5500;
         public static final double MIN_RPM = 0;
         public static final double TOLERANCE = 150;
-        public static final double AMP_RPM = 1500;
+        public static final double AMP_RPM = 3000;
         public static final double SHOOTER_RPM = 4500;
         
         public static final double EDGE_FEED_RPM = 5000;
@@ -316,7 +316,7 @@ public class Constants {
         public static final double ANGLE_TOLERANCE = 3;
         public static final double MIN_SETPOINT = 0;
         public static final double MAX_SETPOINT = 147;
-        public static final int CURRENT_LIMIT = 40;
+        public static final int CURRENT_LIMIT = 60;
 
         public static final double GEAR_RATIO = 1.0 / 40.0;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
@@ -444,7 +444,7 @@ public class Constants {
         public static final int ROLLER_MOTOR_ID = 20;
         public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
-        public static final PIDFFConfig ELEVATOR_PID = new PIDFFConfig(0.75, 0, 0, 0.21115, 0.00182, 0.00182, 0.0);
+        public static final PIDFFConfig ELEVATOR_PID = new PIDFFConfig(0.95, 0, 0, 0, 0.00182, 0.00182, 0.0); // kp 0.75, ks 0.21115
         public static final double MAX_VELOCTIY = 10000000;
         public static final double MAX_ACCELERATION = 100000;
         public static final Constraints TRAP_CONSTRAINTS = new Constraints(MAX_VELOCTIY, MAX_ACCELERATION);
@@ -456,11 +456,11 @@ public class Constants {
 
         public static final double POSITION_TOLERANCE = 0.25;
         public static final double MIN_SETPOINT = 0;
-        public static final double MAX_SETPOINT = 21.25;
+        public static final double MAX_SETPOINT = 30; //21.25
         public static final int CURRENT_LIMIT = 80;
 
-        public static final double GEAR_RATIO = 1.0 / (6 + 2/3);
-        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(0.9023) * Math.PI;
+        public static final double GEAR_RATIO = 0.15; // .166666666
+        public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.5) * Math.PI;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
 
         public static final double ROLLER_POWER = 0.9;

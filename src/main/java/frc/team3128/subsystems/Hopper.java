@@ -62,6 +62,10 @@ public class Hopper {
     }
 
     public enum HopperState {
+        BOTH(KICK_POWER, HOPPER_INTAKE_POWER),
+        HOPPER_ONLY(0, HOPPER_INTAKE_POWER),
+        KICKER_ONLY(KICK_POWER, 0),
+        KICKER_PULL_BACK(-0.1, 0),
         INTAKE(KICK_POWER, waitUntil(()-> kickerHasObjectPresent()), 0, HOPPER_INTAKE_POWER, waitUntil(()-> hasTwoObjects()), 0),
         OUTTAKE(-1, -1),
         SHOOT(0, waitUntil(()-> Shooter.getInstance().atSetpoint()), KICK_POWER, 0, waitUntil(()-> !kickerHasObjectPresent() && Shooter.getInstance().atSetpoint()), HOPPER_INTAKE_POWER),
@@ -129,10 +133,6 @@ public class Hopper {
     private Hopper() {
         hopper = new BackHopper();
         kicker = new Kicker();
-    }
-
-    public void initTriggers() {
-        
     }
 
     public Command setState(HopperState state) {

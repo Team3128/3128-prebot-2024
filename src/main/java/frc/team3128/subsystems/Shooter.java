@@ -77,11 +77,6 @@ public class Shooter extends SubsystemBase{
         flywheel = new Flywheel();
     }
 
-    public void initTriggers() {
-
-    
-    }
-
     public Command setState(ShooterState state){
         return setState(state, 0);
     }

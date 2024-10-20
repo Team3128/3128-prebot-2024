@@ -7,6 +7,8 @@ import static frc.team3128.commands.CmdManager.stop;
 
 import java.util.ArrayList;
 
+import com.ctre.phoenix6.signals.RobotEnableValue;
+
 import common.core.swerve.SwerveModule;
 import common.hardware.camera.Camera;
 import common.hardware.input.NAR_ButtonBoard;
@@ -24,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team3128.commands.CmdSwerveDrive;
 import frc.team3128.subsystems.Amper;
@@ -33,7 +36,9 @@ import frc.team3128.subsystems.Hopper.HopperState;
 import frc.team3128.subsystems.Intake;
 import frc.team3128.subsystems.Intake.IntakeState;
 import frc.team3128.subsystems.Shooter;
+import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Shooter.ShooterState;
+import frc.team3128.subsystems.SubsystemManager.RobotState;
 import frc.team3128.subsystems.Swerve;
 
 /**
@@ -49,6 +54,7 @@ public class RobotContainer {
     private Hopper hopper;
     private Intake intake;
     private Shooter shooter;
+    private SubsystemManager robot;
 
     // private NAR_ButtonBoard judgePad;
     private NAR_ButtonBoard buttonPad;
@@ -78,6 +84,7 @@ public class RobotContainer {
         hopper = Hopper.getInstance();
         intake = Intake.getInstance();
         shooter = Shooter.getInstance();
+        robot = SubsystemManager.getInstance();
 
         //uncomment line below to enable driving
         CommandScheduler.getInstance().setDefaultCommand(swerve, new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
@@ -86,11 +93,6 @@ public class RobotContainer {
         
         DriverStation.silenceJoystickConnectionWarning(true);
         initCameras();
-
-        amper.initTriggers();
-        hopper.initTriggers();
-        intake.initTriggers();
-        shooter.initTriggers();
 
         configureButtonBindings();
 
@@ -122,26 +124,26 @@ public class RobotContainer {
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
         // intake ground and then neutral
-        controller.getButton(XboxButton.kLeftTrigger).onTrue(intake.setState(Intake.IntakeState.GROUND)).onFalse(intake.setState(Intake.IntakeState.NEUTRAL));
+        controller.getButton(XboxButton.kLeftTrigger).onTrue(robot.setState(RobotState.INTAKE_FIRST, 0)).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
 
         // intake neutral
-        controller.getButton(XboxButton.kLeftBumper).onTrue(intake.setState(Intake.IntakeState.NEUTRAL));
+        controller.getButton(XboxButton.kLeftBumper).onTrue(robot.setState(RobotState.FULL_IDLE, 0));
 
         // ramp shooter and then run hopper
         // shooter and hopper will stop if no notes
-        controller.getButton(XboxButton.kRightTrigger).onTrue(shooter.setState(Shooter.ShooterState.SHOOT)).onFalse(hopper.setState(Hopper.HopperState.SHOOT));
+        controller.getButton(XboxButton.kRightTrigger).onTrue(robot.setState(RobotState.SHOOTING_RAMP, 0)).onFalse(robot.setState(RobotState.SHOOT_FIRST, 0));
 
         // shooter ramp amp
-        controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));
+        // controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));
 
         // amper primed and then extended
-        controller.getButton(XboxButton.kY).onTrue(amper.setState(Amper.AmpState.PRIMED)).onFalse(amper.setState(Amper.AmpState.EXTENDED));
+        controller.getButton(XboxButton.kY).onTrue(robot.setState(RobotState.AMPING_RAMP, 0)).onFalse(robot.setState(RobotState.AMP_FRIST, 0));
 
         // manual hopper button
-        controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());
+        // controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());
 
         // runs everything in reverse at max power and then go to neutral
-        controller.getButton(XboxButton.kRightBumper).whileTrue(outtake()).onFalse(stop());
+        controller.getButton(XboxButton.kRightBumper).whileTrue(robot.setState(RobotState.OUTTAKE, 0)).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
 
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(disableAll());
@@ -154,50 +156,6 @@ public class RobotContainer {
         controller2.getButton(XboxButton.kLeftBumper).whileTrue(amper.elevator.runElevator(-0.3)).onFalse(amper.elevator.runElevator(0));
         controller2.getButton(XboxButton.kY).onTrue(intake.rollers.runShooter(0.65)).onFalse(intake.rollers.runShooter(0));
         controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
-
-        //HOPPER TRIGGERS (LOWEST PRIO)
-        new Trigger(()-> hopper.isState(HopperState.SHOOT))
-        .and(()-> Hopper.hasNoObjects())
-        .debounce(0.25)
-        .onTrue(hopper.setState(HopperState.IDLE));
-
-        new Trigger(()-> intake.isState(Intake.IntakeState.GROUND))
-        .onTrue(hopper.setState(HopperState.INTAKE));
-
-        new Trigger(()-> hopper.isState(HopperState.INTAKE))
-        .and(()-> Hopper.hasTwoObjects())
-        .onTrue(hopper.setState(HopperState.IDLE));
-
-        new Trigger(()-> intake.isState(Intake.IntakeState.NEUTRAL))
-        .and(()-> !hopper.isState(HopperState.SHOOT))
-        .onTrue(hopper.setState(HopperState.IDLE));
-
-        new Trigger(()-> amper.isState(Amper.AmpState.EXTENDED))
-        .onTrue(hopper.setState(HopperState.SHOOT));
-
-        //INTAKE TRIGGERS
-        new Trigger(()-> intake.isState(IntakeState.GROUND))
-        .and(()-> Hopper.hasTwoObjects())
-        .onTrue(intake.setState(IntakeState.NEUTRAL));
-
-        //AMPER TRIGGERS
-        new Trigger(()-> amper.isState(AmpState.EXTENDED))
-        .and(()-> Hopper.hasNoObjects())
-        .debounce(0.5)
-        .onTrue(amper.setState(AmpState.IDLE));
-
-        //SHOOTER TRIGGERS (HIGHEST PRIO)
-        // stop if no notes
-        new Trigger(()-> Hopper.hasNoObjects())
-        .debounce(0.25)
-        .onTrue(shooter.setState(ShooterState.IDLE));
-        
-        //follow amper
-        new Trigger(()-> Amper.getInstance().isState(Amper.AmpState.PRIMED))
-        .onTrue(shooter.setState(ShooterState.AMP));
-
-        new Trigger(()-> Amper.getInstance().isState(Amper.AmpState.EXTENDED))
-        .onTrue(shooter.setState(ShooterState.AMP));
 
     }
 

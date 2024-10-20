@@ -116,10 +116,6 @@ public class Intake extends SubsystemBase {
         return instance;
     }
 
-    public void initTriggers() {
-        
-    }
-
     public Command setState(IntakeState state) {
         return setState(state, 0);
     }

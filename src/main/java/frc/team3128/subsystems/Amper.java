@@ -115,10 +115,6 @@ public class Amper extends SubsystemBase{
         NAR_Shuffleboard.addData(getName(), "Extended", ()-> isState(Amper.AmpState.EXTENDED), 0, 1);
     }
 
-    public void initTriggers() {
-        
-    }
-
     public Command setState(AmpState state) {
         return setState(state, 0);
     }

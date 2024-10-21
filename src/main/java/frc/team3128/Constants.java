@@ -451,7 +451,7 @@ public class Constants {
 
         public static final PIDFFConfig ROLLER_PID = new PIDFFConfig(0.00218, 0, 0, 0, 0.002, 0);
         public static final double ROLLER_TOLERANCE = 500;
-        public static final double ROLLER_MAX_RPM = 5500;
+        public static final double ROLLER_MAX_RPM = 4000;
         public static final double ROLLER_MIN_RPM = 0;
 
         public static final double POSITION_TOLERANCE = 0.25;

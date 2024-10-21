@@ -148,7 +148,18 @@ public class RobotContainer {
             shooter.runKickMotor(0),shooter.rampUpShooter())
         ).onFalse(shooter.setShooting(true));
 
-        controller.getButton(XboxButton.kA).onTrue(shooter.runShooter(0.8));
+        controller.getButton(XboxButton.kA).onTrue(
+            parallel(
+                swerve.turnInPlace(()-> Robot.getAlliance() == Alliance.Blue ? 180-35 : 35).asProxy().withTimeout(1),
+                shooter.shoot(MAX_RPM)
+            )
+        ).onFalse(
+            sequence(
+                shooter.setShooting(true),
+                waitSeconds(0.25),
+                shooter.setShooting(false)
+            )
+        );
         // controller.getButton(XboxButton.kY).onTrue(shooter.runShooter(0));
         controller.getButton(XboxButton.kB).onTrue(shooter.runKickMotor(KICK_SHOOTING_POWER)).onFalse(shooter.runKickMotor(0));
 
@@ -172,10 +183,13 @@ public class RobotContainer {
             intake.setState(IntakeState.NEUTRAL),
             amper.setState(AmpState.IDLE),
             shooter.runKickMotor(0),
-            shooter.setShooting(false),
-            runOnce(()->shooter.disable()),
+            // shooter.setShooting(false),
+            // runOnce(()->shooter.disable()),
+            // hopper.runManipulator(0),
             hopper.runManipulator(0),
-            shooter.setShooting(false)
+            shooter.stopMotors(),
+            runOnce(()->shooter.disable())
+            // shooter.setShooting(false)
         ));
 
         controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.reset()).andThen(runOnce(()-> amper.disable())).andThen(amper.reset()));
@@ -224,7 +238,8 @@ public class RobotContainer {
         //Queues note to shooter
         new Trigger(()-> shooter.noteInRollers()).negate()
         .and(()->hopper.hasObjectPresent())
-        .and(() -> !shooter.getShooting())
+        // .and(() -> !shooter.getShooting())
+        .and(()-> !(SHOOTER_MOTOR.getStallCurrent() > 2.5))
         .onTrue(sequence(
             shooter.runKickMotor(0.2), // KICK_POWER
             hopper.runManipulator(HOPPER_INTAKE_POWER)

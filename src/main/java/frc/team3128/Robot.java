@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import frc.team3128.Constants.LedConstants.Colors;
@@ -26,7 +28,9 @@ import frc.team3128.autonomous.AutoPrograms;
 import frc.team3128.commands.CmdManager;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Shooter;
+import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.SubsystemManager.RobotState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -106,16 +110,6 @@ public class Robot extends NAR_Robot {
         if(m_gcTimer.advanceIfElapsed(5)) {
             System.gc();
         }
-        // TODO: this may break everything
-        // if (Hopper.getInstance().hasObjectPresent()) {
-        //     if (timer.hasElapsed(2.5)) {
-        //         // CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(Hopper.getInstance()));
-        //         CommandScheduler.getInstance().schedule(CmdManager.hopperOuttake());
-        //         timer.reset();
-        //     }
-        //     return;
-        // } 
-        // timer.reset();
     }
 
     @Override
@@ -139,6 +133,7 @@ public class Robot extends NAR_Robot {
         Camera.overrideThreshold = 30;
         Camera.validDist = 0.5;
         Camera.enableAll();
+        SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
         CommandScheduler.getInstance().cancelAll();
     }
 
@@ -161,6 +156,8 @@ public class Robot extends NAR_Robot {
     public void disabledInit() {
         Swerve.getInstance().setBrakeMode(true);
         CommandScheduler.getInstance().cancelAll();
+
+        CmdManager.disableAll().schedule();
         sequence(
             waitSeconds(3.0).ignoringDisable(true),
             runOnce(()->Swerve.getInstance().setBrakeMode(false)).ignoringDisable(true)

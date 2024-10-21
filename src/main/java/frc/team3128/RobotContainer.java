@@ -157,6 +157,11 @@ public class RobotContainer {
         controller2.getButton(XboxButton.kY).onTrue(intake.rollers.runShooter(0.65)).onFalse(intake.rollers.runShooter(0));
         controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
 
+        // // auto eject
+        // new Trigger(()-> Hopper.hopperHasObjectPresent())
+        // .debounce(2.5)
+        // .whileTrue(hopper.setState(HopperState.HOPPER_BACKWARD));
+
     }
 
     @SuppressWarnings("unused")
@@ -181,13 +186,6 @@ public class RobotContainer {
         // sideCams.add(camera4);
 
         // limelight = new Limelight("limelight-mason", 0, 0, 0);
-    }
-
-    public static void toggleSideCams(boolean enable) {
-        for (Camera camera : sideCams) {
-            if (enable) camera.enable();
-            else camera.disable();
-        }
     }
 
     public void initDashboard() {

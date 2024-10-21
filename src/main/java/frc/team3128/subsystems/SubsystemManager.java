@@ -2,6 +2,8 @@ package frc.team3128.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+
+import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team3128.subsystems.Amper.AmpState;
 import frc.team3128.subsystems.Hopper.HopperState;
@@ -12,15 +14,15 @@ public class SubsystemManager extends SubsystemBase{
     
     public enum RobotState {
         FULL_IDLE(AmpState.IDLE, HopperState.IDLE, IntakeState.NEUTRAL, ShooterState.IDLE),
-        OUTTAKE(AmpState.IDLE, HopperState.OUTTAKE, IntakeState.OUTTAKE, ShooterState.IDLE),
-        INTAKE_SECOND(AmpState.IDLE, HopperState.HOPPER_ONLY, IntakeState.GROUND, ShooterState.IDLE, waitUntil(()-> Hopper.hopperHasObjectPresent()), RobotState.FULL_IDLE),
-        INTAKE_FIRST(AmpState.IDLE, HopperState.BOTH, IntakeState.GROUND, ShooterState.IDLE, waitUntil(()-> Hopper.kickerHasObjectPresent()), RobotState.INTAKE_SECOND),
+        OUTTAKE(AmpState.IDLE, HopperState.REVERSE, IntakeState.OUTTAKE, ShooterState.IDLE),
+        INTAKE_SECOND(AmpState.IDLE, HopperState.HOPPER_FORWARD, IntakeState.GROUND, ShooterState.IDLE, waitUntil(()-> Hopper.hopperHasObjectPresent()), RobotState.FULL_IDLE),
+        INTAKE_FIRST(AmpState.IDLE, HopperState.FULL_FORWARD, IntakeState.GROUND, ShooterState.IDLE, waitUntil(()-> Hopper.kickerHasObjectPresent()), RobotState.INTAKE_SECOND),
         SHOOTING_RAMP(AmpState.IDLE, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.SHOOT),
-        AMPING_RAMP(AmpState.PRIMED, HopperState.IDLE, IntakeState.NEUTRAL, ShooterState.AMP),
-        AMP_SECOND(AmpState.EXTENDED, HopperState.BOTH, IntakeState.NEUTRAL, ShooterState.AMP, waitUntil(()-> Hopper.hasNoObjects()), RobotState.FULL_IDLE),
-        AMP_FRIST(AmpState.EXTENDED, HopperState.KICKER_ONLY, IntakeState.NEUTRAL, ShooterState.AMP, waitUntil(()-> !Hopper.kickerHasObjectPresent()), RobotState.AMP_SECOND),
-        SHOOT_SECOND(AmpState.IDLE, HopperState.BOTH, IntakeState.NEUTRAL, ShooterState.SHOOT, waitUntil(()-> Hopper.hasNoObjects()), RobotState.FULL_IDLE),
-        SHOOT_FIRST(AmpState.IDLE, HopperState.KICKER_ONLY, IntakeState.NEUTRAL, ShooterState.SHOOT, waitUntil(()-> !Hopper.kickerHasObjectPresent()), RobotState.SHOOT_SECOND),;
+        AMPING_RAMP(AmpState.PRIMED, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.AMP),
+        AMP_SECOND(AmpState.EXTENDED, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, waitUntil(()-> Hopper.hasNoObjects()), RobotState.FULL_IDLE),
+        AMP_FRIST(AmpState.EXTENDED, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, waitUntil(()-> !Hopper.kickerHasObjectPresent()), RobotState.AMP_SECOND),
+        SHOOT_SECOND(AmpState.IDLE, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, waitUntil(()-> Hopper.hasNoObjects()), RobotState.FULL_IDLE),
+        SHOOT_FIRST(AmpState.IDLE, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, waitUntil(()-> !Hopper.kickerHasObjectPresent()), RobotState.SHOOT_SECOND),;
 
         private AmpState ampState;
         private HopperState hopperState;
@@ -85,6 +87,9 @@ public class SubsystemManager extends SubsystemBase{
         hopper = Hopper.getInstance();
         intake = Intake.getInstance();
         shooter = Shooter.getInstance();
+
+        setName("Robot");
+        initShuffleboard();
     }
 
     public Command setState(RobotState state, double delay) {
@@ -109,6 +114,12 @@ public class SubsystemManager extends SubsystemBase{
             intake.isState(state.getIntakeState()) && 
             shooter.isState(state.getShooterState())
         ;
+    }
+
+    public void initShuffleboard(){
+        for(RobotState state : RobotState.values()){
+            NAR_Shuffleboard.addData(getName(), state.toString(), ()-> isState(state));
+        }
     }
 
 }

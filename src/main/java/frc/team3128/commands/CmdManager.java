@@ -16,6 +16,7 @@ import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
 import frc.team3128.subsystems.Shooter;
+import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Swerve;
 // import frc.team3128.subsystems.Climber;
 
@@ -36,7 +37,7 @@ public class CmdManager {
 
     public static Command outtake(){
         return sequence(
-            hopper.setState(Hopper.HopperState.OUTTAKE),
+            hopper.setState(Hopper.HopperState.REVERSE),
             intake.setState(Intake.IntakeState.OUTTAKE)
         );
     }
@@ -66,17 +67,22 @@ public class CmdManager {
                 swerve.turnInPlace(()-> allianceFlip(Rotation2d.fromDegrees(angle)).getDegrees()),
                 shooter.setState(Shooter.ShooterState.SHOOT)
             ),
-            hopper.setState(Hopper.HopperState.SHOOT)
+            waitUntil(()-> shooter.atSetpoint()),
+            hopper.setState(Hopper.HopperState.FULL_FORWARD)
         );
     }
 
     public static Command autoShoot() {
-        return deadline(
-            shooter.setState(Shooter.ShooterState.SHOOT),
-            repeatingSequence(
-                runOnce(()-> CmdSwerveDrive.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
-                waitSeconds(0.1)
-            )
-        ).andThen(hopper.setState(Hopper.HopperState.SHOOT)).andThen(runOnce(() -> CmdSwerveDrive.disableTurn()));
+        return sequence(
+            deadline(
+                SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOTING_RAMP, 0), 
+                repeatingSequence(
+                    runOnce(()-> CmdSwerveDrive.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
+                    waitSeconds(0.1)
+                )
+            ),
+            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0), 
+            runOnce(() -> CmdSwerveDrive.disableTurn())
+        );
     }
 }

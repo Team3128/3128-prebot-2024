@@ -148,7 +148,6 @@ public class Amper extends SubsystemBase{
 
     public Command disable() {
         return sequence(
-            setState(AmpState.IDLE),
             Commands.runOnce(()-> elevator.disable()),
             Commands.runOnce(()-> manipulator.disable())
         ).ignoringDisable(true);

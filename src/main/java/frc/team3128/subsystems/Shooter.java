@@ -47,7 +47,7 @@ public class Shooter extends SubsystemBase{
     }
 
     public enum ShooterState {
-        AMP(SHOOTER_RPM),
+        AMP(AMP_RPM),
         SHOOT(SHOOTER_RPM),
         IDLE(0);
         
@@ -91,7 +91,6 @@ public class Shooter extends SubsystemBase{
 
     public Command disable(){
         return sequence(
-            setState(ShooterState.IDLE),
             runOnce(()-> flywheel.disable())
         ).ignoringDisable(true);
     }

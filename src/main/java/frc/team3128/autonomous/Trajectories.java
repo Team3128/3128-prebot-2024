@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.AutoConstants.*;
@@ -41,7 +42,10 @@ import frc.team3128.commands.CmdSwerveDrive;
 import java.util.function.DoubleSupplier;
 
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Amper;
+import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
+import frc.team3128.subsystems.SubsystemManager;
 
 /**
  * Store trajectories for autonomous. Edit points here. 
@@ -57,16 +61,10 @@ public class Trajectories {
         Pathfinding.setPathfinder(new LocalADStar());
 
         // TODO: add commands
-        NamedCommands.registerCommand("Shoot", CmdManager.autoShoot());
-        
-        NamedCommands.registerCommand("Intake", Intake.getInstance().setState(Intake.IntakeState.GROUND));
-        NamedCommands.registerCommand("Neutral", Intake.getInstance().setState(Intake.IntakeState.NEUTRAL));
-        // NamedCommands.registerCommand("intakeDown", CmdManager.intake(Intake.Setpoint.GROUND));
-        // NamedCommands.registerCommand("intakeUp", CmdManager.retractIntake());
+        NamedCommands.registerCommand("Shoot", shoot());
+        NamedCommands.registerCommand("Intake", SubsystemManager.getInstance().setState(SubsystemManager.RobotState.INTAKE_FIRST, 0));
+        NamedCommands.registerCommand("Neutral", SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0));
 
-        // NamedCommands.registerCommand("ramShoot", CmdManager.ramShoot(true));
-        // NamedCommands.registerCommand("ramShootNoStop", CmdManager.ramShootNoStop(true));
-        // NamedCommands.registerCommand("intakeAndStop", CmdManager.intakeAndStop(Intake.Setpoint.GROUND));
         AutoBuilder.configureHolonomic(
             swerve::getPose,
             swerve::resetOdometry,
@@ -84,10 +82,21 @@ public class Trajectories {
         );
     }
 
+    public static Command shoot() {
+        return sequence(
+            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0),
+            waitSeconds(1),
+            waitUntil(()-> Hopper.hasNoObjects()),
+            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0)
+        );
+    }
+
     public static Command resetAuto() {
         return sequence(
             runOnce(()-> swerve.zeroGyro(Robot.getAlliance() == Alliance.Red ? 0 : 180)),
-            runOnce(()-> swerve.resetEncoders())
+            runOnce(()-> swerve.resetEncoders()),
+            Amper.getInstance().reset(),
+            Intake.getInstance().reset()
         );
     }
 

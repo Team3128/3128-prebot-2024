@@ -62,13 +62,12 @@ public class Hopper {
     }
 
     public enum HopperState {
-        BOTH(KICK_POWER, HOPPER_INTAKE_POWER),
-        HOPPER_ONLY(0, HOPPER_INTAKE_POWER),
-        KICKER_ONLY(KICK_POWER, 0),
+        FULL_FORWARD(KICK_POWER, HOPPER_INTAKE_POWER),
+        HOPPER_FORWARD(0, HOPPER_INTAKE_POWER),
+        HOPPER_BACKWARD(0, HOPPER_OUTTAKE_POWER),
+        KICKER_FORWARD(KICK_POWER, 0),
         KICKER_PULL_BACK(-0.1, 0),
-        INTAKE(KICK_POWER, waitUntil(()-> kickerHasObjectPresent()), 0, HOPPER_INTAKE_POWER, waitUntil(()-> hasTwoObjects()), 0),
-        OUTTAKE(-1, -1),
-        SHOOT(0, waitUntil(()-> Shooter.getInstance().atSetpoint()), KICK_POWER, 0, waitUntil(()-> !kickerHasObjectPresent() && Shooter.getInstance().atSetpoint()), HOPPER_INTAKE_POWER),
+        REVERSE(-1, -1),
         IDLE(0, 0);
 
         private double kickerStartPower;
@@ -159,7 +158,6 @@ public class Hopper {
 
     public Command disable() {
         return sequence(
-            setState(HopperState.IDLE),
             kicker.runManipulator(0),
             hopper.runManipulator(0)
         ).ignoringDisable(true);

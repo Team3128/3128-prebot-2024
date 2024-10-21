@@ -472,36 +472,7 @@ public class Constants {
         public static final double AMPER_ANGLE = 31.96;
     }
 
-    public static class Flags {
-        // public static final BooleanSupplier hopperHasNote = ()-> Hopper.getInstance().hasObjectPresent();
-        // public static final BooleanSupplier shooterHasNote = ()-> Shooter.getInstance().hasObjectPresent();
-        // public static final BooleanSupplier hasNoNotes = both(not(hopperHasNote), not(shooterHasNote));
-        // public static final BooleanSupplier hasOneNote = xor(hopperHasNote, shooterHasNote);
-        // public static final BooleanSupplier hasTwoNotes = both(hopperHasNote, shooterHasNote);
-
-        // public static final BooleanSupplier readyForAdvance = both(hopperHasNote, not(shooterHasNote));
-
-        // public static final BooleanSupplier intakeOut = ()-> Intake.pivot.getMeasurement() > 20;
-        // public static final BooleanSupplier amperOut = ()-> Amper.elevator.getMeasurement() > 3;
-
-        // public static final BooleanSupplier shooterRunning = ()-> ShooterConstants.SHOOTER_MOTOR.getAppliedOutput() > 0.1;
-
-        // public static final BooleanSupplier amperStalled = ()-> AmperConstants.ROLLER_MOTOR.getStallCurrent() > 40;
-        // public static final BooleanSupplier hopperStalled = ()-> HopperConstants.HOPPER_MOTOR.getStallCurrent() > 40;
-        // public static final BooleanSupplier intakeStalled = ()-> IntakeConstants.ROLLER_MOTOR1.getStallCurrent() > 40;
-
-        // public static BooleanSupplier not(BooleanSupplier a) {
-        //     return ()-> !a.getAsBoolean();
-        // }
-
-        // public static BooleanSupplier both(BooleanSupplier a, BooleanSupplier b) {
-        //     return ()-> a.getAsBoolean() && b.getAsBoolean();
-        // }
-
-        // public static BooleanSupplier xor(BooleanSupplier a, BooleanSupplier b) {
-        //     return ()-> a.getAsBoolean() ^ b.getAsBoolean();
-        // }
-    }
+    
 }
 
 

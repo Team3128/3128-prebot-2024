@@ -114,7 +114,13 @@ public class Hopper {
         public double getHopperEndPower() {
             return hopperEndPower;
         }
-        
+
+        public static boolean equals(HopperState state1, HopperState state2) {
+            return state1.getKickerStartPower() == state2.getKickerStartPower()
+            && state1.getKickerEndPower() == state2.getKickerEndPower()
+            && state1.getHopperStartPower() == state2.getHopperStartPower()
+            && state1.getHopperEndPower() == state2.getHopperEndPower();
+        }
     }
 
 

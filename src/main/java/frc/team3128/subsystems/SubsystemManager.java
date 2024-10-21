@@ -13,6 +13,7 @@ import frc.team3128.subsystems.Shooter.ShooterState;
 public class SubsystemManager extends SubsystemBase{
     
     public enum RobotState {
+        //AMP, HOPPER, INTAKE, SHOOTER
         FULL_IDLE(AmpState.IDLE, HopperState.IDLE, IntakeState.NEUTRAL, ShooterState.IDLE),
         OUTTAKE(AmpState.IDLE, HopperState.REVERSE, IntakeState.OUTTAKE, ShooterState.IDLE),
         INTAKE_SECOND(AmpState.IDLE, HopperState.HOPPER_FORWARD, IntakeState.GROUND, ShooterState.IDLE, waitUntil(()-> Hopper.hopperHasObjectPresent()), RobotState.FULL_IDLE),
@@ -20,7 +21,7 @@ public class SubsystemManager extends SubsystemBase{
         SHOOTING_RAMP(AmpState.IDLE, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.SHOOT),
         AMPING_RAMP(AmpState.PRIMED, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.AMP),
         AMP_SECOND(AmpState.EXTENDED, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, waitUntil(()-> Hopper.hasNoObjects()), RobotState.FULL_IDLE),
-        AMP_FRIST(AmpState.EXTENDED, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, waitUntil(()-> !Hopper.kickerHasObjectPresent()), RobotState.AMP_SECOND),
+        AMP_FIRST(AmpState.EXTENDED, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, waitUntil(()-> !Hopper.kickerHasObjectPresent()), RobotState.AMP_SECOND),
         SHOOT_SECOND(AmpState.IDLE, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, waitUntil(()-> Hopper.hasNoObjects()), RobotState.FULL_IDLE),
         SHOOT_FIRST(AmpState.IDLE, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, waitUntil(()-> !Hopper.kickerHasObjectPresent()), RobotState.SHOOT_SECOND),;
 
@@ -43,6 +44,8 @@ public class SubsystemManager extends SubsystemBase{
             this.condition = condition;
             this.nextState = nextState;
         }
+
+        
 
         public AmpState getAmpState() {
             return ampState;
@@ -96,6 +99,7 @@ public class SubsystemManager extends SubsystemBase{
         return sequence(
             waitSeconds(delay),
             parallel(
+                hopper.setState(state.getHopperState()).onlyIf(()-> HopperState.equals(state.getHopperState(), HopperState.KICKER_PULL_BACK)),
                 shooter.setState(state.getShooterState()),
                 amper.setState(state.getAmpState()),
                 intake.setState(state.getIntakeState()),

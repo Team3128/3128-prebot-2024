@@ -137,7 +137,7 @@ public class RobotContainer {
         // controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));
 
         // amper primed and then extended
-        controller.getButton(XboxButton.kY).onTrue(robot.setState(RobotState.AMPING_RAMP, 0)).onFalse(robot.setState(RobotState.AMP_FRIST, 0));
+        controller.getButton(XboxButton.kY).onTrue(robot.setState(RobotState.AMPING_RAMP, 0)).onFalse(robot.setState(RobotState.AMP_FIRST, 0));
 
         // manual hopper button
         // controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());

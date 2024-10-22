@@ -5,6 +5,7 @@ import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.HopperConstants.*;
@@ -141,17 +142,9 @@ public class Hopper {
     }
 
     public Command setState(HopperState state) {
-        return parallel(
-            sequence(
-                kicker.runManipulator(state.getKickerStartPower()),
-                state.getKickerWaitCommand(),
-                kicker.runManipulator(state.getKickerEndPower())
-            ),
-            sequence(
-                hopper.runManipulator(state.getHopperStartPower()),
-                state.getHopperWaitCommand(),
-                hopper.runManipulator(state.getHopperEndPower())
-            )
+        return sequence(
+            hopper.runManipulator(state.getHopperStartPower()),
+            kicker.runManipulator(state.getKickerStartPower())
         );
     }
 

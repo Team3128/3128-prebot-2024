@@ -33,7 +33,7 @@ public class Shooter extends SubsystemBase{
             setTolerance(TOLERANCE);
 
             configMotors();
-            initShuffleboard();
+            // initShuffleboard();
             controller.setTolerance(TOLERANCE);
         }
         protected void configMotors() {

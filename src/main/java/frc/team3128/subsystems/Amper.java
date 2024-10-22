@@ -27,7 +27,7 @@ public class Amper extends SubsystemBase{
             super(new TrapController(ELEVATOR_PID, TRAP_CONSTRAINTS), ELEV_MOTOR);
             setTolerance(POSITION_TOLERANCE);
             setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-            initShuffleboard();
+            // initShuffleboard();
         }
     
         @Override
@@ -47,7 +47,7 @@ public class Amper extends SubsystemBase{
             super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), ROLLER_MOTOR);
             setTolerance(ROLLER_TOLERANCE);
             setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
-            initShuffleboard();
+            // initShuffleboard();
         }
     
         @Override

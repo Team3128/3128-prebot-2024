@@ -19,12 +19,12 @@ public class SubsystemManager {
     
     public enum RobotState {
         //AMP, HOPPER, INTAKE, SHOOTER
-        FULL_IDLE(AmpState.IDLE, HopperState.IDLE, IntakeState.NEUTRAL, ShooterState.IDLE),
-        OUTTAKE(AmpState.IDLE, HopperState.REVERSE, IntakeState.OUTTAKE, ShooterState.IDLE),
-        INTAKE_SECOND(AmpState.IDLE, HopperState.HOPPER_FORWARD, IntakeState.GROUND, ShooterState.IDLE, ()-> Hopper.hopperHasObjectPresent(), RobotState.FULL_IDLE),
-        INTAKE_FIRST(AmpState.IDLE, HopperState.FULL_FORWARD, IntakeState.GROUND, ShooterState.IDLE, ()-> Hopper.kickerHasObjectPresent(), RobotState.INTAKE_SECOND),
-        SHOOTING_RAMP(AmpState.IDLE, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.SHOOT),
-        AMPING_RAMP(AmpState.PRIMED, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.AMP),
+        FULL_IDLE(AmpState.IDLE, HopperState.IDLE, IntakeState.NEUTRAL, ShooterState.IDLE, false),
+        OUTTAKE(AmpState.IDLE, HopperState.REVERSE, IntakeState.OUTTAKE, ShooterState.IDLE, false),
+        INTAKE_SECOND(AmpState.IDLE, HopperState.HOPPER_FORWARD, IntakeState.GROUND, ShooterState.IDLE, ()-> Hopper.hopperHasObjectPresent(), RobotState.FULL_IDLE, false),
+        INTAKE_FIRST(AmpState.IDLE, HopperState.FULL_FORWARD, IntakeState.GROUND, ShooterState.IDLE, ()-> Hopper.kickerHasObjectPresent(), RobotState.INTAKE_SECOND, false),
+        SHOOTING_RAMP(AmpState.IDLE, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.SHOOT, false),
+        AMPING_RAMP(AmpState.PRIMED, HopperState.KICKER_PULL_BACK, IntakeState.NEUTRAL, ShooterState.AMP, false),
         AMP_SECOND(AmpState.EXTENDED, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, ()-> Hopper.hasNoObjects(), RobotState.FULL_IDLE),
         AMP_FIRST(AmpState.EXTENDED, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, ()-> !Hopper.kickerHasObjectPresent(), RobotState.AMP_SECOND),
         SHOOT_SECOND(AmpState.IDLE, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, ()-> Hopper.hasNoObjects(), RobotState.FULL_IDLE),
@@ -36,18 +36,25 @@ public class SubsystemManager {
         private ShooterState shooterState;
         private BooleanSupplier condition;
         private RobotState nextState;
+        private boolean hopperWait;
 
-        private RobotState(AmpState ampState, HopperState hopperState, IntakeState intakeState, ShooterState shooterState) {
-            this(ampState, hopperState, intakeState, shooterState, ()-> true, null);
+
+        private RobotState(AmpState ampState, HopperState hopperState, IntakeState intakeState, ShooterState shooterState, boolean hopperWait) {
+            this(ampState, hopperState, intakeState, shooterState, ()-> true, null, hopperWait);
         }
 
-        private RobotState(AmpState ampState, HopperState hopperState, IntakeState intakeState, ShooterState shooterState, BooleanSupplier condition, RobotState nextState) {
+        private RobotState(Amper.AmpState ampState, HopperState hopperState, IntakeState intakeState, ShooterState shooterState, BooleanSupplier condition, RobotState nextState) {
+            this(ampState, hopperState, intakeState, shooterState, condition, nextState, true);
+        }
+
+        private RobotState(AmpState ampState, HopperState hopperState, IntakeState intakeState, ShooterState shooterState, BooleanSupplier condition, RobotState nextState, boolean hopperWait) {
             this.ampState = ampState;
             this.hopperState = hopperState;
             this.intakeState = intakeState;
             this.shooterState = shooterState;
             this.condition = condition;
             this.nextState = nextState;
+            this.hopperWait = hopperWait;
         }
 
         
@@ -74,6 +81,10 @@ public class SubsystemManager {
 
         public RobotState getNextState() {
             return nextState;
+        }
+
+        public boolean getHopperWait() {
+            return hopperWait;
         }
     }
 
@@ -105,14 +116,15 @@ public class SubsystemManager {
         
         return sequence(
             waitSeconds(delay),
-            hopper.setState(state.getHopperState()).onlyIf(()-> HopperState.equals(state.getHopperState(), HopperState.KICKER_PULL_BACK)),
+            hopper.setState(state.getHopperState()).onlyIf(()-> !state.getHopperWait()),
             shooter.setState(state.getShooterState()),
             amper.setState(state.getAmpState()),
             intake.setState(state.getIntakeState()),
             waitUntil(()-> shooter.atSetpoint() && amper.atSetpoint()),
             hopper.setState(state.getHopperState()),
             waitUntil(state.getCondition()),
-            (state.getNextState() != null) ? setState(state.getNextState(), 0) : none()
+            setState(state.getNextState(), 0).onlyIf(()-> state.getNextState() != null) //,
+            // (state.getNextState() != null) ? setState(state.getNextState(), 0) : none()
         );
     }
 

@@ -1,8 +1,5 @@
 package frc.team3128;
 
-import java.util.HashMap;
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -18,7 +15,6 @@ import common.hardware.motorcontroller.NAR_TalonFX;
 import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
-import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
@@ -27,19 +23,12 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PWM;
-import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Intake;
-import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.Swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import common.utility.shuffleboard.NAR_Shuffleboard;
-
-
 
 public class Constants {
 

@@ -10,7 +10,6 @@ import org.littletonrobotics.junction.Logger;
 
 import common.core.misc.NAR_Robot;
 import common.hardware.camera.Camera;
-import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.Log;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
@@ -19,15 +18,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.autonomous.AutoPrograms;
 import frc.team3128.commands.CmdManager;
-import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Swerve;
 import frc.team3128.subsystems.SubsystemManager.RobotState;

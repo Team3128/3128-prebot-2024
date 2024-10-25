@@ -2,12 +2,8 @@ package frc.team3128;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static frc.team3128.commands.CmdManager.disableAll;
-import static frc.team3128.commands.CmdManager.outtake;
-import static frc.team3128.commands.CmdManager.stop;
 
 import java.util.ArrayList;
-
-import com.ctre.phoenix6.signals.RobotEnableValue;
 
 import common.core.swerve.SwerveModule;
 import common.hardware.camera.Camera;
@@ -26,18 +22,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team3128.commands.CmdSwerveDrive;
 import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Amper.AmpState;
 import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Hopper.HopperState;
 import frc.team3128.subsystems.Intake;
-import frc.team3128.subsystems.Intake.IntakeState;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.SubsystemManager;
-import frc.team3128.subsystems.Shooter.ShooterState;
 import frc.team3128.subsystems.SubsystemManager.RobotState;
 import frc.team3128.subsystems.Swerve;
 

@@ -8,7 +8,6 @@ import common.core.commands.NAR_PIDCommand;
 import common.core.controllers.Controller;
 import common.core.controllers.PIDFFConfig;
 import common.core.controllers.Controller.Type;
-import common.utility.shuffleboard.NAR_Shuffleboard;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -17,26 +16,19 @@ import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.AutoConstants.*;
 import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
 import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
-import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
-import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
 import static frc.team3128.Constants.SwerveConstants.*;
 
 import frc.team3128.Constants.AutoConstants;
-import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.Robot;
-import frc.team3128.RobotContainer;
-import frc.team3128.commands.CmdManager;
 import frc.team3128.commands.CmdSwerveDrive;
 
 import java.util.function.DoubleSupplier;

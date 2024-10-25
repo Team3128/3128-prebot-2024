@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import frc.team3128.Constants;
 import frc.team3128.Robot;
 import frc.team3128.RobotContainer;
 import frc.team3128.subsystems.Amper;

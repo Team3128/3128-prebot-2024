@@ -1,6 +1,7 @@
 package frc.team3128.subsystems;
 
 import common.core.subsystems.ManipulatorTemplate;
+import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -12,22 +13,23 @@ import static frc.team3128.Constants.ShooterConstants.*;
 
 public class Hopper {
 
+    private final NAR_CANSpark hopperMotor = new NAR_CANSpark(HOPPER_MOTOR_ID);
     public class BackHopper extends ManipulatorTemplate {
 
         private DigitalInput frontSensor;
         
         private BackHopper(){
-            super(STALL_CURRENT, HOPPER_INTAKE_POWER, HOPPER_OUTTAKE_POWER, STALL_POWER, 0.3, HOPPER_MOTOR);
+            super(STALL_CURRENT, HOPPER_INTAKE_POWER, HOPPER_OUTTAKE_POWER, STALL_POWER, 0.3, hopperMotor);
             frontSensor = new DigitalInput(HOPPER_FRONT_SENSOR_ID);
             configMotors();
         }
 
         @Override
         protected void configMotors() {
-            HOPPER_MOTOR.enableVoltageCompensation(VOLT_COMP);
-            HOPPER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-            HOPPER_MOTOR.setNeutralMode(Neutral.COAST);
-            HOPPER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+            hopperMotor.enableVoltageCompensation(VOLT_COMP);
+            hopperMotor.setCurrentLimit(CURRENT_LIMIT);
+            hopperMotor.setNeutralMode(Neutral.COAST);
+            hopperMotor.setStatusFrames(SparkMaxConfig.VELOCITY);
         }
 
         @Override
@@ -36,21 +38,24 @@ public class Hopper {
         }
     }
 
+    private final NAR_CANSpark kickerMotor = new NAR_CANSpark(KICK_MOTOR_ID);
+
     public class Kicker extends ManipulatorTemplate {
 
         private DigitalInput rollersSensor;
         
+        
         private Kicker(){
-            super(STALL_CURRENT, KICK_POWER, -1, 0, 0.5, KICK_MOTOR);
+            super(STALL_CURRENT, KICK_POWER, -1, 0, 0.5, kickerMotor);
             rollersSensor = new DigitalInput(ROLLERS_SENSOR_ID);
             configMotors();     
         }
         @Override
         protected void configMotors() {
-            KICK_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-            KICK_MOTOR.setInverted(false);
-            KICK_MOTOR.setNeutralMode(Neutral.COAST);
-            KICK_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+            kickerMotor.setCurrentLimit(CURRENT_LIMIT);
+            kickerMotor.setInverted(false);
+            kickerMotor.setNeutralMode(Neutral.COAST);
+            kickerMotor.setStatusFrames(SparkMaxConfig.VELOCITY);
         }
 
         @Override
@@ -147,10 +152,10 @@ public class Hopper {
     }
 
     public boolean isState(HopperState state){
-        return (HOPPER_MOTOR.getAppliedOutput() == state.getHopperStartPower() 
-        || HOPPER_MOTOR.getAppliedOutput() == state.getHopperEndPower())
-        && (KICK_MOTOR.getAppliedOutput() == state.getKickerStartPower()
-        || KICK_MOTOR.getAppliedOutput() == state.getKickerEndPower());
+        return (hopperMotor.getAppliedOutput() == state.getHopperStartPower() 
+        || hopperMotor.getAppliedOutput() == state.getHopperEndPower())
+        && (kickerMotor.getAppliedOutput() == state.getKickerStartPower()
+        || kickerMotor.getAppliedOutput() == state.getKickerEndPower());
     }
 
     public Command disable() {

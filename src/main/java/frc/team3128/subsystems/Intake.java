@@ -6,8 +6,10 @@ import common.core.controllers.Controller;
 import common.core.controllers.TrapController;
 import common.core.subsystems.PivotTemplate;
 import common.core.subsystems.ShooterTemplate;
+import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
+import common.hardware.motorcontroller.NAR_TalonFX;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,10 +18,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class Intake extends SubsystemBase {
+    private final NAR_CANSpark pivotMotor = new NAR_CANSpark(PIVOT_MOTOR_ID);
+    private final NAR_TalonFX rollerMotor1 = new NAR_TalonFX(ROLLER_MOTOR_ID1);
+    private final NAR_TalonFX rollerMotor2 = new NAR_TalonFX(ROLLER_MOTOR_ID2);
 
     public class IntakePivot extends PivotTemplate {
         private IntakePivot() {
-            super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), PIVOT_MOTOR);
+            super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), pivotMotor);
             setkG_Function(()-> Math.cos(Units.degreesToRadians(getSetpoint())));
             setTolerance(ANGLE_TOLERANCE);
             setConstraints(MIN_SETPOINT, MAX_SETPOINT);
@@ -31,16 +36,16 @@ public class Intake extends SubsystemBase {
 
         @Override
         protected void configMotors() {
-            PIVOT_MOTOR.setInverted(true);
-            PIVOT_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
-            PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
-            PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
+            pivotMotor.setInverted(true);
+            pivotMotor.setUnitConversionFactor(UNIT_CONV_FACTOR);
+            pivotMotor.setNeutralMode(Neutral.COAST);
+            pivotMotor.setStatusFrames(SparkMaxConfig.POSITION);
         }
     }
 
     public class IntakeRollers extends ShooterTemplate {
         private IntakeRollers() {
-            super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), ROLLER_MOTOR1, ROLLER_MOTOR2);
+            super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), rollerMotor1, rollerMotor2);
             setTolerance(ROLLER_TOLERANCE);
             setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
             setName("IntakeRollers");
@@ -49,15 +54,15 @@ public class Intake extends SubsystemBase {
 
         @Override
         protected void configMotors() {
-            ROLLER_MOTOR1.setVelocityStatusFrames();
-            ROLLER_MOTOR1.setInverted(false);
-            ROLLER_MOTOR1.setNeutralMode(Neutral.COAST);
-            ROLLER_MOTOR1.setCurrentLimit(CURRENT_LIMIT);
+            rollerMotor1.setVelocityStatusFrames();
+            rollerMotor1.setInverted(false);
+            rollerMotor1.setNeutralMode(Neutral.COAST);
+            rollerMotor1.setCurrentLimit(CURRENT_LIMIT);
 
-            ROLLER_MOTOR2.setVelocityStatusFrames();
-            ROLLER_MOTOR2.setInverted(true);
-            ROLLER_MOTOR2.setNeutralMode(Neutral.COAST);
-            ROLLER_MOTOR2.setCurrentLimit(CURRENT_LIMIT);
+            rollerMotor2.setVelocityStatusFrames();
+            rollerMotor2.setInverted(true);
+            rollerMotor2.setNeutralMode(Neutral.COAST);
+            rollerMotor2.setCurrentLimit(CURRENT_LIMIT);
         }
     }
 

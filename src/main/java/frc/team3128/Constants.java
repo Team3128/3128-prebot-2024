@@ -10,9 +10,7 @@ import common.core.swerve.SwerveConversions;
 import common.core.swerve.SwerveModuleConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveEncoderConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
-import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_TalonFX;
-import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,7 +20,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PWM;
 import frc.team3128.subsystems.Swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
@@ -30,7 +27,15 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class Constants {
+/**
+ * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants should be declared
+ * globally (i.e. public static). Do not put anything functional in this class.
+ *
+ * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * constants are needed, to reduce verbosity.
+ */
+public final class Constants {
 
     public static class AutoConstants {
 
@@ -255,9 +260,6 @@ public class Constants {
         public static final int KICK_SENSOR_ID = 0;
         public static final int ROLLERS_SENSOR_ID = 1;
 
-        public static final NAR_CANSpark SHOOTER_MOTOR = new NAR_CANSpark(SHOOTER_MOTOR_ID);
-        public static final NAR_CANSpark KICK_MOTOR = new NAR_CANSpark(KICK_MOTOR_ID);
-
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.0025, 0, 0, 0, 0.00179104, 0); // 0.00187623
         public static final double kF = 0; 
         public static final double GEAR_RATIO = 1;
@@ -291,7 +293,6 @@ public class Constants {
 
     public static class IntakeConstants {
         public static final int PIVOT_MOTOR_ID = 31;
-        public static final NAR_CANSpark PIVOT_MOTOR = new NAR_CANSpark(PIVOT_MOTOR_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, -0.35, 0, 0, 0);
         public static final double MAX_VELOCITY = 1000000;
@@ -312,10 +313,7 @@ public class Constants {
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
 
         public static final int ROLLER_MOTOR_ID1 = 31;
-        public static final NAR_TalonFX ROLLER_MOTOR1 = new NAR_TalonFX(ROLLER_MOTOR_ID1);
-        
         public static final int ROLLER_MOTOR_ID2 = 32; //TODO: ADD
-        public static final NAR_TalonFX ROLLER_MOTOR2 = new NAR_TalonFX(ROLLER_MOTOR_ID2);
 
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
@@ -358,7 +356,6 @@ public class Constants {
         public static class RainbowAnimation {
             public static final double BRIGHTNESS = 1;
             public static final double SPEED = 1;
-
         }
 
         public enum Colors {
@@ -388,16 +385,12 @@ public class Constants {
                 this.b = b;
                 this.animation = animation;
             }
-    
         }
     }
     
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 50;
-        public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
-
         public static final int PWM_SERVO_ID = 0;
-        public static final PWM SERVO = new PWM(PWM_SERVO_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
         public static final double MAX_VELOCTIY = 10000000;
@@ -412,12 +405,10 @@ public class Constants {
         public static final double GEAR_RATIO = 1.0 / 15.0;
         public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.751) * Math.PI;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
-
     }
 
     public static class HopperConstants {
         public static final int HOPPER_MOTOR_ID = 40;
-        public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
         public static final int HOPPER_FRONT_SENSOR_ID = 0;
         public static final int HOPPER_BACK_SENSOR_ID = 2;
 
@@ -432,10 +423,7 @@ public class Constants {
 
     public static class AmperConstants {
         public static final int ELEV_MOTOR_ID = 21;
-        public static final NAR_CANSpark ELEV_MOTOR = new NAR_CANSpark(ELEV_MOTOR_ID);
-
         public static final int ROLLER_MOTOR_ID = 20;
-        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
         public static final PIDFFConfig ELEVATOR_PID = new PIDFFConfig(0.95, 0, 0, 0.21115, 0.00182, 0.00182, 0.0); // kp 0.75
         public static final double MAX_VELOCTIY = 10000000;

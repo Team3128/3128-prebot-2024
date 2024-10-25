@@ -3,22 +3,21 @@ package frc.team3128.subsystems;
 import common.core.controllers.Controller;
 import common.core.controllers.Controller.Type;
 import common.core.subsystems.ShooterTemplate;
+import common.hardware.motorcontroller.NAR_CANSpark;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
-
-import static edu.wpi.first.wpilibj2.command.Commands.sequence;
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.team3128.Constants.ShooterConstants.*;
 
 public class Shooter extends SubsystemBase{
 
+    private final NAR_CANSpark shooterMotor = new NAR_CANSpark(SHOOTER_MOTOR_ID);
     public class Flywheel extends ShooterTemplate {
         private Flywheel(){
-            super(new Controller(PIDConstants, Type.VELOCITY), SHOOTER_MOTOR);
+            super(new Controller(PIDConstants, Type.VELOCITY), shooterMotor);
             setConstraints(MIN_RPM, MAX_RPM);
             setTolerance(TOLERANCE);
 
@@ -27,11 +26,11 @@ public class Shooter extends SubsystemBase{
             controller.setTolerance(TOLERANCE);
         }
         protected void configMotors() {
-            SHOOTER_MOTOR.setCurrentLimit(40);
-            SHOOTER_MOTOR.setInverted(false);
-            SHOOTER_MOTOR.setUnitConversionFactor(GEAR_RATIO);
-            SHOOTER_MOTOR.setNeutralMode(Neutral.COAST);
-            SHOOTER_MOTOR.setStatusFrames(SparkMaxConfig.VELOCITY);
+            shooterMotor.setCurrentLimit(40);
+            shooterMotor.setInverted(false);
+            shooterMotor.setUnitConversionFactor(GEAR_RATIO);
+            shooterMotor.setNeutralMode(Neutral.COAST);
+            shooterMotor.setStatusFrames(SparkMaxConfig.VELOCITY);
         }
 
     }

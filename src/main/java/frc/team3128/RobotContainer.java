@@ -21,6 +21,7 @@ import common.utility.Log;
 import common.utility.narwhaldashboard.NarwhalDashboard;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
+import common.utility.sysid.CmdSysId;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -28,6 +29,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.team3128.autonomous.AutoPrograms;
+import frc.team3128.autonomous.Trajectories;
 import frc.team3128.commands.CmdSwerveDrive;
 import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Amper.AmpState;
@@ -99,10 +102,16 @@ public class RobotContainer {
 
         // NAR_Shuffleboard.addData("Limelight", "ValidTarget", ()-> limelight.hasValidTarget(), 0, 0);
         // NAR_Shuffleboard.addData("Limelight", "TX", ()-> limelight.getValue(LimelightKey.HORIZONTAL_OFFSET), 0, 1);
+        // NAR_Shuffleboard.addData("Hopper", "Kicker Note", ()-> Hopper.kickerHasObjectPresent(), 0, 0);
+        // NAR_Shuffleboard.addData("Hopper", "Hopper Note", ()-> Hopper.hopperHasObjectPresent(), 1, 0);
+        // NAR_Shuffleboard.addData("Hopper", "Has Two Notes", ()-> Hopper.hasTwoObjects(), 2, 0);
+        // NAR_Shuffleboard.addData("Hopper", "Has No Notes", ()-> Hopper.hasNoObjects(), 3, 0);
     }   
 
     private void configureButtonBindings() {
-        controller.getButton(XboxButton.kX).onTrue(Commands.runOnce(()-> swerve.zeroGyro(0)));
+        // controller.getButton(XboxButton.kX).onTrue(Commands.runOnce(()-> swerve.zeroGyro(0)));
+        controller.getButton(XboxButton.kX).onTrue(new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltage(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
+        ()->swerve.getModules()[0].getDriveMotor().getPosition(), 50,true, swerve));
 
         controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> CmdSwerveDrive.setTurnSetpoint()));
         controller.getUpPOVButton().onTrue(runOnce(()-> {
@@ -124,7 +133,7 @@ public class RobotContainer {
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
         // intake ground and then neutral
-        controller.getButton(XboxButton.kLeftTrigger).onTrue(robot.setState(RobotState.INTAKE_FIRST, 0)).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
+        controller.getButton(XboxButton.kLeftTrigger).onTrue(robot.setState(RobotState.INTAKE_FIRST, 0).onlyIf(()->!Hopper.hasTwoObjects())).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
 
         // intake neutral
         controller.getButton(XboxButton.kLeftBumper).onTrue(robot.setState(RobotState.FULL_IDLE, 0));
@@ -189,13 +198,12 @@ public class RobotContainer {
     }
 
     public void initDashboard() {
-        /*dashboard = NarwhalDashboard.getInstance();
-        dashboard.addUpdate("time", ()-> Timer.getMatchTime());
-        dashboard.addUpdate("voltage",()-> RobotController.getBatteryVoltage());
+        dashboard = NarwhalDashboard.getInstance();
+        // dashboard.addUpdate("time", ()-> Timer.getMatchTime());
+        // dashboard.addUpdate("voltage",()-> RobotController.getBatteryVoltage());
         dashboard.addUpdate("robotX", ()-> swerve.getPose().getX());
         dashboard.addUpdate("robotY", ()-> swerve.getPose().getY());
         dashboard.addUpdate("robotYaw", ()-> swerve.getPose().getRotation().getDegrees());
-        */
     }
 
     public boolean isConnected() {

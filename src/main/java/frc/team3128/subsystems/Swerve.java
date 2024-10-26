@@ -16,6 +16,7 @@ import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -37,7 +38,7 @@ public class Swerve extends SwerveBase {
 
     public double throttle = 1;
 
-    private static double gyroOffset = 180;
+    private static double gyroOffset = 0;
 
     public Supplier<Double> yaw;
 
@@ -102,8 +103,8 @@ public class Swerve extends SwerveBase {
 
     @Override
     public void zeroGyro(double reset) {
-        // gyro.setYaw(reset);
-        gyroOffset = (Robot.getAlliance() == Alliance.Red ? 180 : 0) - gyro.getAngle();
+        gyro.setYaw(Robot.getAlliance() == Alliance.Red ? 0 : 180);
+        // gyroOffset = (Robot.getAlliance() == Alliance.Red ? 180 : 0) - gyro.getAngle();
     }
 
     public double getPredictedDistance() {

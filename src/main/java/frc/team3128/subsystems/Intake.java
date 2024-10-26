@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
         protected void configMotors() {
             PIVOT_MOTOR.setInverted(true);
             PIVOT_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
-            PIVOT_MOTOR.setNeutralMode(Neutral.COAST);
+            PIVOT_MOTOR.setNeutralMode(Neutral.BRAKE);
             PIVOT_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
         }
     }

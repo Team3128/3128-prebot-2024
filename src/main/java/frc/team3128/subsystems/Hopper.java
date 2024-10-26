@@ -3,6 +3,7 @@ package frc.team3128.subsystems;
 import common.core.subsystems.ManipulatorTemplate;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
+import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -68,7 +69,7 @@ public class Hopper {
         HOPPER_BACKWARD(0, HOPPER_OUTTAKE_POWER),
         KICKER_FORWARD(KICK_POWER, 0),
         KICKER_PULL_BACK(-0.1, 0),
-        REVERSE(-1, -1),
+        REVERSE(-1, -.75),
         IDLE(0, 0);
 
         private double kickerStartPower;

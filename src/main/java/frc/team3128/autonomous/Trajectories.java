@@ -42,6 +42,7 @@ import frc.team3128.commands.CmdSwerveDrive;
 import java.util.function.DoubleSupplier;
 
 import frc.team3128.subsystems.Swerve;
+import frc.team3128.subsystems.Intake.IntakeState;
 import frc.team3128.subsystems.Amper;
 import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
@@ -62,14 +63,14 @@ public class Trajectories {
 
         // TODO: add commands
         NamedCommands.registerCommand("Shoot", shoot());
-        NamedCommands.registerCommand("Intake", SubsystemManager.getInstance().setState(SubsystemManager.RobotState.INTAKE_FIRST, 0));
+        NamedCommands.registerCommand("Intake", Intake.getInstance().setState(IntakeState.GROUND));
         NamedCommands.registerCommand("Neutral", SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0));
 
         AutoBuilder.configureHolonomic(
             swerve::getPose,
             swerve::resetOdometry,
             swerve::getRobotVelocity,
-            Trajectories::drive,
+            swerve::drive,
             new HolonomicPathFollowerConfig(
                 new PIDConstants(translationKP, translationKI, translationKD),
                 new PIDConstants(rotationKP, rotationKI, rotationKD),
@@ -85,10 +86,10 @@ public class Trajectories {
     public static Command shoot() {
         return sequence(
             SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0),
-            waitSeconds(1),
-            waitUntil(()-> Hopper.hasNoObjects()),
-            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0)
-        );
+            waitSeconds(1)
+            // waitUntil(()-> Hopper.hasNoObjects()),
+            // SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0)
+        ).withTimeout(1);
     }
 
     public static Command resetAuto() {
@@ -98,14 +99,6 @@ public class Trajectories {
             Amper.getInstance().reset(),
             Intake.getInstance().reset()
         );
-    }
-
-    public static void drive(ChassisSpeeds velocity) {
-        if (!turning) swerve.drive(velocity);
-        else {
-            vx = velocity.vxMetersPerSecond;
-            vy = velocity.vyMetersPerSecond;
-        }
     }
 
     public static Command turnDegrees(boolean counterClockwise, double angle) {

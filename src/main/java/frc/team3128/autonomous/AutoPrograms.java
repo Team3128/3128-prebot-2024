@@ -13,7 +13,7 @@ import java.util.HashMap;
  */
 
 public class AutoPrograms {
-
+    
     private HashMap<String, Command> autoMap = new HashMap<String, Command>();
 
     public AutoPrograms() {
@@ -37,7 +37,7 @@ public class AutoPrograms {
 
     public Command getAutonomousCommand() {
         String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
-        // selectedAutoName = "middleClose_3note";
+        selectedAutoName = "middleClose_3note";
         
         if (selectedAutoName.equals("")) {
             return none();

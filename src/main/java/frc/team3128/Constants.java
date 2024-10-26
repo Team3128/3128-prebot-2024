@@ -51,7 +51,7 @@ public final class Constants {
         public static final double translationKD = 0;
       
         /* Rotation PID Values */
-        public static final double rotationKP = 5;
+        public static final double rotationKP = 2;
         public static final double rotationKI = 0;
         public static final double rotationKD = 0;
 
@@ -137,7 +137,7 @@ public final class Constants {
 
         public static final PIDFFConfig anglePIDConfig = new PIDFFConfig(DRIVE_ANGLE_KP, DRIVE_ANGLE_KI, DRIVE_ANGLE_KD);
 
-        public static final double DRIVE_TURN_KP = 5;
+        public static final double DRIVE_TURN_KP = 1;
         public static final double DRIVE_TURN_KI = 0;
         public static final double DRIVE_TURN_KD = 0;
         public static final double DRIVE_TURN_KS = 0.1; //0.05748
@@ -146,7 +146,7 @@ public final class Constants {
         public static final Constraints DRIVE_CONSTRAINTS = new Constraints(Units.radiansToDegrees(MAX_DRIVE_ANGULAR_VELOCITY), Units.radiansToDegrees(MAX_DRIVE_ANGULAR_ACCELERATION));
         public static final PIDFFConfig DRIVE_PIDFF_CONFIG = new PIDFFConfig(DRIVE_TURN_KP, DRIVE_TURN_KI, DRIVE_TURN_KD, DRIVE_TURN_KS, DRIVE_TURN_KV, DRIVE_TURN_KA, 0);
 
-        public static final double TURN_TOLERANCE = 1;
+        public static final double TURN_TOLERANCE = 30;
     }
 
 
@@ -228,7 +228,7 @@ public final class Constants {
         public static final int KICK_SENSOR_ID = 0;
         public static final int ROLLERS_SENSOR_ID = 1;
 
-        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.0025, 0, 0, 0, 0.00179104, 0); // 0.00187623
+        public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.005, 0, 0, 0, 0.002, 0); // 0.00187623
         public static final double kF = 0; 
         public static final double GEAR_RATIO = 1;
         public static final double MAX_RPM = 5500;
@@ -270,7 +270,7 @@ public final class Constants {
         public static final PIDFFConfig ROLLER_PID = new PIDFFConfig(0.00218, 0, 0, 0, 0.002, 0);
         public static final double ROLLER_TOLERANCE = 300;
         public static final double ROLLER_MAX_RPM = 5500;
-        public static final double ROLLER_MIN_RPM = 0;
+        public static final double ROLLER_MIN_RPM = -5500;
 
         public static final double ANGLE_TOLERANCE = 3;
         public static final double MIN_SETPOINT = 0;

@@ -46,10 +46,10 @@ public class CmdSwerveDrive extends Command {
         // TODO: add in slewratelimiter here
         translation = new Translation2d(xAxis.getAsDouble(), yAxis.getAsDouble()).times(swerve.throttle).times(MAX_ATTAINABLE_DRIVE_SPEED);
         if (Robot.getAlliance() == Alliance.Red || !swerve.fieldRelative) {
-            translation = translation.rotateBy(Rotation2d.fromDegrees(90));
+            translation = translation.rotateBy(Rotation2d.fromDegrees(-90)); //90
         }
         else {
-            translation = translation.rotateBy(Rotation2d.fromDegrees(-90));
+            translation = translation.rotateBy(Rotation2d.fromDegrees(90)); //-90
         }
 
         final double zValue = zAxis.getAsDouble();

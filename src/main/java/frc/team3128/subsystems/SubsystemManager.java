@@ -25,7 +25,7 @@ public class SubsystemManager {
         AMP_SECOND(AmpState.EXTENDED, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, ()-> Hopper.hasNoObjects(), RobotState.FULL_IDLE),
         AMP_FIRST(AmpState.EXTENDED, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.AMP, ()-> !Hopper.kickerHasObjectPresent(), RobotState.AMP_SECOND),
         SHOOT_SECOND(AmpState.IDLE, HopperState.FULL_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, ()-> Hopper.hasNoObjects(), RobotState.FULL_IDLE),
-        SHOOT_FIRST(AmpState.IDLE, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, ()-> !Hopper.kickerHasObjectPresent(), RobotState.SHOOT_SECOND),;
+        SHOOT_FIRST(AmpState.IDLE, HopperState.KICKER_FORWARD, IntakeState.NEUTRAL, ShooterState.SHOOT, ()-> !Hopper.kickerHasObjectPresent(), RobotState.SHOOT_SECOND, true);
 
         private AmpState ampState;
         private HopperState hopperState;
@@ -112,16 +112,15 @@ public class SubsystemManager {
     
         
         return sequence(
-            waitSeconds(delay),
             hopper.setState(state.getHopperState()).onlyIf(()-> !state.getHopperWait()),
             shooter.setState(state.getShooterState()),
             amper.setState(state.getAmpState()),
             intake.setState(state.getIntakeState()),
             waitUntil(()-> shooter.atSetpoint() && amper.atSetpoint()),
             hopper.setState(state.getHopperState()),
+            waitSeconds(delay),
             waitUntil(state.getCondition()),
-            setState(state.getNextState(), 0).onlyIf(()-> state.getNextState() != null) //,
-            // (state.getNextState() != null) ? setState(state.getNextState(), 0) : none()
+            (state.getNextState() != null) ? setState(state.getNextState(), 0) : none()
         );
     }
 

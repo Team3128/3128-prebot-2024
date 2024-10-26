@@ -28,7 +28,7 @@ public class Amper extends SubsystemBase{
             super(new TrapController(ELEVATOR_PID, TRAP_CONSTRAINTS), elevatorMotor);
             setTolerance(POSITION_TOLERANCE);
             setConstraints(MIN_SETPOINT, MAX_SETPOINT);
-            // initShuffleboard();
+            initShuffleboard();
         }
     
         @Override

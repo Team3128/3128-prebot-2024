@@ -29,7 +29,7 @@ public class Shooter extends SubsystemBase{
             shooterMotor.setCurrentLimit(40);
             shooterMotor.setInverted(false);
             shooterMotor.setUnitConversionFactor(GEAR_RATIO);
-            shooterMotor.setNeutralMode(Neutral.COAST);
+            shooterMotor.setNeutralMode(Neutral.BRAKE);
             shooterMotor.setStatusFrames(SparkMaxConfig.VELOCITY);
         }
 
@@ -74,7 +74,11 @@ public class Shooter extends SubsystemBase{
         return sequence(
             flywheel.shoot(state.getShooterSetpoint()),
             waitSeconds(delay),
-            waitUntil(()-> atSetpoint())
+            either(
+                waitUntil(()-> atSetpoint()), 
+                disable(), 
+                ()->state.getShooterSetpoint() > 300
+            )
         );
     }
 

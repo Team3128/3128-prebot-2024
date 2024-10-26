@@ -38,28 +38,26 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public final class Constants {
 
     public static class AutoConstants {
+        public static final double SLOW_SPEED = 1.5;
+        public static final double SLOW_ACCELERATION = 2;
 
-        public static final double slowSpeed = 1.5;
-        public static final double slowAcceleration = 2;
-
-        public static final PathConstraints constraints = new PathConstraints(
+        public static final PathConstraints PATH_CONSTRAINTS = new PathConstraints(
             SwerveConstants.MAX_DRIVE_SPEED, SwerveConstants.MAX_DRIVE_ACCELERATION, SwerveConstants.MAX_DRIVE_ANGULAR_VELOCITY, SwerveConstants.MAX_DRIVE_ANGULAR_ACCELERATION); 
 
         /* Translation PID Values */
-        public static final double translationKP = 2;
-        public static final double translationKI = 0;
-        public static final double translationKD = 0;
+        public static final double TRANSLATION_KP = 2;
+        public static final double TRANSLATION_KI = 0;
+        public static final double TRANSLATION_KD = 0;
       
         /* Rotation PID Values */
-        public static final double rotationKP = 2;
-        public static final double rotationKI = 0;
-        public static final double rotationKD = 0;
+        public static final double ROTATION_KP = 2;
+        public static final double ROTATION_KI = 0;
+        public static final double ROTATION_KD = 0;
 
         public static final double ANGLE_THRESHOLD = 8; //7, 9
         public static final double VELOCITY_THRESHOLD = 4; //6, 3
         public static final double RAMP_THRESHOLD = 9; //8, 10
         public static final double DRIVE_SPEED = Units.inchesToMeters(20); //30, 40
-
     }
 
     public static class SwerveConstants {

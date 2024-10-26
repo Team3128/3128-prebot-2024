@@ -4,11 +4,6 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import common.core.commands.NAR_PIDCommand;
-import common.core.controllers.Controller;
-import common.core.controllers.PIDFFConfig;
-import common.core.controllers.Controller.Type;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -16,8 +11,6 @@ import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -35,7 +28,6 @@ import java.util.function.DoubleSupplier;
 import frc.team3128.subsystems.Swerve;
 import frc.team3128.subsystems.Intake.IntakeState;
 import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
 import frc.team3128.subsystems.SubsystemManager;
 
@@ -63,8 +55,8 @@ public class Trajectories {
             swerve::getRobotVelocity,
             swerve::drive,
             new HolonomicPathFollowerConfig(
-                new PIDConstants(translationKP, translationKI, translationKD),
-                new PIDConstants(rotationKP, rotationKI, rotationKD),
+                new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD),
+                new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD),
                 MAX_ATTAINABLE_DRIVE_SPEED,
                 DRIVE_TRACK_WIDTH,
                 new ReplanningConfig(false, true)
@@ -109,7 +101,7 @@ public class Trajectories {
     public static Command goToPoint(Pose2d pose) {
         return AutoBuilder.pathfindToPose(
             pose,
-            AutoConstants.constraints,
+            AutoConstants.PATH_CONSTRAINTS,
             0.0, // Goal end velocity in meters/sec
             0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
         );

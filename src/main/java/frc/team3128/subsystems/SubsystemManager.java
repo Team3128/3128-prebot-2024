@@ -6,6 +6,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import java.util.function.BooleanSupplier;
 
+import common.utility.Log;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import frc.team3128.subsystems.Amper.AmpState;
 import frc.team3128.subsystems.Hopper.HopperState;
@@ -112,6 +113,7 @@ public class SubsystemManager {
     
         
         return sequence(
+            runOnce(()->Log.info("State", state.toString())),
             hopper.setState(state.getHopperState()).onlyIf(()-> !state.getHopperWait()),
             shooter.setState(state.getShooterState()),
             amper.setState(state.getAmpState()),

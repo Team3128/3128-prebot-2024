@@ -92,6 +92,7 @@ public class Intake extends SubsystemBase {
         private IntakeState(double pivotSetpoint, double rollerSetpoint) {
             this.pivotSetpoint = pivotSetpoint;
             this.rollerSetpoint = rollerSetpoint;
+            this.disableOnCompletion = false;
         }
 
         private IntakeState(double pivotSetpoint, double rollerSetpoint, boolean disableOnCompletion) {
@@ -128,12 +129,20 @@ public class Intake extends SubsystemBase {
 
     public Command setState(IntakeState state, double delay) {
         return sequence(
+            enable(),
             rollers.shoot(state.getIntakeRollerSetpoint()),
             pivot.pivotTo(state.getIntakePivotSetpoint()),
             waitSeconds(delay),
             waitUntil(()-> atSetpoint()),
             either(disable(), waitUntil(()-> pivot.atSetpoint()), () -> state.disableOnCompletion)
         );
+    }
+
+    public Command enable() {
+        return sequence(
+            runOnce(()-> pivot.enable()),
+            runOnce(()-> rollers.enable())
+        ).ignoringDisable(true);
     }
 
     public Command disable() {

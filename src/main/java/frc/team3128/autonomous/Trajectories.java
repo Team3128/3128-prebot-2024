@@ -45,9 +45,9 @@ public class Trajectories {
         Pathfinding.setPathfinder(new LocalADStar());
 
         // TODO: add commands
-        NamedCommands.registerCommand("Shoot", shoot());
-        NamedCommands.registerCommand("Intake", Intake.getInstance().setState(IntakeState.GROUND));
-        NamedCommands.registerCommand("Neutral", SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0));
+        NamedCommands.registerCommand("Shoot", runOnce(() -> {}));//shoot());
+        NamedCommands.registerCommand("Intake", runOnce(() -> {}));//Intake.getInstance().setState(IntakeState.GROUND));
+        NamedCommands.registerCommand("Neutral", runOnce(() -> {}));//SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0));
 
         AutoBuilder.configureHolonomic(
             swerve::getPose,

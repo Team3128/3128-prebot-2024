@@ -1,26 +1,13 @@
 package frc.team3128;
 
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.path.PathConstraints;
-
-import common.core.controllers.Controller;
 import common.core.controllers.PIDFFConfig;
-import common.core.controllers.Controller.Type;
-import common.core.swerve.SwerveConversions;
-import common.core.swerve.SwerveModuleConfig;
-import common.core.swerve.SwerveModuleConfig.SwerveEncoderConfig;
-import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
-import common.hardware.motorcontroller.NAR_TalonFX;
-import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
-import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.team3128.subsystems.Swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -151,7 +138,6 @@ public final class Constants {
 
         public static final double TURN_TOLERANCE = 30;
     }
-
 
     public static class VisionConstants {
 

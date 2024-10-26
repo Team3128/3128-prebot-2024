@@ -29,7 +29,6 @@ import static frc.team3128.Constants.SwerveConstants.*;
 
 import frc.team3128.Constants.AutoConstants;
 import frc.team3128.Robot;
-import frc.team3128.commands.CmdSwerveDrive;
 
 import java.util.function.DoubleSupplier;
 
@@ -65,8 +64,8 @@ public class Trajectories {
             new HolonomicPathFollowerConfig(
                 new PIDConstants(translationKP, translationKI, translationKD),
                 new PIDConstants(rotationKP, rotationKI, rotationKD),
-                maxAttainableSpeed,
-                trackWidth,
+                MAX_ATTAINABLE_DRIVE_SPEED,
+                DRIVE_TRACK_WIDTH,
                 new ReplanningConfig(false, true)
             ),
             ()-> Robot.getAlliance() == Alliance.Red,
@@ -102,36 +101,12 @@ public class Trajectories {
 
     public static Command turnDegrees(boolean counterClockwise, double angle) {
         DoubleSupplier setpoint = ()-> swerve.getYaw() + angle * (counterClockwise ? 1 : -1) * (Robot.getAlliance() == Alliance.Red ? -1 : 1);
-        Controller controller = new Controller(new PIDFFConfig(5, 0, 0, turnkS, 0, 0), Type.POSITION);
-        controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(1);
-        return new NAR_PIDCommand(
-            controller, 
-            ()-> swerve.getYaw(), //measurement
-            setpoint, //setpoint
-            (double output) -> {
-                Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            },
-            2,
-            Swerve.getInstance()
-        ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
+        return swerve.turnInPlace(setpoint);
     }
 
     public static Command turnInPlace() {
         DoubleSupplier setpoint = ()-> swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
-        Controller controller = new Controller(new PIDFFConfig(5, 0, 0, turnkS, 0, 0), Type.POSITION);
-        controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(1);
-        return new NAR_PIDCommand(
-            controller, 
-            ()-> swerve.getYaw(), //measurement
-            setpoint, //setpoint
-            (double output) -> {
-                Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            },
-            2,
-            Swerve.getInstance()
-        ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
+        return swerve.turnInPlace(setpoint);
     }
 
     public static Command getPathPlannerAuto(String name) {

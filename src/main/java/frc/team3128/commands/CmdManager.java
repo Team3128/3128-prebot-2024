@@ -76,12 +76,13 @@ public class CmdManager {
             deadline(
                 SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOTING_RAMP, 0), 
                 repeatingSequence(
-                    runOnce(()-> CmdSwerveDrive.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
+                    runOnce(()-> swerve.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
+                    runOnce(()-> CmdSwerveDrive.setTurnEnabled(true)),
                     waitSeconds(0.1)
                 )
             ),
             SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0), 
-            runOnce(() -> CmdSwerveDrive.disableTurn())
+            runOnce(() -> CmdSwerveDrive.setTurnEnabled(false))
         );
     }
 }

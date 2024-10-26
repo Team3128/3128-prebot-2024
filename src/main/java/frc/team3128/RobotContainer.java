@@ -58,6 +58,8 @@ public class RobotContainer {
 
     private static ArrayList<Camera> sideCams = new ArrayList<Camera>();
 
+    private final CmdSwerveDrive swerveDriveCommand;
+
     public RobotContainer() {
         NAR_CANSpark.maximumRetries = 3;
         NAR_TalonFX.maximumRetries = 1;
@@ -76,8 +78,10 @@ public class RobotContainer {
         shooter = Shooter.getInstance();
         robot = SubsystemManager.getInstance();
 
+        swerveDriveCommand = new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true);
+
         //uncomment line below to enable driving
-        CommandScheduler.getInstance().setDefaultCommand(swerve, new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
+        CommandScheduler.getInstance().setDefaultCommand(swerve, swerveDriveCommand);
 
         initRobotTest();
         
@@ -94,21 +98,11 @@ public class RobotContainer {
     private void configureButtonBindings() {
         controller.getButton(XboxButton.kX).onTrue(Commands.runOnce(()-> swerve.zeroGyro(0)));
 
-        controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> CmdSwerveDrive.setTurnSetpoint()));
-        controller.getUpPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 180 : 0);
-        }));
-        controller.getDownPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 0 : 180);
-        }));
-
-        controller.getRightPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 90 : 270);
-        }));
-
-        controller.getLeftPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90);
-        }));
+        controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> swerveDriveCommand.setTurnSetpoint()));
+        controller.getUpPOVButton().onTrue(runOnce(()->swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 180 : 0)));
+        controller.getDownPOVButton().onTrue(runOnce(()-> swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 0 : 180)));
+        controller.getRightPOVButton().onTrue(runOnce(()-> swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 90 : 270)));
+        controller.getLeftPOVButton().onTrue(runOnce(()-> swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90)));
 
         // zero gyro
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));

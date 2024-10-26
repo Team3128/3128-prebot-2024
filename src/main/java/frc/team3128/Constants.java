@@ -63,6 +63,26 @@ public final class Constants {
     }
 
     public static class SwerveConstants {
+        /* Module Device IDs */
+        public static final int MOD0_DRIVE_MOTOR_ID = 1;
+        public static final int MOD0_ANGLE_MOTOR_ID = 2;
+        public static final int MOD0_CANCODER_ID = 11;
+        public static final int MOD1_DRIVE_MOTOR_ID = 3;
+        public static final int MOD1_ANGLE_MOTOR_ID = 4;
+        public static final int MOD1_CANCODER_ID = 12;
+        public static final int MOD2_DRIVE_MOTOR_ID = 5;
+        public static final int MOD2_ANGLE_MOTOR_ID = 6;
+        public static final int MOD2_CANCODER_ID = 13;
+        public static final int MOD3_DRIVE_MOTOR_ID = 7;
+        public static final int MOD3_ANGLE_MOTOR_ID = 8;
+        public static final int MOD3_CANCODER_ID = 14;
+
+        /* Cancoder Offsets */
+        public static final double MOD0_CANCODER_OFFSET = 105.15;
+        public static final double MOD1_CANCODER_OFFSET = -62.40234375;
+        public static final double MOD2_CANCODER_OFFSET = -84.287109375;
+        public static final double MOD3_CANCODER_OFFSET = 167.607421875;
+
         public static final double RAMP_TIME = 3;
 
         /* Drivetrain Constants */
@@ -77,12 +97,6 @@ public final class Constants {
 
         public static final double DRIVE_MOTOR_GEAR_RATIO = 225.0 / 42.0;
         public static final double DRIVE_ANGLE_GEAR_RATIO = (300.0 / 13.0); 
-
-        public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-                new Translation2d(DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0),
-                new Translation2d(DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0),
-                new Translation2d(-DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0),
-                new Translation2d(-DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0)); 
 
         /* Swerve Current Limiting */
         public static final int DRIVE_ANGLE_CURRENT_LIMIT = 30; //30
@@ -129,22 +143,13 @@ public final class Constants {
         /* Angle Encoder Invert */
         public static final boolean ANGLE_CANCODER_INVERTED = false;
 
-        public static final MotorConfig driveMotorConfig = new MotorConfig(SwerveConversions.rotationsToMeters(1, DRIVE_WHEEL_CIRCUMFERENCE, DRIVE_MOTOR_GEAR_RATIO), 60, DRIVE_MOTOR_CURRENT_LIMIT, DRIVE_MOTOR_INVERTED, Neutral.BRAKE);
-
-        public static final MotorConfig angleMotorConfig = new MotorConfig(SwerveConversions.rotationsToDegrees(1, DRIVE_ANGLE_GEAR_RATIO), 1, DRIVE_ANGLE_CURRENT_LIMIT, DRIVE_ANGLE_INVERTED, Neutral.BRAKE);
-
-        public static final PIDFFConfig drivePIDConfig = new PIDFFConfig(DRIVE_MOTOR_KP, DRIVE_MOTOR_KI, DRIVE_MOTOR_KD, DRIVE_MOTOR_KS, DRIVE_MOTOR_KV, DRIVE_MOTOR_KA);
-
-        public static final PIDFFConfig anglePIDConfig = new PIDFFConfig(DRIVE_ANGLE_KP, DRIVE_ANGLE_KI, DRIVE_ANGLE_KD);
-
         public static final double DRIVE_TURN_KP = 1;
         public static final double DRIVE_TURN_KI = 0;
         public static final double DRIVE_TURN_KD = 0;
         public static final double DRIVE_TURN_KS = 0.1; //0.05748
         public static final double DRIVE_TURN_KV = 0.01723; //0.01723
         public static final double DRIVE_TURN_KA = 0.0064; //0.0064
-        public static final Constraints DRIVE_CONSTRAINTS = new Constraints(Units.radiansToDegrees(MAX_DRIVE_ANGULAR_VELOCITY), Units.radiansToDegrees(MAX_DRIVE_ANGULAR_ACCELERATION));
-        public static final PIDFFConfig DRIVE_PIDFF_CONFIG = new PIDFFConfig(DRIVE_TURN_KP, DRIVE_TURN_KI, DRIVE_TURN_KD, DRIVE_TURN_KS, DRIVE_TURN_KV, DRIVE_TURN_KA, 0);
+        public static final double DRIVE_TURN_KG = 0;
 
         public static final double TURN_TOLERANCE = 30;
     }

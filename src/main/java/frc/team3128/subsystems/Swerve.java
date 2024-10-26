@@ -12,18 +12,24 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import common.core.commands.NAR_PIDCommand;
 import common.core.controllers.Controller;
 import common.core.controllers.Controller.Type;
+import common.core.controllers.PIDFFConfig;
 import common.core.swerve.SwerveBase;
+import common.core.swerve.SwerveConversions;
 import common.core.swerve.SwerveModule;
 import common.core.swerve.SwerveModuleConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveEncoderConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Control;
+import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
+import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.hardware.motorcontroller.NAR_TalonFX;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -50,35 +56,52 @@ public class Swerve extends SwerveBase {
 
     public Supplier<Double> yaw;
 
+    public static final MotorConfig driveMotorConfig = new MotorConfig(SwerveConversions.rotationsToMeters(1, DRIVE_WHEEL_CIRCUMFERENCE, DRIVE_MOTOR_GEAR_RATIO), 60, DRIVE_MOTOR_CURRENT_LIMIT, DRIVE_MOTOR_INVERTED, Neutral.BRAKE);
+
+    public static final MotorConfig angleMotorConfig = new MotorConfig(SwerveConversions.rotationsToDegrees(1, DRIVE_ANGLE_GEAR_RATIO), 1, DRIVE_ANGLE_CURRENT_LIMIT, DRIVE_ANGLE_INVERTED, Neutral.BRAKE);
+
+    public static final PIDFFConfig drivePIDConfig = new PIDFFConfig(DRIVE_MOTOR_KP, DRIVE_MOTOR_KI, DRIVE_MOTOR_KD, DRIVE_MOTOR_KS, DRIVE_MOTOR_KV, DRIVE_MOTOR_KA);
+
+    public static final PIDFFConfig anglePIDConfig = new PIDFFConfig(DRIVE_ANGLE_KP, DRIVE_ANGLE_KI, DRIVE_ANGLE_KD);
+
     private static final SwerveModuleConfig Mod0 = new SwerveModuleConfig(
         0, 
-        new SwerveMotorConfig(new NAR_TalonFX(1, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
-        new SwerveMotorConfig(new NAR_TalonFX(2, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-        new SwerveEncoderConfig(new CANcoder(11, "Drivetrain"), 105.15, ANGLE_CANCODER_INVERTED),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD0_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD0_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
+        new SwerveEncoderConfig(new CANcoder(MOD0_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD0_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
         SwerveConstants.MAX_DRIVE_SPEED);
 
     private static final SwerveModuleConfig Mod1 = new SwerveModuleConfig(
         1, 
-        new SwerveMotorConfig(new NAR_TalonFX(3, "Drivetrain"), driveMotorConfig, drivePIDConfig),
-        new SwerveMotorConfig(new NAR_TalonFX(4, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-        new SwerveEncoderConfig(new CANcoder(12, "Drivetrain"), -62.40234375, ANGLE_CANCODER_INVERTED),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD1_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD1_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
+        new SwerveEncoderConfig(new CANcoder(MOD1_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD1_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
         SwerveConstants.MAX_DRIVE_SPEED);
         
     private static final SwerveModuleConfig Mod2 = new SwerveModuleConfig(
         2, 
-        new SwerveMotorConfig(new NAR_TalonFX(5, "Drivetrain"), driveMotorConfig, drivePIDConfig),
-        new SwerveMotorConfig(new NAR_TalonFX(6, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-        new SwerveEncoderConfig(new CANcoder(13, "Drivetrain"), -84.287109375, ANGLE_CANCODER_INVERTED),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD2_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD2_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
+        new SwerveEncoderConfig(new CANcoder(MOD2_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD2_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
         SwerveConstants.MAX_DRIVE_SPEED);
         
     private static final SwerveModuleConfig Mod3 = new SwerveModuleConfig(
         3, 
-        new SwerveMotorConfig(new NAR_TalonFX(7, "Drivetrain"), driveMotorConfig, drivePIDConfig),
-        new SwerveMotorConfig(new NAR_TalonFX(8, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-        new SwerveEncoderConfig(new CANcoder(14, "Drivetrain"), 167.607421875, ANGLE_CANCODER_INVERTED),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD3_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
+        new SwerveMotorConfig(new NAR_TalonFX(MOD3_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
+        new SwerveEncoderConfig(new CANcoder(MOD3_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD3_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
         SwerveConstants.MAX_DRIVE_SPEED);
 
-    private final Controller turnController = new Controller(DRIVE_PIDFF_CONFIG, Type.POSITION);
+    private static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
+            new Translation2d(DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0),
+            new Translation2d(DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0),
+            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0),
+            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0)); 
+
+    private final Constraints driveConstraints = new Constraints(Units.radiansToDegrees(MAX_DRIVE_ANGULAR_VELOCITY), Units.radiansToDegrees(MAX_DRIVE_ANGULAR_ACCELERATION));
+    private final PIDFFConfig drivePidffConfig = new PIDFFConfig(DRIVE_TURN_KP, DRIVE_TURN_KI, DRIVE_TURN_KD, DRIVE_TURN_KS, DRIVE_TURN_KV, DRIVE_TURN_KA, DRIVE_TURN_KG);
+
+    private final Controller turnController = new Controller(drivePidffConfig, Type.POSITION);
     private double turnSetpoint;
 
     public static synchronized Swerve getInstance() {
@@ -92,7 +115,7 @@ public class Swerve extends SwerveBase {
         super(swerveKinematics, SVR_STATE_STD, SVR_VISION_MEASUREMENT_STD, Mod0, Mod1, Mod2, Mod3);
         chassisVelocityCorrection = false;
         Timer.delay(1);
-        gyro = new Pigeon2(PIDGEON_ID, "Drivetrain");
+        gyro = new Pigeon2(PIDGEON_ID, DRIVETRAIN_CANBUS_NAME);
         Timer.delay(1);
         var x = gyro.getYaw();
         x.setUpdateFrequency(100);

@@ -37,12 +37,14 @@ public class Robot extends NAR_Robot {
     private boolean hasInitialized = false;
     private int notePlateuCount = 0;
 
-    public static Alliance alliance;
+    private static Alliance alliance;
+    private static boolean refreshCachedAlliance;
 
     public static Alliance getAlliance() {
-        if (alliance == null) {
+        if (alliance == null || refreshCachedAlliance) {
             Optional<Alliance> DSalliance = DriverStation.getAlliance();
             if (DSalliance.isPresent()) alliance = DSalliance.get();
+            refreshCachedAlliance = false;
         }
         return alliance;
     }
@@ -62,8 +64,7 @@ public class Robot extends NAR_Robot {
     @Override
     public void robotInit(){
         m_gcTimer.restart();
-        
-
+        refreshCachedAlliance = true;
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();
         LiveWindow.disableAllTelemetry();
@@ -81,6 +82,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void driverStationConnected() {
+        refreshCachedAlliance = true;
         Log.info("State", "DS Connected");
         Log.info("Alliance", getAlliance().toString());
         if (getAlliance() == Alliance.Red) {
@@ -109,6 +111,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void autonomousInit() {
+        refreshCachedAlliance = true;
         Camera.enableAll();
         Camera.overrideThreshold = 0;
         Camera.validDist = 30;
@@ -125,6 +128,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void teleopInit() {
+        refreshCachedAlliance = true;
         Camera.overrideThreshold = 30;
         Camera.validDist = 0.5;
         Camera.enableAll();
@@ -139,7 +143,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void simulationInit() {
-        
+        refreshCachedAlliance = true;
     }
 
     @Override
@@ -149,6 +153,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void disabledInit() {
+        refreshCachedAlliance = true;
         Swerve.getInstance().setBrakeMode(true);
         CommandScheduler.getInstance().cancelAll();
 

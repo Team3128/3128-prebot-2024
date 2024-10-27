@@ -38,15 +38,17 @@ public class Robot extends NAR_Robot {
     private int notePlateuCount = 0;
 
     private static Alliance alliance;
-    private static boolean refreshCachedAlliance;
 
     public static Alliance getAlliance() {
-        if (alliance == null || refreshCachedAlliance) {
-            Optional<Alliance> DSalliance = DriverStation.getAlliance();
-            if (DSalliance.isPresent()) alliance = DSalliance.get();
-            refreshCachedAlliance = false;
+        if (alliance == null) {
+            updateAllianceFromDS();
         }
         return alliance;
+    }
+
+    private static void updateAllianceFromDS() {
+        Optional<Alliance> DSalliance = DriverStation.getAlliance();
+        if (DSalliance.isPresent()) alliance = DSalliance.get();
     }
 
     public static Robot instance;
@@ -64,7 +66,7 @@ public class Robot extends NAR_Robot {
     @Override
     public void robotInit(){
         m_gcTimer.restart();
-        refreshCachedAlliance = true;
+        updateAllianceFromDS();
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();
         LiveWindow.disableAllTelemetry();
@@ -82,7 +84,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void driverStationConnected() {
-        refreshCachedAlliance = true;
+        updateAllianceFromDS();
         Log.info("State", "DS Connected");
         Log.info("Alliance", getAlliance().toString());
         if (getAlliance() == Alliance.Red) {
@@ -111,7 +113,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void autonomousInit() {
-        refreshCachedAlliance = true;
+        updateAllianceFromDS();
         Camera.enableAll();
         Camera.overrideThreshold = 0;
         Camera.validDist = 30;
@@ -128,7 +130,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void teleopInit() {
-        refreshCachedAlliance = true;
+        updateAllianceFromDS();
         Camera.overrideThreshold = 30;
         Camera.validDist = 0.5;
         Camera.enableAll();
@@ -143,7 +145,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void simulationInit() {
-        refreshCachedAlliance = true;
+        updateAllianceFromDS();
     }
 
     @Override
@@ -153,7 +155,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void disabledInit() {
-        refreshCachedAlliance = true;
+        updateAllianceFromDS();
         Swerve.getInstance().setBrakeMode(true);
         CommandScheduler.getInstance().cancelAll();
 

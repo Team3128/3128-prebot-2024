@@ -27,7 +27,7 @@ public class Intake extends SubsystemBase {
             super(new TrapController(PIDConstants, TRAP_CONSTRAINTS), pivotMotor);
             setkG_Function(()-> Math.cos(Units.degreesToRadians(getSetpoint())));
             setTolerance(ANGLE_TOLERANCE);
-            setConstraints(MIN_SETPOINT, MAX_SETPOINT);
+            setConstraints(MIN_ANGLE, MAX_ANGLE);
             setSafetyThresh(1.5);
             reset(0);
             setName("IntakePivot");
@@ -73,7 +73,7 @@ public class Intake extends SubsystemBase {
         pivot = new IntakePivot();
         rollers = new IntakeRollers();
 
-        NAR_Shuffleboard.addData(getName(), "GROUND", ()-> isState(IntakeState.GROUND), 0, 0);
+        NAR_Shuffleboard.addData(getName(), "GROUND", ()-> isState(IntakeState.INTAKE), 0, 0);
         NAR_Shuffleboard.addData(getName(), "OUTTAKE", ()-> isState(IntakeState.OUTTAKE), 1, 0);
         NAR_Shuffleboard.addData(getName(), "NEUTRAL", ()-> isState(IntakeState.NEUTRAL), 2, 0);
         NAR_Shuffleboard.addData(getName(), "At Setpoint", ()-> atSetpoint(), 0, 1);
@@ -81,9 +81,9 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeState {
-        GROUND(133, 4500),
-        OUTTAKE(90, -4500),
-        NEUTRAL(0, 0);
+        INTAKE(INTAKE_ANGLE, ROLLER_INTAKE_RPM),
+        OUTTAKE(OUTTAKE_ANGLE, ROLLER_OUTTAKE_RPM),
+        NEUTRAL(NEUTRAL_ANGLE, ROLLER_NEUTRAL_RPM);
         
         private double pivotSetpoint;
         private double rollerSetpoint;

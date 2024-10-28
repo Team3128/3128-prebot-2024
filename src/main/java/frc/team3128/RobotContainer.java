@@ -1,6 +1,8 @@
 package frc.team3128;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static frc.team3128.Constants.AmperConstants.AMP_DURATION;
+import static frc.team3128.Constants.ShooterConstants.SHOOT_DURATION;
 import static frc.team3128.commands.CmdManager.disableAll;
 
 import java.util.ArrayList;
@@ -114,26 +116,26 @@ public class RobotContainer {
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
         // intake ground and then neutral
-        controller.getButton(XboxButton.kLeftTrigger).onTrue(robot.setState(RobotState.INTAKE_FIRST, 0).onlyIf(()->!Hopper.hasTwoObjects())).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
+        controller.getButton(XboxButton.kLeftTrigger).onTrue(robot.setState(RobotState.INTAKING, 0).onlyIf(()->!Hopper.hasTwoObjects())).onFalse(robot.setState(RobotState.IDLE, 0));
 
         // intake neutral
-        controller.getButton(XboxButton.kLeftBumper).onTrue(robot.setState(RobotState.FULL_IDLE, 0));
+        controller.getButton(XboxButton.kLeftBumper).onTrue(robot.setState(RobotState.IDLE, 0));
 
         // ramp shooter and then run hopper
         // shooter and hopper will stop if no notes
-        controller.getButton(XboxButton.kRightTrigger).onTrue(robot.setState(RobotState.SHOOTING_RAMP, 0)).onFalse(robot.setState(RobotState.SHOOT_FIRST, 0));
+        controller.getButton(XboxButton.kRightTrigger).onTrue(robot.setState(RobotState.SHOOTING_READY, 0)).onFalse(robot.setState(RobotState.SHOOTING, 0).andThen(robot.setState(RobotState.IDLE, SHOOT_DURATION)));
 
         // shooter ramp amp
         // controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));
 
         // amper primed and then extended
-        controller.getButton(XboxButton.kY).onTrue(robot.setState(RobotState.AMPING_RAMP, 0)).onFalse(robot.setState(RobotState.AMP_FIRST, 0));
+        controller.getButton(XboxButton.kY).onTrue(robot.setState(RobotState.AMPING_READY, 0)).onFalse(robot.setState(RobotState.AMPING, 0).andThen(robot.setState(RobotState.IDLE, AMP_DURATION)));
 
         // manual hopper button
         // controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());
 
         // runs everything in reverse at max power and then go to neutral
-        controller.getButton(XboxButton.kRightBumper).whileTrue(robot.setState(RobotState.OUTTAKE, 0)).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
+        controller.getButton(XboxButton.kRightBumper).whileTrue(robot.setState(RobotState.OUTTAKING, 0)).onFalse(robot.setState(RobotState.IDLE, 0));
 
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(disableAll());

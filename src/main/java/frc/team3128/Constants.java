@@ -213,8 +213,6 @@ public final class Constants {
 
     public static class ShooterConstants {
         public static final int SHOOTER_MOTOR_ID = 60;
-        public static final int KICK_MOTOR_ID = 61;
-        public static final int KICK_SENSOR_ID = 0;
         public static final int ROLLERS_SENSOR_ID = 1;
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.005, 0, 0, 0, 0.002, 0); // 0.00187623
@@ -225,27 +223,10 @@ public final class Constants {
         public static final double TOLERANCE = 150;
         public static final double AMP_RPM = 1500;
         public static final double SHOOTER_RPM = 4500;
-        
-        public static final double EDGE_FEED_RPM = 5000;
-        public static final double EDGE_FEED_ANGLE = 35;
-        public static final double MIDDLE_FEED_RPM = 4500;
-        public static final double MIDDLE_FEED_ANGLE = 25;
-        
-        public static final double INTAKE_POWER = 0.65;
-        public static final double KICK_POWER = 0.4;
-        public static final double KICK_SHOOTING_POWER = 0.8;
-        public static final double CURRENT_TEST_POWER = 0;
-        public static final double CURRENT_TEST_PLATEAU = 0;
-        public static final double CURRENT_TEST_TIMEOUT = 0;
-        public static final double CURRENT_TEST_TOLERANCE = 0;
-        public static final double CURRENT_TEST_EXPECTED_CURRENT = 0;
-
-        public static final double SHOOTER_TEST_PLATEAU = 1;
-        public static final double SHOOTER_TEST_TIMEOUT = 2.5;
 
         public static final double PROJECTILE_SPEED = 100; // m/s
 
-        public static final double AMP_SHOOTER_POWER = 1;
+        public static final double SHOOT_DURATION = 1000; // milliseconds
     }
 
     public static class IntakeConstants {
@@ -260,10 +241,16 @@ public final class Constants {
         public static final double ROLLER_TOLERANCE = 300;
         public static final double ROLLER_MAX_RPM = 5500;
         public static final double ROLLER_MIN_RPM = -5500;
+        public static final double ROLLER_INTAKE_RPM = 4500;
+        public static final double ROLLER_OUTTAKE_RPM = -4500;
+        public static final double ROLLER_NEUTRAL_RPM = 0;
 
         public static final double ANGLE_TOLERANCE = 3;
-        public static final double MIN_SETPOINT = 0;
-        public static final double MAX_SETPOINT = 147;
+        public static final double MIN_ANGLE = 0;
+        public static final double MAX_ANGLE = 147;
+        public static final double INTAKE_ANGLE = 133;
+        public static final double OUTTAKE_ANGLE = 90;
+        public static final double NEUTRAL_ANGLE = 0;
         public static final int CURRENT_LIMIT = 40;
 
         public static final double GEAR_RATIO = 1.0 / 40.0;
@@ -368,11 +355,17 @@ public final class Constants {
         public static final int HOPPER_MOTOR_ID = 40;
         public static final int HOPPER_FRONT_SENSOR_ID = 0;
         public static final int HOPPER_BACK_SENSOR_ID = 2;
+        public static final int KICK_MOTOR_ID = 61;
+        public static final int KICK_SENSOR_ID = 0;
 
         public static final double STALL_CURRENT = 50;
         public static final double HOPPER_INTAKE_POWER = 0.8;
         public static final double HOPPER_OUTTAKE_POWER = -1;
+        public static final double HOPPER_IDLE_POWER = 0;
         public static final double STALL_POWER = 0.05;
+        public static final double KICKER_POWER = 0.4;
+        public static final double KICKER_SHOOTING_POWER = 0.8;
+        public static final double KICKER_IDLE_POWER = 0;
 
         public static final double VOLT_COMP = 9;
         public static final int CURRENT_LIMIT = 40;
@@ -404,6 +397,7 @@ public final class Constants {
         public static final double ROLLER_POWER = 0.9;
 
         public static final double AMPER_ANGLE = 31.96;
+        public static final double AMP_DURATION = 1000; // milliseconds
     }
 
     

@@ -135,7 +135,7 @@ public class Robot extends NAR_Robot {
         Camera.overrideThreshold = 30;
         Camera.validDist = 0.5;
         Camera.enableAll();
-        SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
+        SubsystemManager.getInstance().setState(RobotState.IDLE, 0);
         CommandScheduler.getInstance().cancelAll();
         Swerve.getInstance().setBrakeMode(true);
     }

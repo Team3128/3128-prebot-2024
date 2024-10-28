@@ -6,25 +6,26 @@ import common.core.controllers.Controller;
 import common.core.controllers.TrapController;
 import common.core.subsystems.ElevatorTemplate;
 import common.core.subsystems.ShooterTemplate;
+import common.hardware.motorcontroller.NAR_CANSpark;
+import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
 import common.hardware.motorcontroller.NAR_CANSpark.SparkMaxConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import common.utility.shuffleboard.NAR_Shuffleboard;
-
 
 import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 public class Amper extends SubsystemBase{
-    
+    private final NAR_CANSpark elevatorMotor = new NAR_CANSpark(ELEV_MOTOR_ID);
+    private final NAR_CANSpark rollerMotor = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
     public class AmpElevator extends ElevatorTemplate {
     
         private AmpElevator() {
-            super(new TrapController(ELEVATOR_PID, TRAP_CONSTRAINTS), ELEV_MOTOR);
+            super(new TrapController(ELEVATOR_PID, TRAP_CONSTRAINTS), elevatorMotor);
             setTolerance(POSITION_TOLERANCE);
             setConstraints(MIN_SETPOINT, MAX_SETPOINT);
             initShuffleboard();
@@ -32,11 +33,11 @@ public class Amper extends SubsystemBase{
     
         @Override
         protected void configMotors(){
-            ELEV_MOTOR.setUnitConversionFactor(UNIT_CONV_FACTOR);
-            ELEV_MOTOR.setCurrentLimit(CURRENT_LIMIT);
-            ELEV_MOTOR.setInverted(true);
-            ELEV_MOTOR.setNeutralMode(Neutral.BRAKE);
-            ELEV_MOTOR.setStatusFrames(SparkMaxConfig.POSITION);
+            elevatorMotor.setUnitConversionFactor(UNIT_CONV_FACTOR);
+            elevatorMotor.setCurrentLimit(CURRENT_LIMIT);
+            elevatorMotor.setInverted(true);
+            elevatorMotor.setNeutralMode(Neutral.BRAKE);
+            elevatorMotor.setStatusFrames(SparkMaxConfig.POSITION);
         }
     
     }
@@ -44,7 +45,7 @@ public class Amper extends SubsystemBase{
     public class AmpManipulator extends ShooterTemplate {
     
         private AmpManipulator() {
-            super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), ROLLER_MOTOR);
+            super(new Controller(ROLLER_PID, Controller.Type.VELOCITY), rollerMotor);
             setTolerance(ROLLER_TOLERANCE);
             setConstraints(ROLLER_MIN_RPM, ROLLER_MAX_RPM);
             // initShuffleboard();
@@ -52,10 +53,10 @@ public class Amper extends SubsystemBase{
     
         @Override
         protected void configMotors(){
-            ROLLER_MOTOR.setVelocityStatusFrames();
-            ROLLER_MOTOR.setInverted(true);
-            ROLLER_MOTOR.setNeutralMode(Neutral.COAST);
-            ROLLER_MOTOR.setCurrentLimit(CURRENT_LIMIT);
+            rollerMotor.setVelocityStatusFrames();
+            rollerMotor.setInverted(true);
+            rollerMotor.setNeutralMode(Neutral.COAST);
+            rollerMotor.setCurrentLimit(CURRENT_LIMIT);
         }
     }
     

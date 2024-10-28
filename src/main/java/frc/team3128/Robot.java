@@ -10,7 +10,6 @@ import org.littletonrobotics.junction.Logger;
 
 import common.core.misc.NAR_Robot;
 import common.hardware.camera.Camera;
-import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.utility.Log;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
@@ -19,15 +18,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-import frc.team3128.Constants.LedConstants.Colors;
 import frc.team3128.autonomous.AutoPrograms;
 import frc.team3128.commands.CmdManager;
-import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Swerve;
 import frc.team3128.subsystems.SubsystemManager.RobotState;
@@ -42,14 +37,18 @@ public class Robot extends NAR_Robot {
     private boolean hasInitialized = false;
     private int notePlateuCount = 0;
 
-    public static Alliance alliance;
+    private static Alliance alliance;
 
     public static Alliance getAlliance() {
         if (alliance == null) {
-            Optional<Alliance> DSalliance = DriverStation.getAlliance();
-            if (DSalliance.isPresent()) alliance = DSalliance.get();
+            updateAllianceFromDS();
         }
         return alliance;
+    }
+
+    private static void updateAllianceFromDS() {
+        Optional<Alliance> DSalliance = DriverStation.getAlliance();
+        if (DSalliance.isPresent()) alliance = DSalliance.get();
     }
 
     public static Robot instance;
@@ -67,8 +66,7 @@ public class Robot extends NAR_Robot {
     @Override
     public void robotInit(){
         m_gcTimer.restart();
-        
-
+        updateAllianceFromDS();
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();
         LiveWindow.disableAllTelemetry();
@@ -86,6 +84,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void driverStationConnected() {
+        updateAllianceFromDS();
         Log.info("State", "DS Connected");
         Log.info("Alliance", getAlliance().toString());
         if (getAlliance() == Alliance.Red) {
@@ -114,6 +113,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void autonomousInit() {
+        updateAllianceFromDS();
         Camera.enableAll();
         Camera.overrideThreshold = 0;
         Camera.validDist = 30;
@@ -121,6 +121,7 @@ public class Robot extends NAR_Robot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+        Swerve.getInstance().setBrakeMode(true);
     }
 
     @Override
@@ -130,11 +131,13 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void teleopInit() {
+        updateAllianceFromDS();
         Camera.overrideThreshold = 30;
         Camera.validDist = 0.5;
         Camera.enableAll();
         SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
         CommandScheduler.getInstance().cancelAll();
+        Swerve.getInstance().setBrakeMode(true);
     }
 
     @Override
@@ -144,7 +147,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void simulationInit() {
-        
+        updateAllianceFromDS();
     }
 
     @Override
@@ -154,6 +157,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void disabledInit() {
+        updateAllianceFromDS();
         Swerve.getInstance().setBrakeMode(true);
         CommandScheduler.getInstance().cancelAll();
 
@@ -163,6 +167,8 @@ public class Robot extends NAR_Robot {
             runOnce(()->Swerve.getInstance().setBrakeMode(false)).ignoringDisable(true)
         ).schedule();
 
+        autoPrograms = new AutoPrograms();
+
         if (hasInitialized) {
         }
         hasInitialized = true;
@@ -170,8 +176,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void disabledExit() {
-        Swerve.getInstance().setBrakeMode(true
-        );
+        Swerve.getInstance().setBrakeMode(true);
     }
     
     @Override

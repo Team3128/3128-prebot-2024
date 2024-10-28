@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import frc.team3128.Constants;
 import frc.team3128.Robot;
 import frc.team3128.RobotContainer;
 import frc.team3128.subsystems.Amper;
@@ -77,12 +76,13 @@ public class CmdManager {
             deadline(
                 SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOTING_RAMP, 0), 
                 repeatingSequence(
-                    runOnce(()-> CmdSwerveDrive.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
+                    runOnce(()-> swerve.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
+                    runOnce(()-> CmdSwerveDrive.setTurnEnabled(true)),
                     waitSeconds(0.1)
                 )
             ),
             SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0), 
-            runOnce(() -> CmdSwerveDrive.disableTurn())
+            runOnce(() -> CmdSwerveDrive.setTurnEnabled(false))
         );
     }
 }

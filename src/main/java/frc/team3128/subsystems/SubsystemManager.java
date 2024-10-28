@@ -1,15 +1,13 @@
 package frc.team3128.subsystems;
 
-import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import java.util.function.BooleanSupplier;
 
+import common.utility.Log;
 import common.utility.shuffleboard.NAR_Shuffleboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team3128.subsystems.Amper.AmpState;
 import frc.team3128.subsystems.Hopper.HopperState;
 import frc.team3128.subsystems.Intake.IntakeState;
@@ -115,6 +113,7 @@ public class SubsystemManager {
     
         
         return sequence(
+            runOnce(()->Log.info("State", state.toString())),
             hopper.setState(state.getHopperState()).onlyIf(()-> !state.getHopperWait()),
             shooter.setState(state.getShooterState()),
             amper.setState(state.getAmpState()),

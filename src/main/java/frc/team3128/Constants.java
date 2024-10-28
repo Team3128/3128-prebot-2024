@@ -1,192 +1,143 @@
 package frc.team3128;
 
-import java.util.HashMap;
-import java.util.function.BooleanSupplier;
-
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.pathplanner.lib.path.PathConstraints;
-
-import common.core.controllers.Controller;
 import common.core.controllers.PIDFFConfig;
-import common.core.controllers.Controller.Type;
-import common.core.swerve.SwerveConversions;
-import common.core.swerve.SwerveModuleConfig;
-import common.core.swerve.SwerveModuleConfig.SwerveEncoderConfig;
-import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
-import common.hardware.motorcontroller.NAR_CANSpark;
-import common.hardware.motorcontroller.NAR_TalonFX;
-import common.hardware.motorcontroller.NAR_CANSpark.ControllerType;
-import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
-import common.hardware.motorcontroller.NAR_Motor.Neutral;
-import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PWM;
-import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Intake;
-import frc.team3128.subsystems.Shooter;
-import frc.team3128.subsystems.Swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import common.utility.shuffleboard.NAR_Shuffleboard;
 
-
-
-public class Constants {
+/**
+ * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants should be declared
+ * globally (i.e. public static). Do not put anything functional in this class.
+ *
+ * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * constants are needed, to reduce verbosity.
+ */
+public final class Constants {
 
     public static class AutoConstants {
+        public static final double SLOW_SPEED = 1.5;
+        public static final double SLOW_ACCELERATION = 2;
 
-        public static final double slowSpeed = 1.5;
-        public static final double slowAcceleration = 2;
-
-        public static final PathConstraints constraints = new PathConstraints(
-            SwerveConstants.maxSpeed, SwerveConstants.maxAcceleration, SwerveConstants.maxAngularVelocity, SwerveConstants.maxAngularAcceleration); 
+        public static final PathConstraints PATH_CONSTRAINTS = new PathConstraints(
+            SwerveConstants.MAX_DRIVE_SPEED, SwerveConstants.MAX_DRIVE_ACCELERATION, SwerveConstants.MAX_DRIVE_ANGULAR_VELOCITY, SwerveConstants.MAX_DRIVE_ANGULAR_ACCELERATION); 
 
         /* Translation PID Values */
-        public static final double translationKP = 2;
-        public static final double translationKI = 0;
-        public static final double translationKD = 0;
+        public static final double TRANSLATION_KP = 2;
+        public static final double TRANSLATION_KI = 0;
+        public static final double TRANSLATION_KD = 0;
       
         /* Rotation PID Values */
-        public static final double rotationKP = 2;
-        public static final double rotationKI = 0;
-        public static final double rotationKD = 0;
+        public static final double ROTATION_KP = 2;
+        public static final double ROTATION_KI = 0;
+        public static final double ROTATION_KD = 0;
 
         public static final double ANGLE_THRESHOLD = 8; //7, 9
         public static final double VELOCITY_THRESHOLD = 4; //6, 3
         public static final double RAMP_THRESHOLD = 9; //8, 10
         public static final double DRIVE_SPEED = Units.inchesToMeters(20); //30, 40
-
     }
 
     public static class SwerveConstants {
+        /* Module Device IDs */
+        public static final int MOD0_DRIVE_MOTOR_ID = 1;
+        public static final int MOD0_ANGLE_MOTOR_ID = 2;
+        public static final int MOD0_CANCODER_ID = 11;
+        public static final int MOD1_DRIVE_MOTOR_ID = 3;
+        public static final int MOD1_ANGLE_MOTOR_ID = 4;
+        public static final int MOD1_CANCODER_ID = 12;
+        public static final int MOD2_DRIVE_MOTOR_ID = 5;
+        public static final int MOD2_ANGLE_MOTOR_ID = 6;
+        public static final int MOD2_CANCODER_ID = 13;
+        public static final int MOD3_DRIVE_MOTOR_ID = 7;
+        public static final int MOD3_ANGLE_MOTOR_ID = 8;
+        public static final int MOD3_CANCODER_ID = 14;
+
+        /* Cancoder Offsets */
+        public static final double MOD0_CANCODER_OFFSET = 105.15;
+        public static final double MOD1_CANCODER_OFFSET = -62.40234375;
+        public static final double MOD2_CANCODER_OFFSET = -84.287109375;
+        public static final double MOD3_CANCODER_OFFSET = 167.607421875;
+
         public static final double RAMP_TIME = 3;
 
-        public static final int pigeonID = 15; 
-
         /* Drivetrain Constants */
-        public static final double bumperLength = Units.inchesToMeters(5);
-        public static final double trackWidth = Units.inchesToMeters(20.75); //Hand measure later
-        public static final double wheelBase = Units.inchesToMeters(20.75); //Hand measure later
-        public static final double robotLength = Units.inchesToMeters(26.5) + bumperLength; // bumperLength + trackWidth;
-        public static final double wheelDiameter = Units.inchesToMeters(4);
-        public static final double wheelCircumference = wheelDiameter * Math.PI;
+        public static final double DRIVE_BUMPER_LENGTH = Units.inchesToMeters(5);
+        public static final double DRIVE_TRACK_WIDTH = Units.inchesToMeters(20.75); //Hand measure later
+        public static final double DRIVE_WHEEL_BASE = Units.inchesToMeters(20.75); //Hand measure later
+        public static final double ROBOT_LENGTH = Units.inchesToMeters(26.5) + DRIVE_BUMPER_LENGTH; // bumperLength + trackWidth;
+        public static final double DRIVE_WHEEL_DIAMETER = Units.inchesToMeters(4);
+        public static final double DRIVE_WHEEL_CIRCUMFERENCE = DRIVE_WHEEL_DIAMETER * Math.PI;
 
         public static final double closedLoopRamp = 0.0;
 
-        public static final double driveGearRatio = 225.0 / 42.0;
-        public static final double angleGearRatio = (300.0 / 13.0); 
-
-        public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-                new Translation2d(wheelBase / 2.0, trackWidth / 2.0),
-                new Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
-                new Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
-                new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0)); 
+        public static final double DRIVE_MOTOR_GEAR_RATIO = 225.0 / 42.0;
+        public static final double DRIVE_ANGLE_GEAR_RATIO = (300.0 / 13.0); 
 
         /* Swerve Current Limiting */
-        public static final int angleLimit = 30; //30
-        public static final int driveLimit = 60; //40;
+        public static final int DRIVE_ANGLE_CURRENT_LIMIT = 30; //30
+        public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60; //40;
 
         /* Angle Motor PID Values */
         // switched 364 pid values to SDS pid values
-        public static final double angleKP = 0.15 * 30; // 0.6; // citrus: 0.3 //0.15
-        public static final double angleKI = 0.0;
-        public static final double angleKD = 0.0; // 12.0; // citrus: 0
-        public static final double angleKF = 0.0;
+        public static final double DRIVE_ANGLE_KP = 0.15 * 30; // 0.6; // citrus: 0.3 //0.15
+        public static final double DRIVE_ANGLE_KI = 0.0;
+        public static final double DRIVE_ANGLE_KD = 0.0; // 12.0; // citrus: 0
+        public static final double DRIVE_ANGLE_KF = 0.0;
 
         /* Drive Motor PID Values */
-        public static final double driveKP = 4e-5; //4e-5, //0.05
-        public static final double driveKI = 0.0;
-        public static final double driveKD = 0.0;
-        public static final double driveKF = 0.0;
+        public static final double DRIVE_MOTOR_KP = 4e-5; //4e-5, //0.05
+        public static final double DRIVE_MOTOR_KI = 0.0;
+        public static final double DRIVE_MOTOR_KD = 0.0;
+        public static final double DRIVE_MOTOR_KF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = 0.19057;//0.60094; // 0.19225;
-        public static final double driveKV = 2.01208;//1.1559;  // 2.4366
-        public static final double driveKA = 0.15168; //0.12348; // 0.34415
+        public static final double DRIVE_MOTOR_KS = 0.19057;//0.60094; // 0.19225;
+        public static final double DRIVE_MOTOR_KV = 2.01208;//1.1559;  // 2.4366
+        public static final double DRIVE_MOTOR_KA = 0.15168; //0.12348; // 0.34415
 
         /* Swerve Profiling Values */
         // Theoretical: v = 4.96824, omega = 11.5
         // Real: v = 4.5, omega = 10
         // For safety, use less than theoretical and real values
-        public static final double maxSpeed = 4.57;//4.8; //meters per second - 16.3 ft/sec
-        public static final double maxAttainableSpeed = maxSpeed; //Stole from citrus.
-        public static final double maxAcceleration = 5;
-        public static final double maxAngularVelocity = 8; //3; //11.5; // citrus: 10 - Mason look at this later wtf
-        public static final double maxAngularAcceleration = 2 * Math.PI; //I stole from citrus.
+        public static final double MAX_DRIVE_SPEED = 4.57;//4.8; //meters per second - 16.3 ft/sec
+        public static final double MAX_ATTAINABLE_DRIVE_SPEED = MAX_DRIVE_SPEED; //Stole from citrus.
+        public static final double MAX_DRIVE_ACCELERATION = 5;
+        public static final double MAX_DRIVE_ANGULAR_VELOCITY = 8; //3; //11.5; // citrus: 10 - Mason look at this later wtf
+        public static final double MAX_DRIVE_ANGULAR_ACCELERATION = 2 * Math.PI; //I stole from citrus.
+
+        /* Motor and Sensor IDs */
+        public static final int SHOOTER_MOTOR_ID = 60;
+        public static final int KICK_MOTOR_ID = 61;
+        public static final int PIDGEON_ID = 15; 
+        public static final String DRIVETRAIN_CANBUS_NAME = "Drivetrain";
 
         /* Motor Inverts */
-        public static final boolean driveMotorInvert = false;
-        public static final boolean angleMotorInvert = true;
+        public static final boolean DRIVE_MOTOR_INVERTED = false;
+        public static final boolean DRIVE_ANGLE_INVERTED = true;
 
         /* Angle Encoder Invert */
-        public static final boolean canCoderInvert = false;
+        public static final boolean ANGLE_CANCODER_INVERTED = false;
 
-        public static final MotorConfig driveMotorConfig = new MotorConfig(SwerveConversions.rotationsToMeters(1, wheelCircumference, driveGearRatio), 60, driveLimit, driveMotorInvert, Neutral.BRAKE);
+        public static final double DRIVE_TURN_KP = 1;
+        public static final double DRIVE_TURN_KI = 0;
+        public static final double DRIVE_TURN_KD = 0;
+        public static final double DRIVE_TURN_KS = 0.1; //0.05748
+        public static final double DRIVE_TURN_KV = 0.01723; //0.01723
+        public static final double DRIVE_TURN_KA = 0.0064; //0.0064
+        public static final double DRIVE_TURN_KG = 0;
 
-        public static final MotorConfig angleMotorConfig = new MotorConfig(SwerveConversions.rotationsToDegrees(1, angleGearRatio), 1, angleLimit, angleMotorInvert, Neutral.BRAKE);
-
-        public static final PIDFFConfig drivePIDConfig = new PIDFFConfig(driveKP, driveKI, driveKD, driveKS, driveKV, driveKA);
-
-        public static final PIDFFConfig anglePIDConfig = new PIDFFConfig(angleKP, angleKI, angleKD);
-
-        public static final SwerveModuleConfig Mod0 = new SwerveModuleConfig(
-            0, 
-            new SwerveMotorConfig(new NAR_TalonFX(1, "Drivetrain"), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(2, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-            new SwerveEncoderConfig(new CANcoder(11, "Drivetrain"), 105.15, canCoderInvert),
-            maxSpeed
-        );
-
-        public static final SwerveModuleConfig Mod1 = new SwerveModuleConfig(
-            1, 
-            new SwerveMotorConfig(new NAR_TalonFX(3, "Drivetrain"), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(4, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-            new SwerveEncoderConfig(new CANcoder(12, "Drivetrain"), -62.40234375, canCoderInvert),
-            maxSpeed);
-        
-        public static final SwerveModuleConfig Mod2 = new SwerveModuleConfig(
-            2, 
-            new SwerveMotorConfig(new NAR_TalonFX(5, "Drivetrain"), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(6, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-            new SwerveEncoderConfig(new CANcoder(13, "Drivetrain"), -84.287109375, canCoderInvert),
-            maxSpeed);
-        
-        public static final SwerveModuleConfig Mod3 = new SwerveModuleConfig(
-            3, 
-            new SwerveMotorConfig(new NAR_TalonFX(7, "Drivetrain"), driveMotorConfig, drivePIDConfig),
-            new SwerveMotorConfig(new NAR_TalonFX(8, "Drivetrain"), angleMotorConfig, anglePIDConfig),
-            new SwerveEncoderConfig(new CANcoder(14, "Drivetrain"), 167.607421875, canCoderInvert),
-            maxSpeed);
-
-        public static final double turnkP = 1;
-        public static final double turnkI = 0;
-        public static final double turnkD = 0;
-        public static final double turnkS = 0.1; //0.05748
-        public static final double turnkV = 0.01723; //0.01723
-        public static final double turnkA = 0.0064; //0.0064
-        public static final Constraints constraints = new Constraints(Units.radiansToDegrees(maxAngularVelocity), Units.radiansToDegrees(maxAngularAcceleration));
-        public static final PIDFFConfig config = new PIDFFConfig(turnkP, turnkI, turnkD, turnkS, turnkV, turnkA, 0);
-
-        public static final Controller TURN_CONTROLLER = new Controller(config, Type.POSITION);
         public static final double TURN_TOLERANCE = 30;
-
-        static {
-            TURN_CONTROLLER.enableContinuousInput(-180, 180);
-            TURN_CONTROLLER.setMeasurementSource(()-> Swerve.getInstance().getYaw());
-            TURN_CONTROLLER.setTolerance(TURN_TOLERANCE);
-        }
     }
-
 
     public static class VisionConstants {
 
@@ -266,9 +217,6 @@ public class Constants {
         public static final int KICK_SENSOR_ID = 0;
         public static final int ROLLERS_SENSOR_ID = 1;
 
-        public static final NAR_CANSpark SHOOTER_MOTOR = new NAR_CANSpark(SHOOTER_MOTOR_ID);
-        public static final NAR_CANSpark KICK_MOTOR = new NAR_CANSpark(KICK_MOTOR_ID);
-
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.005, 0, 0, 0, 0.002, 0); // 0.00187623
         public static final double kF = 0; 
         public static final double GEAR_RATIO = 1;
@@ -302,7 +250,6 @@ public class Constants {
 
     public static class IntakeConstants {
         public static final int PIVOT_MOTOR_ID = 31;
-        public static final NAR_CANSpark PIVOT_MOTOR = new NAR_CANSpark(PIVOT_MOTOR_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(0.1, 0, 0, -0.35, 0, 0, 0);
         public static final double MAX_VELOCITY = 1000000;
@@ -323,10 +270,7 @@ public class Constants {
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * 360;   
 
         public static final int ROLLER_MOTOR_ID1 = 31;
-        public static final NAR_TalonFX ROLLER_MOTOR1 = new NAR_TalonFX(ROLLER_MOTOR_ID1);
-        
         public static final int ROLLER_MOTOR_ID2 = 32; //TODO: ADD
-        public static final NAR_TalonFX ROLLER_MOTOR2 = new NAR_TalonFX(ROLLER_MOTOR_ID2);
 
         public static final double STALL_CURRENT = 50;
         public static final double STALL_POWER = .05;
@@ -369,7 +313,6 @@ public class Constants {
         public static class RainbowAnimation {
             public static final double BRIGHTNESS = 1;
             public static final double SPEED = 1;
-
         }
 
         public enum Colors {
@@ -399,16 +342,12 @@ public class Constants {
                 this.b = b;
                 this.animation = animation;
             }
-    
         }
     }
     
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 50;
-        public static final NAR_CANSpark CLIMB_MOTOR = new NAR_CANSpark(CLIMB_MOTOR_ID);
-
         public static final int PWM_SERVO_ID = 0;
-        public static final PWM SERVO = new PWM(PWM_SERVO_ID);
 
         public static final PIDFFConfig PIDConstants = new PIDFFConfig(2, 0, 0, 0.18, 0, 0, 0.3);//240
         public static final double MAX_VELOCTIY = 10000000;
@@ -423,12 +362,10 @@ public class Constants {
         public static final double GEAR_RATIO = 1.0 / 15.0;
         public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(1.751) * Math.PI;
         public static final double UNIT_CONV_FACTOR = GEAR_RATIO * WHEEL_CIRCUMFERENCE * 100;
-
     }
 
     public static class HopperConstants {
         public static final int HOPPER_MOTOR_ID = 40;
-        public static final NAR_CANSpark HOPPER_MOTOR = new NAR_CANSpark(HOPPER_MOTOR_ID);
         public static final int HOPPER_FRONT_SENSOR_ID = 0;
         public static final int HOPPER_BACK_SENSOR_ID = 2;
 
@@ -443,10 +380,7 @@ public class Constants {
 
     public static class AmperConstants {
         public static final int ELEV_MOTOR_ID = 21;
-        public static final NAR_CANSpark ELEV_MOTOR = new NAR_CANSpark(ELEV_MOTOR_ID);
-
         public static final int ROLLER_MOTOR_ID = 20;
-        public static final NAR_CANSpark ROLLER_MOTOR = new NAR_CANSpark(ROLLER_MOTOR_ID, ControllerType.CAN_SPARK_FLEX);
 
         public static final PIDFFConfig ELEVATOR_PID = new PIDFFConfig(0.95, 0, 0, 0.21115, 0.00182, 0.00182, 0.0); // kp 0.75
         public static final double MAX_VELOCTIY = 10000000;

@@ -4,12 +4,6 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import common.core.commands.NAR_PIDCommand;
-import common.core.controllers.Controller;
-import common.core.controllers.PIDFFConfig;
-import common.core.controllers.Controller.Type;
-import common.utility.shuffleboard.NAR_Shuffleboard;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -17,34 +11,23 @@ import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.team3128.Constants.AutoConstants.*;
 import static frc.team3128.Constants.FocalAimConstants.focalPointBlue;
 import static frc.team3128.Constants.FocalAimConstants.focalPointRed;
-import static frc.team3128.Constants.ShooterConstants.MAX_RPM;
-import static frc.team3128.Constants.ShooterConstants.SHOOTER_RPM;
 import static frc.team3128.Constants.SwerveConstants.*;
 
 import frc.team3128.Constants.AutoConstants;
-import frc.team3128.Constants.ShooterConstants;
 import frc.team3128.Robot;
-import frc.team3128.RobotContainer;
-import frc.team3128.commands.CmdManager;
-import frc.team3128.commands.CmdSwerveDrive;
 
 import java.util.function.DoubleSupplier;
 
 import frc.team3128.subsystems.Swerve;
 import frc.team3128.subsystems.Intake.IntakeState;
 import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Hopper;
 import frc.team3128.subsystems.Intake;
 import frc.team3128.subsystems.SubsystemManager;
 
@@ -62,9 +45,9 @@ public class Trajectories {
         Pathfinding.setPathfinder(new LocalADStar());
 
         // TODO: add commands
-        NamedCommands.registerCommand("Shoot", shoot());
-        NamedCommands.registerCommand("Intake", Intake.getInstance().setState(IntakeState.GROUND));
-        NamedCommands.registerCommand("Neutral", SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0));
+        NamedCommands.registerCommand("Shoot", runOnce(() -> {}));//shoot());
+        NamedCommands.registerCommand("Intake", runOnce(() -> {}));//Intake.getInstance().setState(IntakeState.GROUND));
+        NamedCommands.registerCommand("Neutral", runOnce(() -> {}));//SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0));
 
         AutoBuilder.configureHolonomic(
             swerve::getPose,
@@ -72,10 +55,10 @@ public class Trajectories {
             swerve::getRobotVelocity,
             swerve::drive,
             new HolonomicPathFollowerConfig(
-                new PIDConstants(translationKP, translationKI, translationKD),
-                new PIDConstants(rotationKP, rotationKI, rotationKD),
-                maxAttainableSpeed,
-                trackWidth,
+                new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD),
+                new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD),
+                MAX_ATTAINABLE_DRIVE_SPEED,
+                DRIVE_TRACK_WIDTH,
                 new ReplanningConfig(false, true)
             ),
             ()-> Robot.getAlliance() == Alliance.Red,
@@ -103,36 +86,12 @@ public class Trajectories {
 
     public static Command turnDegrees(boolean counterClockwise, double angle) {
         DoubleSupplier setpoint = ()-> swerve.getYaw() + angle * (counterClockwise ? 1 : -1) * (Robot.getAlliance() == Alliance.Red ? -1 : 1);
-        Controller controller = new Controller(new PIDFFConfig(5, 0, 0, turnkS, 0, 0), Type.POSITION);
-        controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(1);
-        return new NAR_PIDCommand(
-            controller, 
-            ()-> swerve.getYaw(), //measurement
-            setpoint, //setpoint
-            (double output) -> {
-                Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            },
-            2,
-            Swerve.getInstance()
-        ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
+        return swerve.turnInPlace(setpoint);
     }
 
     public static Command turnInPlace() {
         DoubleSupplier setpoint = ()-> swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
-        Controller controller = new Controller(new PIDFFConfig(5, 0, 0, turnkS, 0, 0), Type.POSITION);
-        controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(1);
-        return new NAR_PIDCommand(
-            controller, 
-            ()-> swerve.getYaw(), //measurement
-            setpoint, //setpoint
-            (double output) -> {
-                Swerve.getInstance().drive(new ChassisSpeeds(vx, vy, Units.degreesToRadians(output)));
-            },
-            2,
-            Swerve.getInstance()
-        ).beforeStarting(runOnce(()-> CmdSwerveDrive.disableTurn()));
+        return swerve.turnInPlace(setpoint);
     }
 
     public static Command getPathPlannerAuto(String name) {
@@ -142,7 +101,7 @@ public class Trajectories {
     public static Command goToPoint(Pose2d pose) {
         return AutoBuilder.pathfindToPose(
             pose,
-            AutoConstants.constraints,
+            AutoConstants.PATH_CONSTRAINTS,
             0.0, // Goal end velocity in meters/sec
             0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
         );

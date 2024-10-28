@@ -3,7 +3,6 @@ package frc.team3128.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -27,9 +26,7 @@ public class CmdSwerveDrive extends Command {
 
     private final SlewRateLimiter accelLimiter;
 
-    public static PIDController rController;
     private static boolean enabled = false;
-    private static double rSetpoint;
     
     public CmdSwerveDrive(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier zAxis, boolean fieldRelative) {
         this.swerve = Swerve.getInstance();
@@ -39,12 +36,7 @@ public class CmdSwerveDrive extends Command {
         this.yAxis = yAxis;
         this.zAxis = zAxis;
 
-        rController = new PIDController(turnkP, 0, 0);
-        rController.setTolerance(1);
-        rController.enableContinuousInput(-180, 180);
-
-        accelLimiter = new SlewRateLimiter(maxAcceleration);
-        // rController = new PIDController(turnkP, 0, 0);
+        accelLimiter = new SlewRateLimiter(MAX_DRIVE_ACCELERATION);
         swerve.fieldRelative = fieldRelative;
     }
 
@@ -52,7 +44,7 @@ public class CmdSwerveDrive extends Command {
     public void execute() {
         // deadbands are taken care of in NAR_Joystick
         // TODO: add in slewratelimiter here
-        translation = new Translation2d(xAxis.getAsDouble(), yAxis.getAsDouble()).times(swerve.throttle).times(maxAttainableSpeed);
+        translation = new Translation2d(xAxis.getAsDouble(), yAxis.getAsDouble()).times(swerve.throttle).times(MAX_ATTAINABLE_DRIVE_SPEED);
         if (Robot.getAlliance() == Alliance.Red || !swerve.fieldRelative) {
             translation = translation.rotateBy(Rotation2d.fromDegrees(-90)); //90
         }
@@ -62,14 +54,14 @@ public class CmdSwerveDrive extends Command {
 
         final double zValue = zAxis.getAsDouble();
         
-        rotation = Math.copySign(Math.pow(zValue, 3/2), zValue) * maxAngularVelocity * swerve.throttle; 
+        rotation = Math.copySign(Math.pow(zValue, 3/2), zValue) * MAX_DRIVE_ANGULAR_VELOCITY * swerve.throttle; 
 
-        if (Math.abs(rotation) > maxAngularVelocity * swerve.throttle / 4.0) {
+        if (Math.abs(rotation) > MAX_DRIVE_ANGULAR_VELOCITY * swerve.throttle / 4.0) {
             enabled = false;
         }
         if (enabled) {
-            rotation = Units.degreesToRadians(rController.calculate(swerve.getGyroRotation2d().getDegrees(), rSetpoint));
-            if (rController.atSetpoint()) {
+            rotation = Units.degreesToRadians(swerve.getTurnControllerCalculation(swerve.getTurnSetpoint()));
+            if (swerve.isTurnControllerAtSetpoint()) {
                 rotation = 0;
             }
         }
@@ -82,10 +74,9 @@ public class CmdSwerveDrive extends Command {
         SmartDashboard.putNumber("yAXIS",yAxis.getAsDouble());
         SmartDashboard.putNumber("xAXIS",xAxis.getAsDouble());
         swerve.drive(translation, rotation, swerve.fieldRelative);
-
     }
 
-    public static void setTurnSetpoint() {
+    public void setTurnSetpoint() {
         final double currentRotation = MathUtil.inputModulus(Swerve.getInstance().getYaw(), 0, 360);
         if (currentRotation <= 45) {
             setTurnSetpoint(0);
@@ -104,14 +95,14 @@ public class CmdSwerveDrive extends Command {
         }
     }
 
-    public static void setTurnSetpoint(double setpoint) {
-        rSetpoint = setpoint;
+    private void setTurnSetpoint(double setpoint) {
+        swerve.setTurnSetpoint(setpoint);
         enabled = true;
-        TURN_CONTROLLER.reset();
+        swerve.resetTurnController();
     }
 
-    public static void disableTurn() {
-        enabled = false;
+    public static void setTurnEnabled(boolean enabled) {
+       CmdSwerveDrive.enabled = enabled;
     }
 
     @Override

@@ -2,12 +2,8 @@ package frc.team3128;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static frc.team3128.commands.CmdManager.disableAll;
-import static frc.team3128.commands.CmdManager.outtake;
-import static frc.team3128.commands.CmdManager.stop;
 
 import java.util.ArrayList;
-
-import com.ctre.phoenix6.signals.RobotEnableValue;
 
 import common.core.swerve.SwerveModule;
 import common.hardware.camera.Camera;
@@ -26,21 +22,12 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.team3128.autonomous.AutoPrograms;
-import frc.team3128.autonomous.Trajectories;
 import frc.team3128.commands.CmdSwerveDrive;
 import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Amper.AmpState;
 import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Hopper.HopperState;
 import frc.team3128.subsystems.Intake;
-import frc.team3128.subsystems.Intake.IntakeState;
 import frc.team3128.subsystems.Shooter;
 import frc.team3128.subsystems.SubsystemManager;
-import frc.team3128.subsystems.Shooter.ShooterState;
 import frc.team3128.subsystems.SubsystemManager.RobotState;
 import frc.team3128.subsystems.Swerve;
 
@@ -71,6 +58,8 @@ public class RobotContainer {
 
     private static ArrayList<Camera> sideCams = new ArrayList<Camera>();
 
+    private final CmdSwerveDrive swerveDriveCommand;
+
     public RobotContainer() {
         NAR_CANSpark.maximumRetries = 3;
         NAR_TalonFX.maximumRetries = 1;
@@ -89,8 +78,10 @@ public class RobotContainer {
         shooter = Shooter.getInstance();
         robot = SubsystemManager.getInstance();
 
+        swerveDriveCommand = new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true);
+
         //uncomment line below to enable driving
-        CommandScheduler.getInstance().setDefaultCommand(swerve, new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true));
+        CommandScheduler.getInstance().setDefaultCommand(swerve, swerveDriveCommand);
 
         initRobotTest();
         
@@ -113,21 +104,11 @@ public class RobotContainer {
         controller.getButton(XboxButton.kX).onTrue(new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltage(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
         ()->swerve.getModules()[0].getDriveMotor().getPosition(), 50,true, swerve));
 
-        controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> CmdSwerveDrive.setTurnSetpoint()));
-        controller.getUpPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 180 : 0);
-        }));
-        controller.getDownPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 0 : 180);
-        }));
-
-        controller.getRightPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 90 : 270);
-        }));
-
-        controller.getLeftPOVButton().onTrue(runOnce(()-> {
-            CmdSwerveDrive.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90);
-        }));
+        controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> swerveDriveCommand.setTurnSetpoint()));
+        controller.getUpPOVButton().onTrue(runOnce(()->swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 180 : 0)));
+        controller.getDownPOVButton().onTrue(runOnce(()-> swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 0 : 180)));
+        controller.getRightPOVButton().onTrue(runOnce(()-> swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 90 : 270)));
+        controller.getLeftPOVButton().onTrue(runOnce(()-> swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 270 : 90)));
 
         // zero gyro
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));

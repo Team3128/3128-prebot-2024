@@ -68,7 +68,7 @@ public class Trajectories {
 
     public static Command shoot() {
         return sequence(
-            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0),
+            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOTING, 0),
             waitSeconds(1)
             // waitUntil(()-> Hopper.hasNoObjects()),
             // SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0)

@@ -36,7 +36,7 @@ public class CmdManager {
 
     public static Command outtake(){
         return sequence(
-            hopper.setState(Hopper.HopperState.REVERSE),
+            hopper.setState(Hopper.HopperState.OUTTAKING),
             intake.setState(Intake.IntakeState.OUTTAKE)
         );
     }
@@ -67,21 +67,21 @@ public class CmdManager {
                 shooter.setState(Shooter.ShooterState.SHOOT)
             ),
             waitUntil(()-> shooter.atSetpoint()),
-            hopper.setState(Hopper.HopperState.FULL_FORWARD)
+            hopper.setState(Hopper.HopperState.SHOOTING)
         );
     }
 
     public static Command autoShoot() {
         return sequence(
             deadline(
-                SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOTING_RAMP, 0), 
+                SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOTING_READY, 0), 
                 repeatingSequence(
                     runOnce(()-> swerve.setTurnSetpoint(swerve.getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue))),
                     runOnce(()-> CmdSwerveDrive.setTurnEnabled(true)),
                     waitSeconds(0.1)
                 )
             ),
-            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0), 
+            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOTING, 0), 
             runOnce(() -> CmdSwerveDrive.setTurnEnabled(false))
         );
     }

@@ -121,6 +121,7 @@ public class Robot extends NAR_Robot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+        Swerve.getInstance().setBrakeMode(true);
     }
 
     @Override
@@ -136,6 +137,7 @@ public class Robot extends NAR_Robot {
         Camera.enableAll();
         SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
         CommandScheduler.getInstance().cancelAll();
+        Swerve.getInstance().setBrakeMode(true);
     }
 
     @Override
@@ -174,8 +176,7 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void disabledExit() {
-        Swerve.getInstance().setBrakeMode(true
-        );
+        Swerve.getInstance().setBrakeMode(true);
     }
     
     @Override

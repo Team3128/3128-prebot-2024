@@ -17,7 +17,6 @@ public class AutoPrograms {
     private HashMap<String, Command> autoMap = new HashMap<String, Command>();
 
     public AutoPrograms() {
-
         Trajectories.initTrajectories();
         initAutoSelector();
     }

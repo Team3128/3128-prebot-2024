@@ -165,6 +165,8 @@ public class Robot extends NAR_Robot {
             runOnce(()->Swerve.getInstance().setBrakeMode(false)).ignoringDisable(true)
         ).schedule();
 
+        autoPrograms = new AutoPrograms();
+
         if (hasInitialized) {
         }
         hasInitialized = true;

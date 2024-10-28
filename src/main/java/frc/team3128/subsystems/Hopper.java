@@ -191,7 +191,7 @@ public class Hopper {
     }
 
     public boolean isState(HopperState state){
-        return currentState == state;
+        return currentState.name() == state.name();
     }
 
     public Command disable() {

@@ -101,8 +101,9 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         // controller.getButton(XboxButton.kX).onTrue(Commands.runOnce(()-> swerve.zeroGyro(0)));
-        controller.getButton(XboxButton.kX).onTrue(new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltage(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
-        ()->swerve.getModules()[0].getDriveMotor().getPosition(), 50,true, swerve));
+        // controller.getButton(XboxButton.kX).onTrue(new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltage(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
+        // ()->swerve.getModules()[0].getDriveMotor().getPosition(), 50,true, swerve));
+        controller.getButton(XboxButton.kX).onTrue(runOnce(()->swerve.setVoltage(0.25))).onFalse(runOnce(()->swerve.setVoltage(0)));
 
         controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> swerveDriveCommand.setTurnSetpoint()));
         controller.getUpPOVButton().onTrue(runOnce(()->swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 180 : 0)));

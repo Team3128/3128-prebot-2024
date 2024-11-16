@@ -112,7 +112,7 @@ public class RobotContainer {
             waitSeconds(0.1),
             runOnce(()->swerve.drive(new ChassisSpeeds(0,0,0))),
             new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltageRot(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
-        ()->swerve.getModules()[0].getDriveMotor().getPosition(), 50,true, swerve)
+        ()->swerve.getModules()[0].getDriveMotor().getPosition(), 25,true, swerve)
         )).onFalse(runOnce(()->swerve.setVoltage(0)));
 
         controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> swerveDriveCommand.setTurnSetpoint()));

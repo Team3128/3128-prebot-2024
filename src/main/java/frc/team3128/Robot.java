@@ -138,6 +138,7 @@ public class Robot extends NAR_Robot {
         SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
         CommandScheduler.getInstance().cancelAll();
         Swerve.getInstance().setBrakeMode(true);
+        Log.info("Swerve", "Brake");
     }
 
     @Override

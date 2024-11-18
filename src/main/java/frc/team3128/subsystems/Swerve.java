@@ -146,6 +146,17 @@ public class Swerve extends SwerveBase {
         }
     }
 
+    public void setVoltageRot(double volts) {
+        modules[0].getAngleMotor().set(135, Control.Position);
+        modules[1].getAngleMotor().set(135-90, Control.Position);
+        modules[3].getAngleMotor().set(135+180, Control.Position);
+        modules[2].getAngleMotor().set(135+90, Control.Position);
+        for (final SwerveModule module : modules) {
+            // module.getAngleMotor().set(45 + i * 90, Control.Position);
+            module.getDriveMotor().setVolts(volts);
+        }
+    }
+
     public double getVelocity() {
         var x = getRobotVelocity();
         return Math.hypot(x.vxMetersPerSecond, x.vyMetersPerSecond);

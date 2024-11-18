@@ -1,6 +1,8 @@
 package frc.team3128;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.sequence;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.team3128.commands.CmdManager.disableAll;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import common.utility.sysid.CmdSysId;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -101,9 +104,16 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         // controller.getButton(XboxButton.kX).onTrue(Commands.runOnce(()-> swerve.zeroGyro(0)));
-        // controller.getButton(XboxButton.kX).onTrue(new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltage(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
-        // ()->swerve.getModules()[0].getDriveMotor().getPosition(), 50,true, swerve));
-        controller.getButton(XboxButton.kX).onTrue(runOnce(()->swerve.setVoltage(0.25))).onFalse(runOnce(()->swerve.setVoltage(0)));
+        controller.getButton(XboxButton.kX).onTrue(new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltage(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
+        ()->swerve.getModules()[0].getDriveMotor().getPosition(), 50,true, swerve));
+        // controller.getButton(XboxButton.kX).whileTrue(runOnce(()->swerve.setVoltage(0.25))).onFalse(runOnce(()->swerve.setVoltage(0)));
+        controller.getButton(XboxButton.kY).onTrue(sequence(
+            runOnce(()->swerve.drive(new ChassisSpeeds(0, 0, 1))),
+            waitSeconds(0.1),
+            runOnce(()->swerve.drive(new ChassisSpeeds(0,0,0))),
+            new CmdSysId("Swerve", (Double voltage) -> swerve.setVoltageRot(voltage), ()->swerve.getModules()[0].getDriveMotor().getVelocity(), 
+        ()->swerve.getModules()[0].getDriveMotor().getPosition(), 25,true, swerve)
+        )).onFalse(runOnce(()->swerve.setVoltage(0)));
 
         controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> swerveDriveCommand.setTurnSetpoint()));
         controller.getUpPOVButton().onTrue(runOnce(()->swerve.setTurnSetpoint(Robot.getAlliance() == Alliance.Red ? 180 : 0)));
@@ -128,7 +138,7 @@ public class RobotContainer {
         // controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));
 
         // amper primed and then extended
-        controller.getButton(XboxButton.kY).onTrue(robot.setState(RobotState.AMPING_RAMP, 0)).onFalse(robot.setState(RobotState.AMP_FIRST, 0));
+        // controller.getButton(XboxButton.kY).onTrue(robot.setState(RobotState.AMPING_RAMP, 0)).onFalse(robot.setState(RobotState.AMP_FIRST, 0));
 
         // manual hopper button
         // controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());

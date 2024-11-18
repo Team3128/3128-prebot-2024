@@ -77,7 +77,7 @@ public class Trajectories {
 
     public static Command resetAuto() {
         return sequence(
-            runOnce(()-> swerve.zeroGyro(Robot.getAlliance() == Alliance.Red ? 0 : 180)),
+            // runOnce(()-> swerve.zeroGyro(Robot.getAlliance() == Alliance.Red ? 0 : 180)),
             runOnce(()-> swerve.resetEncoders()),
             Amper.getInstance().reset(),
             Intake.getInstance().reset()

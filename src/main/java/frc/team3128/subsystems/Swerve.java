@@ -51,7 +51,7 @@ public class Swerve extends SwerveBase {
 
     public double throttle = 1;
 
-    private static double gyroOffset = 0;
+    private static final double GYRO_OFFSET = 0;
 
     public Supplier<Double> yaw;
 
@@ -153,7 +153,7 @@ public class Swerve extends SwerveBase {
 
     @Override
     public double getYaw() {
-        return yaw.get() - gyroOffset;
+        return yaw.get() - GYRO_OFFSET;
     }
 
     @Override

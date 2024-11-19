@@ -132,7 +132,8 @@ public class RobotContainer {
 
         // ramp shooter and then run hopper
         // shooter and hopper will stop if no notes
-        controller.getButton(XboxButton.kRightTrigger).onTrue(robot.setState(RobotState.SHOOTING_RAMP, 0)).onFalse(robot.setState(RobotState.SHOOT_FIRST, 0));
+        // controller.getButton(XboxButton.kRightTrigger).onTrue(robot.setState(RobotState.SHOOTING_RAMP, 0)).onFalse(robot.setState(RobotState.SHOOT_FIRST, 0));
+        controller.getButton(XboxButton.kRightTrigger).whileTrue(swerve.turnInPlace()).onFalse(runOnce(() -> swerve.setRotLocked(false)));
 
         // shooter ramp amp
         // controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));

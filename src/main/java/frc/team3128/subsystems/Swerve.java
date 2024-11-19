@@ -103,6 +103,8 @@ public class Swerve extends SwerveBase1 {
     private final Controller turnController = new Controller(drivePidffConfig, Type.POSITION);
     private double turnSetpoint;
 
+    private double rotOutput;
+
     public static synchronized Swerve getInstance() {
         if (instance == null) {
             instance = new Swerve();
@@ -131,6 +133,8 @@ public class Swerve extends SwerveBase1 {
         NAR_Shuffleboard.addData("Testing", "Dist", ()-> getDistHorizontal(), 0, 1);
         NAR_Shuffleboard.addData("Auto", "Setpoint", ()-> turnController.atSetpoint());
         initStateCheck();
+
+        setRotOutput(() -> rotOutput);
     }
 
     public boolean crossedPodium() {
@@ -243,6 +247,19 @@ public class Swerve extends SwerveBase1 {
 
     public double getTurnAngle(Translation2d robotPos, Translation2d targetPos) {
         return Math.toDegrees(Math.atan2(targetPos.getY() - robotPos.getY(), targetPos.getX() - robotPos.getX())) + angleOffset;
+    }
+
+    public Command turnInPlace() {
+        return new NAR_PIDCommand(
+            turnController,
+            () -> getYaw(),
+            () -> getTurnAngle(),
+            (double output) -> {
+                setRotLocked(true);
+                rotOutput = output;
+            },
+            2
+        );
     }
 
     public Command turnInPlace(boolean moving) {

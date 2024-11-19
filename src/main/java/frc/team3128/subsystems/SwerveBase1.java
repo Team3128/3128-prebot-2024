@@ -1,5 +1,7 @@
 package frc.team3128.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import common.core.misc.NAR_Robot;
@@ -37,6 +39,8 @@ public abstract class SwerveBase1 extends SubsystemBase {
 
     public boolean fieldRelative;
     public double maxSpeed;
+    private boolean rotLocked;
+    DoubleSupplier rotOutput;
 
     public SwerveBase1(SwerveDriveKinematics kinematics, Matrix<N3, N1> stateStdDevs, Matrix<N3, N1> visionMeasurementDevs, double stillThreshhold, double errorThreshold, SwerveModuleConfig... configs) {
         this.kinematics = kinematics;
@@ -51,6 +55,8 @@ public abstract class SwerveBase1 extends SubsystemBase {
             new SwerveModule(configs[3])
         };
         Timer.delay(1.5);
+        rotLocked = false;
+        rotOutput = () -> 0;
 
         resetEncoders();
 
@@ -78,6 +84,14 @@ public abstract class SwerveBase1 extends SubsystemBase {
         NAR_Shuffleboard.addData("Swerve", "Gyro", ()-> getYaw(), 7, 0, 2, 2).withWidget("Gyro");
     }
 
+    public void setRotOutput(DoubleSupplier rotOutput) {
+        this.rotOutput = rotOutput;
+    }
+
+    public void setRotLocked(boolean rotLocked) {
+        this.rotLocked = rotLocked;
+    }
+
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
         drive(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
                 translation.getX(), translation.getY(), rotation, getGyroRotation2d())
@@ -95,6 +109,9 @@ public abstract class SwerveBase1 extends SubsystemBase {
 
             velocity = new ChassisSpeeds(twistVel.dx / dtConstant, twistVel.dy / dtConstant,
                                         twistVel.dtheta / dtConstant);
+        }
+        if (rotLocked) {
+            velocity.omegaRadiansPerSecond = rotOutput.getAsDouble();
         }
         if (velocity.vxMetersPerSecond < 0.1 && velocity.vyMetersPerSecond < 0.1 && velocity.omegaRadiansPerSecond < 0.1) {
             stillCount = 0;

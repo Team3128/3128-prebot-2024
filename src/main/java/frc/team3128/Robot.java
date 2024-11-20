@@ -27,11 +27,12 @@ import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Swerve;
 import frc.team3128.subsystems.SubsystemManager.RobotState;
 
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation.
  */
-public class Robot extends NAR_Robot {
+public class Robot extends NAR_Robot1 {
     private Timer m_gcTimer = new Timer();
 
     private boolean hasInitialized = false;

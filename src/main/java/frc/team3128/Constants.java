@@ -128,7 +128,7 @@ public final class Constants {
         /* Angle Encoder Invert */
         public static final boolean ANGLE_CANCODER_INVERTED = false;
 
-        public static final double DRIVE_TURN_KP = 1;
+        public static final double DRIVE_TURN_KP = 5;
         public static final double DRIVE_TURN_KI = 0;
         public static final double DRIVE_TURN_KD = 0;
         public static final double DRIVE_TURN_KS = 0.1; //0.05748
@@ -136,7 +136,7 @@ public final class Constants {
         public static final double DRIVE_TURN_KA = 0.0064; //0.0064
         public static final double DRIVE_TURN_KG = 0;
 
-        public static final double TURN_TOLERANCE = 30;
+        public static final double TURN_TOLERANCE = 2;
     }
 
     public static class VisionConstants {
@@ -203,6 +203,7 @@ public final class Constants {
         public static final Translation2d speakerMidpointRed = new Translation2d(FieldConstants.FIELD_X_LENGTH, speakerMidpointY);
         public static final Translation2d focalPointBlue = new Translation2d(focalPointX, speakerMidpointY);
         public static final Translation2d focalPointRed = new Translation2d(FieldConstants.FIELD_X_LENGTH - focalPointX, speakerMidpointY);
+        public static final Translation2d SpeakerPoint = new Translation2d(Units.inchesToMeters(324.5), Units.inchesToMeters(315.5));
         public static final double angleOffset = 0;
         //testing: kV: drivetrain spinning consistently (ie. v1 = vel at  vel at 1 rad/sec v2=2 rad/sec). 1/(v2-v1) = kV
         //kS: plug kV into 1= kS + kV(v1)

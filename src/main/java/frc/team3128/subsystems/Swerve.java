@@ -237,7 +237,8 @@ public class Swerve extends SwerveBase1 {
     }
 
     public double getTurnAngle() {
-        return getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
+        // return getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
+        return getTurnAngle(SpeakerPoint);
     }
 
     public double getTurnAngle(Translation2d target) {
@@ -253,12 +254,13 @@ public class Swerve extends SwerveBase1 {
         return new NAR_PIDCommand(
             turnController,
             () -> getYaw(),
-            () -> getTurnAngle(),
+            // () -> getTurnAngle(),
+            () -> 270,
             (double output) -> {
                 setRotLocked(true);
-                rotOutput = output;
+                rotOutput = -Units.degreesToRadians(output);
             },
-            2
+            .02
         );
     }
 

@@ -41,6 +41,7 @@ import frc.team3128.Constants.SwerveConstants;
 import frc.team3128.commands.CmdSwerveDrive;
 
 import static frc.team3128.Constants.SwerveConstants.*;
+import static edu.wpi.first.wpilibj2.command.Commands.none;
 import static frc.team3128.Constants.FocalAimConstants.*;
 
 public class Swerve extends SwerveBase1 {
@@ -100,7 +101,7 @@ public class Swerve extends SwerveBase1 {
     private final Constraints driveConstraints = new Constraints(Units.radiansToDegrees(MAX_DRIVE_ANGULAR_VELOCITY), Units.radiansToDegrees(MAX_DRIVE_ANGULAR_ACCELERATION));
     private final PIDFFConfig drivePidffConfig = new PIDFFConfig(DRIVE_TURN_KP, DRIVE_TURN_KI, DRIVE_TURN_KD, DRIVE_TURN_KS, DRIVE_TURN_KV, DRIVE_TURN_KA, DRIVE_TURN_KG);
 
-    private final Controller turnController = new Controller(drivePidffConfig, Type.POSITION);
+    private final Controller1 turnController = new Controller1(drivePidffConfig, Controller1.Type.POSITION);
     private double turnSetpoint;
 
     private double rotOutput;
@@ -126,12 +127,13 @@ public class Swerve extends SwerveBase1 {
 
         turnController.enableContinuousInput(-180, 180);
         turnController.setMeasurementSource(()-> Swerve.getInstance().getYaw());
-        turnController.setTolerance(TURN_TOLERANCE);
+        turnController.setTolerance(0);
 
         initShuffleboard();
         NAR_Shuffleboard.addData("Testing", "Name", ()-> getDist(speakerMidpointBlue), 0, 0);
         NAR_Shuffleboard.addData("Testing", "Dist", ()-> getDistHorizontal(), 0, 1);
         NAR_Shuffleboard.addData("Auto", "Setpoint", ()-> turnController.atSetpoint());
+        NAR_Shuffleboard.addData("Swerve", "abcbcbcb", ()-> getTurnAngle(), 4,3);
         initStateCheck();
 
         setRotOutput(() -> rotOutput);
@@ -238,11 +240,11 @@ public class Swerve extends SwerveBase1 {
 
     public double getTurnAngle() {
         // return getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
-        return getTurnAngle(SpeakerPoint);
+        return getTurnAngle(new Translation2d());
     }
 
     public double getTurnAngle(Translation2d target) {
-        final Translation2d robotPos = Swerve.getInstance().getPose().getTranslation();
+        final Translation2d robotPos = getPose().getTranslation();
         return getTurnAngle(robotPos, target);
     }
 
@@ -251,16 +253,16 @@ public class Swerve extends SwerveBase1 {
     }
 
     public Command turnInPlace() {
-        return new NAR_PIDCommand(
+        return new NAR_PIDCommand1(
             turnController,
             () -> getYaw(),
-            // () -> getTurnAngle(),
-            () -> 270,
+            () -> getTurnAngle(),
+            // () -> 270,
             (double output) -> {
-                setRotLocked(true);
+                // setRotLocked(true);
                 rotOutput = -Units.degreesToRadians(output);
             },
-            .02
+            0.5
         );
     }
 
@@ -269,26 +271,27 @@ public class Swerve extends SwerveBase1 {
     }
 
     public Command turnInPlace(DoubleSupplier setpoint) {
-        return new NAR_PIDCommand(
-            turnController, 
-            ()-> getYaw(), //measurement
-            setpoint, //setpoint
-            (double output) -> {
-                final double x = RobotContainer.controller.getLeftX();
-                final double y = RobotContainer.controller.getLeftY();
-                Translation2d translation = new Translation2d(x,y).times(MAX_ATTAINABLE_DRIVE_SPEED);
-                if (Robot.getAlliance() == Alliance.Red || !fieldRelative) {
-                    translation = translation.rotateBy(Rotation2d.fromDegrees(90));
-                }
-                else {
-                    translation = translation.rotateBy(Rotation2d.fromDegrees(-90));
-                }
+        return none();
+        // return new NAR_PIDCommand(
+        //     turnController, 
+        //     ()-> getYaw(), //measurement
+        //     setpoint, //setpoint
+        //     (double output) -> {
+        //         final double x = RobotContainer.controller.getLeftX();
+        //         final double y = RobotContainer.controller.getLeftY();
+        //         Translation2d translation = new Translation2d(x,y).times(MAX_ATTAINABLE_DRIVE_SPEED);
+        //         if (Robot.getAlliance() == Alliance.Red || !fieldRelative) {
+        //             translation = translation.rotateBy(Rotation2d.fromDegrees(90));
+        //         }
+        //         else {
+        //             translation = translation.rotateBy(Rotation2d.fromDegrees(-90));
+        //         }
 
-                Swerve.getInstance().drive(translation, Units.degreesToRadians(output), true);
-            },
-            2,
-            Swerve.getInstance()
-        ).beforeStarting(runOnce(()-> CmdSwerveDrive.setTurnEnabled(false)));
+        //         Swerve.getInstance().drive(translation, Units.degreesToRadians(output), true);
+        //     },
+        //     2,
+        //     Swerve.getInstance()
+        // ).beforeStarting(runOnce(()-> CmdSwerveDrive.setTurnEnabled(false)));
     }
 
     public boolean isConfigured() {

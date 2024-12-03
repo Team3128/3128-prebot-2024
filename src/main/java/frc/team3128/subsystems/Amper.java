@@ -122,8 +122,8 @@ public class Amper extends SubsystemBase{
 
     public Command setState(AmpState state, double delay) {
         return sequence(
-            manipulator.shoot(state.getRollerSetpoint()),
-            elevator.moveElevator(state.getElevatorSetpoint()),
+            manipulator.pidTo(state.getRollerSetpoint()),
+            elevator.pidTo(state.getElevatorSetpoint()),
             waitSeconds(delay),
             waitUntil(()-> atSetpoint()),
             Commands.either(disable(), waitUntil(()-> atSetpoint()), ()-> state.disableOnCompletion())

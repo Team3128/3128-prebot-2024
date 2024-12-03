@@ -150,14 +150,14 @@ public class RobotContainer {
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(disableAll());
 
-        controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.pivot.reset(0)));
-        controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
-        controller2.getButton(XboxButton.kRightTrigger).whileTrue(intake.pivot.runPivot(0.3)).onFalse(intake.pivot.runPivot(0));
-        controller2.getButton(XboxButton.kRightBumper).whileTrue(intake.pivot.runPivot(-0.3)).onFalse(intake.pivot.runPivot(0));
-        controller2.getButton(XboxButton.kLeftTrigger).whileTrue(amper.elevator.runElevator(0.3)).onFalse(amper.elevator.runElevator(0));
-        controller2.getButton(XboxButton.kLeftBumper).whileTrue(amper.elevator.runElevator(-0.3)).onFalse(amper.elevator.runElevator(0));
-        controller2.getButton(XboxButton.kY).onTrue(intake.rollers.runShooter(0.65)).onFalse(intake.rollers.runShooter(0));
-        controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
+        // controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.pivot.reset(0)));
+        // controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
+        // controller2.getButton(XboxButton.kRightTrigger).whileTrue(intake.pivot.runPivot(0.3)).onFalse(intake.pivot.runPivot(0));
+        // controller2.getButton(XboxButton.kRightBumper).whileTrue(intake.pivot.runPivot(-0.3)).onFalse(intake.pivot.runPivot(0));
+        // controller2.getButton(XboxButton.kLeftTrigger).whileTrue(amper.elevator.runElevator(0.3)).onFalse(amper.elevator.runElevator(0));
+        // controller2.getButton(XboxButton.kLeftBumper).whileTrue(amper.elevator.runElevator(-0.3)).onFalse(amper.elevator.runElevator(0));
+        // controller2.getButton(XboxButton.kY).onTrue(intake.rollers.runShooter(0.65)).onFalse(intake.rollers.runShooter(0));
+        // controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
 
         // // auto eject
         // new Trigger(()-> Hopper.hopperHasObjectPresent())
@@ -168,9 +168,9 @@ public class RobotContainer {
 
     @SuppressWarnings("unused")
     public void initCameras() {
-        Camera.disableAll();
-        Camera.setResources(()-> swerve.getYaw(),  (pose, time) -> swerve.addVisionMeasurement(pose, time), AprilTagFields.k2024Crescendo.loadAprilTagLayoutField(), () -> swerve.getPose());
-        Camera.setThresholds(5, 0.5);
+        // Camera.disableAll();
+        // Camera.setResources(()-> swerve.getYaw(),  (pose, time) -> swerve.addVisionMeasurement(pose, time), AprilTagFields.k2024Crescendo.loadAprilTagLayoutField(), () -> swerve.getPose());
+        // Camera.setThresholds(5, 0.5);
         // Camera.overrideThreshold = 30;
         // Camera.validDist = 0.5;
         // Camera.addIgnoredTags(13.0, 14.0);

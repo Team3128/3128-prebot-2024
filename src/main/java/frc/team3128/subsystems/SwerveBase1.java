@@ -2,8 +2,6 @@ package frc.team3128.subsystems;
 
 import java.util.function.DoubleSupplier;
 
-import org.littletonrobotics.junction.Logger;
-
 import common.core.misc.NAR_Robot;
 import common.core.swerve.SwerveModule;
 import common.core.swerve.SwerveModuleConfig;
@@ -126,7 +124,6 @@ public abstract class SwerveBase1 extends SubsystemBase {
             Log.info("Swerve", "Reset Encoders");
         }
         setModuleStates(kinematics.toSwerveModuleStates(velocity));
-        if(NAR_Robot.logWithAdvantageKit) Logger.recordOutput("Swerve/DesiredModuleStates", kinematics.toSwerveModuleStates(velocity));
     }
 
     /**
@@ -224,10 +221,6 @@ public abstract class SwerveBase1 extends SubsystemBase {
     public void periodic() {
         odometry.update(getGyroRotation2d(), getPositions());
         estimatedPose = odometry.getEstimatedPosition();
-        if (NAR_Robot.logWithAdvantageKit) {
-            Logger.recordOutput("Swerve/ActualModuleStates", getStates());
-            Logger.recordOutput("Swerve/RobotRotation", getGyroRotation2d());
-        }
     }
 
     public void resetAll() {

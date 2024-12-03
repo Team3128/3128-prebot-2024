@@ -6,7 +6,6 @@ package frc.team3128;
 
 import java.util.Optional;
 
-import org.littletonrobotics.junction.Logger;
 
 import common.core.misc.NAR_Robot;
 import common.hardware.camera.Camera;
@@ -32,8 +31,7 @@ import frc.team3128.subsystems.SubsystemManager.RobotState;
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation.
  */
-public class Robot extends NAR_Robot1 {
-    private Timer m_gcTimer = new Timer();
+public class Robot extends NAR_Robot {
 
     private boolean hasInitialized = false;
     private int notePlateuCount = 0;
@@ -66,7 +64,6 @@ public class Robot extends NAR_Robot1 {
 
     @Override
     public void robotInit(){
-        m_gcTimer.restart();
         updateAllianceFromDS();
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();
@@ -88,36 +85,25 @@ public class Robot extends NAR_Robot1 {
         updateAllianceFromDS();
         Log.info("State", "DS Connected");
         Log.info("Alliance", getAlliance().toString());
-        if (getAlliance() == Alliance.Red) {
-            Camera.addIgnoredTags(3, 4, 5, 11, 12);
-        } else {
-            Camera.addIgnoredTags(6, 7, 8, 15, 16);
-        }
-        if (!NAR_Robot.logWithAdvantageKit) return;
-        if(DriverStation.getMatchType() != MatchType.None){
-            addReceiver(true, LoggingState.FULLMATCH);
- 
-        }else{
-            addReceiver(true, LoggingState.SESSION);
-        }
-
-        Logger.start();
+        // if (getAlliance() == Alliance.Red) {
+        //     Camera.addIgnoredTags(3, 4, 5, 11, 12);
+        // } else {
+        //     Camera.addIgnoredTags(6, 7, 8, 15, 16);
+        // }
+    
     }
 
     @Override
     public void robotPeriodic(){
-        Camera.updateAll();
-        if(m_gcTimer.advanceIfElapsed(5)) {
-            System.gc();
-        }
+        // Camera.updateAll();
     }
 
     @Override
     public void autonomousInit() {
         updateAllianceFromDS();
-        Camera.enableAll();
-        Camera.overrideThreshold = 0;
-        Camera.validDist = 30;
+        // Camera.enableAll();
+        // Camera.overrideThreshold = 0;
+        // Camera.validDist = 30;
         Command m_autonomousCommand = autoPrograms.getAutonomousCommand();
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
@@ -133,9 +119,9 @@ public class Robot extends NAR_Robot1 {
     @Override
     public void teleopInit() {
         updateAllianceFromDS();
-        Camera.overrideThreshold = 30;
-        Camera.validDist = 0.5;
-        Camera.enableAll();
+        // Camera.overrideThreshold = 30;
+        // Camera.validDist = 0.5;
+        // Camera.enableAll();
         SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
         CommandScheduler.getInstance().cancelAll();
         Swerve.getInstance().setBrakeMode(true);

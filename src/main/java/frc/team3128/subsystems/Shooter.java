@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase{
 
     public Command setState(ShooterState state, double delay){
         return sequence(
-            flywheel.shoot(state.getShooterSetpoint()),
+            flywheel.pidTo(state.getShooterSetpoint()),
             waitSeconds(delay),
             either(
                 waitUntil(()-> atSetpoint()), 

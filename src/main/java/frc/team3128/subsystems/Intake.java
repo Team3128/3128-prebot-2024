@@ -130,8 +130,8 @@ public class Intake extends SubsystemBase {
     public Command setState(IntakeState state, double delay) {
         return sequence(
             enable(),
-            rollers.shoot(state.getIntakeRollerSetpoint()),
-            pivot.pivotTo(state.getIntakePivotSetpoint()),
+            rollers.pidTo(state.getIntakeRollerSetpoint()),
+            pivot.pidTo(state.getIntakePivotSetpoint()),
             waitSeconds(delay),
             waitUntil(()-> atSetpoint()),
             either(disable(), waitUntil(()-> pivot.atSetpoint()), () -> state.disableOnCompletion)

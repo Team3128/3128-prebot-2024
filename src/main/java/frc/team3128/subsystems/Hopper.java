@@ -145,8 +145,8 @@ public class Hopper {
 
     public Command setState(HopperState state) {
         return sequence(
-            hopper.runManipulator(state.getHopperStartPower()),
-            kicker.runManipulator(state.getKickerStartPower())
+            hopper.run(state.getHopperStartPower()),
+            kicker.run(state.getKickerStartPower())
         );
     }
 
@@ -159,8 +159,8 @@ public class Hopper {
 
     public Command disable() {
         return sequence(
-            kicker.runManipulator(0),
-            hopper.runManipulator(0)
+            kicker.run(0),
+            hopper.run(0)
         ).ignoringDisable(true);
     }
 

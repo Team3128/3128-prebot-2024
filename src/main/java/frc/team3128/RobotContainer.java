@@ -1,8 +1,10 @@
 package frc.team3128;
 
+import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 import static frc.team3128.commands.CmdManager.disableAll;
 
 import java.util.ArrayList;
@@ -133,7 +135,17 @@ public class RobotContainer {
         // ramp shooter and then run hopper
         // shooter and hopper will stop if no notes
         // controller.getButton(XboxButton.kRightTrigger).onTrue(robot.setState(RobotState.SHOOTING_RAMP, 0)).onFalse(robot.setState(RobotState.SHOOT_FIRST, 0));
-        controller.getButton(XboxButton.kRightTrigger).whileTrue(swerve.turnInPlace()).onFalse(runOnce(() -> swerve.setRotLocked(false)));
+        // controller.getButton(XboxButton.kRightTrigger).onTrue(repeatingSequence(swerve.turnInPlace()).deadlineWith(waitUntil(()->!swerve.getRotLocked()))).onFalse(runOnce(() -> swerve.setRotLocked(false)));
+        controller.getButton(XboxButton.kRightTrigger)
+        .whileTrue(sequence(
+            runOnce(()->swerve.setRotLocked(true)),
+            repeatingSequence(swerve.turnInPlace())
+        ))
+        .onFalse(
+            runOnce(()->swerve.setRotLocked(false))
+        );
+        NAR_Shuffleboard.addData("Swerve", "rotLocked", ()->swerve.getRotLocked(), 5, 3
+        );
 
         // shooter ramp amp
         // controller.getButton(XboxButton.kA).onTrue(shooter.setState(Shooter.ShooterState.AMP));

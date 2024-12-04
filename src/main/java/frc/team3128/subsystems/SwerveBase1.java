@@ -90,6 +90,10 @@ public abstract class SwerveBase1 extends SubsystemBase {
         this.rotLocked = rotLocked;
     }
 
+    public boolean getRotLocked() {
+        return rotLocked;
+    }
+
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
         drive(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
                 translation.getX(), translation.getY(), rotation, getGyroRotation2d())

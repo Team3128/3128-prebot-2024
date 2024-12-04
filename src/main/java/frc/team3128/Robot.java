@@ -10,6 +10,7 @@ import java.util.Optional;
 import common.core.misc.NAR_Robot;
 import common.hardware.camera.Camera;
 import common.utility.Log;
+import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.Timer;
@@ -33,9 +34,6 @@ import frc.team3128.subsystems.SubsystemManager.RobotState;
  * each mode, as described in the TimedRobot documentation.
  */
 public class Robot extends NAR_Robot {
-
-    private boolean hasInitialized = false;
-    private int notePlateuCount = 0;
 
     private static Alliance alliance;
 
@@ -119,14 +117,15 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void teleopInit() {
-        updateAllianceFromDS();
+        // super.teleopInit();
+        // updateAllianceFromDS();
         // Camera.overrideThreshold = 30;
         // Camera.validDist = 0.5;
         // Camera.enableAll();
-        SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
-        CommandScheduler.getInstance().cancelAll();
-        Swerve.getInstance().setBrakeMode(true);
-        Log.info("Swerve", "Brake");
+        // SubsystemManager.getInstance().setState(RobotState.FULL_IDLE, 0);
+        // CommandScheduler.getInstance().cancelAll();
+        // Swerve.getInstance().setBrakeMode(true);
+        // Log.info("Swerve", "Brake");
     }
 
     @Override
@@ -146,11 +145,11 @@ public class Robot extends NAR_Robot {
 
     @Override
     public void disabledInit() {
-        updateAllianceFromDS();
+        // updateAllianceFromDS();
         Swerve.getInstance().setBrakeMode(true);
         CommandScheduler.getInstance().cancelAll();
 
-        CmdManager.disableAll().schedule();
+        // CmdManager.disableAll().schedule();
 
         //this is the 3 second before being able to drive
         // sequence(
@@ -158,11 +157,8 @@ public class Robot extends NAR_Robot {
         //     runOnce(()->Swerve.getInstance().setBrakeMode(false)).ignoringDisable(true)
         // ).schedule();
 
-        autoPrograms = new AutoPrograms();
+        // autoPrograms = new AutoPrograms();
 
-        if (hasInitialized) {
-        }
-        hasInitialized = true;
     }
 
     @Override

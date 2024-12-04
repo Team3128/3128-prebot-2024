@@ -223,8 +223,8 @@ public abstract class SwerveBase1 extends SubsystemBase {
 
     @Override
     public void periodic() {
-        odometry.update(getGyroRotation2d(), getPositions());
-        estimatedPose = odometry.getEstimatedPosition();
+        // odometry.update(getGyroRotation2d(), getPositions());
+        // estimatedPose = odometry.getEstimatedPosition();
     }
 
     public void resetAll() {

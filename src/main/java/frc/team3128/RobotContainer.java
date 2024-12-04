@@ -157,7 +157,7 @@ public class RobotContainer {
         // controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());
 
         // runs everything in reverse at max power and then go to neutral
-        controller.getButton(XboxButton.kRightBumper).whileTrue(robot.setState(RobotState.OUTTAKE, 0)).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
+        // controller.getButton(XboxButton.kRightBumper).whileTrue(robot.setState(RobotState.OUTTAKE, 0)).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
 
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(disableAll());

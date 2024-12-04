@@ -48,7 +48,9 @@ public class Trajectories {
         NamedCommands.registerCommand("Shoot", runOnce(() -> {}));//shoot());
         NamedCommands.registerCommand("Intake", runOnce(() -> {}));//Intake.getInstance().setState(IntakeState.GROUND));
         NamedCommands.registerCommand("Neutral", runOnce(() -> {}));//SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0));
+    }
 
+    public static void initAutoHolonomic(){
         AutoBuilder.configureHolonomic(
             swerve::getPose,
             swerve::resetOdometry,

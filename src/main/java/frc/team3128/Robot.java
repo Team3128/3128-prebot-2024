@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import frc.team3128.autonomous.AutoPrograms;
+import frc.team3128.autonomous.Trajectories;
 import frc.team3128.commands.CmdManager;
 import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Swerve;
@@ -150,10 +151,12 @@ public class Robot extends NAR_Robot {
         CommandScheduler.getInstance().cancelAll();
 
         CmdManager.disableAll().schedule();
-        sequence(
-            waitSeconds(3.0).ignoringDisable(true),
-            runOnce(()->Swerve.getInstance().setBrakeMode(false)).ignoringDisable(true)
-        ).schedule();
+
+        //this is the 3 second before being able to drive
+        // sequence(
+        //     waitSeconds(3.0).ignoringDisable(true),
+        //     runOnce(()->Swerve.getInstance().setBrakeMode(false)).ignoringDisable(true)
+        // ).schedule();
 
         autoPrograms = new AutoPrograms();
 

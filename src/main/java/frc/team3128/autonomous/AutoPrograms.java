@@ -16,8 +16,16 @@ public class AutoPrograms {
     
     private HashMap<String, Command> autoMap = new HashMap<String, Command>();
 
+    public static boolean holoConfiged = false;
+
     public AutoPrograms() {
         Trajectories.initTrajectories();
+
+        if(!holoConfiged){
+            Trajectories.initAutoHolonomic();
+            holoConfiged = !holoConfiged;
+        }
+
         initAutoSelector();
     }
 

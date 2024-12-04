@@ -70,9 +70,10 @@ public class CmdSwerveDrive extends Command {
         // double slowedDist = accelLimiter.calculate(translation.getNorm());
         // translation = new Translation2d(slowedDist, driveAngle);
 
-        SmartDashboard.putBoolean("fieldOriented",swerve.fieldRelative);
-        SmartDashboard.putNumber("yAXIS",yAxis.getAsDouble());
-        SmartDashboard.putNumber("xAXIS",xAxis.getAsDouble());
+        //WE ARENT USING THIS 
+        // SmartDashboard.putBoolean("fieldOriented",swerve.fieldRelative);
+        // SmartDashboard.putNumber("yAXIS",yAxis.getAsDouble());
+        // SmartDashboard.putNumber("xAXIS",xAxis.getAsDouble());
         swerve.drive(translation, rotation, swerve.fieldRelative);
     }
 

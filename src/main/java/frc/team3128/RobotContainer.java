@@ -28,10 +28,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.team3128.commands.CmdSwerveDrive;
-import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Hopper;
-import frc.team3128.subsystems.Intake;
-import frc.team3128.subsystems.Shooter;
+
 import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.SubsystemManager.RobotState;
 import frc.team3128.subsystems.Swerve;
@@ -45,10 +42,6 @@ import frc.team3128.subsystems.Swerve;
 public class RobotContainer {
 
     private Swerve swerve;
-    private Amper amper;
-    private Hopper hopper;
-    private Intake intake;
-    private Shooter shooter;
     private SubsystemManager robot;
 
     // private NAR_ButtonBoard judgePad;
@@ -77,10 +70,6 @@ public class RobotContainer {
         controller2 = new NAR_XboxController(4);
 
         swerve = Swerve.getInstance();
-        amper = Amper.getInstance();
-        hopper = Hopper.getInstance();
-        intake = Intake.getInstance();
-        shooter = Shooter.getInstance();
         robot = SubsystemManager.getInstance();
 
         swerveDriveCommand = new CmdSwerveDrive(controller::getLeftX,controller::getLeftY, controller::getRightX, true);
@@ -127,10 +116,8 @@ public class RobotContainer {
         controller.getButton(XboxButton.kStart).onTrue(runOnce(()-> swerve.zeroGyro(0)));
 
         // intake ground and then neutral
-        controller.getButton(XboxButton.kLeftTrigger).onTrue(robot.setState(RobotState.INTAKE_FIRST, 0).onlyIf(()->!Hopper.hasTwoObjects())).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
 
         // intake neutral
-        controller.getButton(XboxButton.kLeftBumper).onTrue(robot.setState(RobotState.FULL_IDLE, 0));
 
         // ramp shooter and then run hopper
         // shooter and hopper will stop if no notes
@@ -157,19 +144,10 @@ public class RobotContainer {
         // controller.getButton(XboxButton.kB).onTrue(hopper.setState(HopperState.INTAKE)).onFalse(hopper.disable());
 
         // runs everything in reverse at max power and then go to neutral
-        controller.getButton(XboxButton.kRightBumper).whileTrue(robot.setState(RobotState.OUTTAKE, 0)).onFalse(robot.setState(RobotState.FULL_IDLE, 0));
 
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(disableAll());
 
-        controller2.getButton(XboxButton.kA).onTrue(runOnce(()-> intake.disable()).andThen(intake.pivot.reset(0)));
-        controller2.getButton(XboxButton.kB).onTrue(runOnce(()-> amper.disable()).andThen(amper.reset()));
-        controller2.getButton(XboxButton.kRightTrigger).whileTrue(intake.pivot.runPivot(0.3)).onFalse(intake.pivot.runPivot(0));
-        controller2.getButton(XboxButton.kRightBumper).whileTrue(intake.pivot.runPivot(-0.3)).onFalse(intake.pivot.runPivot(0));
-        controller2.getButton(XboxButton.kLeftTrigger).whileTrue(amper.elevator.runElevator(0.3)).onFalse(amper.elevator.runElevator(0));
-        controller2.getButton(XboxButton.kLeftBumper).whileTrue(amper.elevator.runElevator(-0.3)).onFalse(amper.elevator.runElevator(0));
-        controller2.getButton(XboxButton.kY).onTrue(intake.rollers.runShooter(0.65)).onFalse(intake.rollers.runShooter(0));
-        controller2.getButton(XboxButton.kX).onTrue(intake.rollers.runShooter(-0.65)).onFalse(intake.rollers.runShooter(0));
 
         // // auto eject
         // new Trigger(()-> Hopper.hopperHasObjectPresent())

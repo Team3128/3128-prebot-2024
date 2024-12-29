@@ -26,9 +26,7 @@ import frc.team3128.Robot;
 import java.util.function.DoubleSupplier;
 
 import frc.team3128.subsystems.Swerve;
-import frc.team3128.subsystems.Intake.IntakeState;
-import frc.team3128.subsystems.Amper;
-import frc.team3128.subsystems.Intake;
+
 import frc.team3128.subsystems.SubsystemManager;
 
 /**
@@ -66,21 +64,10 @@ public class Trajectories {
         );
     }
 
-    public static Command shoot() {
-        return sequence(
-            SubsystemManager.getInstance().setState(SubsystemManager.RobotState.SHOOT_FIRST, 0),
-            waitSeconds(1)
-            // waitUntil(()-> Hopper.hasNoObjects()),
-            // SubsystemManager.getInstance().setState(SubsystemManager.RobotState.FULL_IDLE, 0)
-        ).withTimeout(1);
-    }
-
     public static Command resetAuto() {
         return sequence(
             // runOnce(()-> swerve.zeroGyro(Robot.getAlliance() == Alliance.Red ? 0 : 180)),
-            runOnce(()-> swerve.resetEncoders()),
-            Amper.getInstance().reset(),
-            Intake.getInstance().reset()
+            runOnce(()-> swerve.resetEncoders())
         );
     }
 

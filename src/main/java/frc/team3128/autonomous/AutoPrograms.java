@@ -23,8 +23,6 @@ public class AutoPrograms {
 
     private void initAutoSelector() {
         final String[] autoStrings = new String[] {
-            "middleClose_3note",
-            "BottomRush_2note"
         };
         
         NarwhalDashboard.getInstance().addAutos(autoStrings);
@@ -36,7 +34,7 @@ public class AutoPrograms {
 
     public Command getAutonomousCommand() {
         String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
-        selectedAutoName = "middleClose_3note";
+        selectedAutoName = "";
         
         if (selectedAutoName.equals("")) {
             return none();

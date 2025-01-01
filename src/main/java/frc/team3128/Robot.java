@@ -22,10 +22,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import frc.team3128.autonomous.AutoPrograms;
-import frc.team3128.commands.CmdManager;
-import frc.team3128.subsystems.SubsystemManager;
 import frc.team3128.subsystems.Swerve;
-import frc.team3128.subsystems.SubsystemManager.RobotState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -33,9 +30,6 @@ import frc.team3128.subsystems.SubsystemManager.RobotState;
  */
 public class Robot extends NAR_Robot {
     private Timer m_gcTimer = new Timer();
-
-    private boolean hasInitialized = false;
-    private int notePlateuCount = 0;
 
     private static Alliance alliance;
 
@@ -70,16 +64,6 @@ public class Robot extends NAR_Robot {
         autoPrograms = new AutoPrograms();
         m_robotContainer.initDashboard();
         LiveWindow.disableAllTelemetry();
-        // runOnce(()-> Swerve.getInstance().zeroGyro(Robot.getAlliance() == Alliance.Red ? 0 : 180));
-        // Swerve.getInstance().resetOdometry((new Pose2d(new Translation2d(1.45, 4.1), Rotation2d.fromDegrees(180)))); //1.45, 4.1
-        // Alliance allianceTemp = getAlliance();
-        // if (allianceTemp == null) {
-        //     Log.info("Alliance", "Did not have correct color");
-        // }
-        // else {
-        //     Log.info("Alliance", "We are alliance " + allianceTemp);
-        // }
-        // Log.info("Gyro Angle", "" + Swerve.getInstance().getYaw());
     }
 
     @Override
@@ -161,18 +145,12 @@ public class Robot extends NAR_Robot {
         updateAllianceFromDS();
         Swerve.getInstance().setBrakeMode(true);
         CommandScheduler.getInstance().cancelAll();
-
-        CmdManager.disableAll().schedule();
         sequence(
-            waitSeconds(3.0).ignoringDisable(true),
-            runOnce(()->Swerve.getInstance().setBrakeMode(false)).ignoringDisable(true)
-        ).schedule();
+            waitSeconds(3.0),
+            runOnce(()->Swerve.getInstance().setBrakeMode(false))
+        ).ignoringDisable(true).schedule();
 
         autoPrograms = new AutoPrograms();
-
-        if (hasInitialized) {
-        }
-        hasInitialized = true;
     }
 
     @Override

@@ -1,17 +1,14 @@
 package frc.team3128.subsystems;
 
-import static frc.team3128.Constants.VisionConstants.SVR_STATE_STD;
-import static frc.team3128.Constants.VisionConstants.SVR_VISION_MEASUREMENT_STD;
-
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-import common.core.commands.NAR_PIDCommand;
 import common.core.controllers.Controller;
-import common.core.controllers.Controller.Type;
 import common.core.controllers.PIDFFConfig;
 import common.core.swerve.SwerveBase;
 import common.core.swerve.SwerveConversions;
@@ -19,40 +16,30 @@ import common.core.swerve.SwerveModule;
 import common.core.swerve.SwerveModuleConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveEncoderConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
-import common.hardware.motorcontroller.NAR_Motor.Control;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.hardware.motorcontroller.NAR_TalonFX;
 import common.utility.shuffleboard.NAR_Shuffleboard;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.team3128.Robot;
-import frc.team3128.RobotContainer;
-import frc.team3128.Constants.FieldConstants;
-import frc.team3128.Constants.ShooterConstants;
-import frc.team3128.Constants.SwerveConstants;
-import frc.team3128.commands.CmdSwerveDrive;
-
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import static frc.team3128.Constants.SwerveConstants.*;
-import static edu.wpi.first.wpilibj2.command.Commands.none;
-import static frc.team3128.Constants.FocalAimConstants.*;
+import static frc.team3128.Constants.FieldConstants.*;
+import static frc.team3128.Constants.VisionConstants.*;
 
-public class Swerve extends SwerveBase1 {
+public class Swerve extends SwerveBase {
 
     private static Swerve instance;
 
     private Pigeon2 gyro;
-
-    public double throttle = 1;
-
-    private static final double GYRO_OFFSET = 0;
 
     public Supplier<Double> yaw;
 
@@ -69,42 +56,60 @@ public class Swerve extends SwerveBase1 {
         new SwerveMotorConfig(new NAR_TalonFX(MOD0_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
         new SwerveMotorConfig(new NAR_TalonFX(MOD0_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
         new SwerveEncoderConfig(new CANcoder(MOD0_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD0_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
-        SwerveConstants.MAX_DRIVE_SPEED);
+        MAX_DRIVE_SPEED);
 
     private static final SwerveModuleConfig Mod1 = new SwerveModuleConfig(
         1, 
         new SwerveMotorConfig(new NAR_TalonFX(MOD1_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
         new SwerveMotorConfig(new NAR_TalonFX(MOD1_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
         new SwerveEncoderConfig(new CANcoder(MOD1_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD1_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
-        SwerveConstants.MAX_DRIVE_SPEED);
+        MAX_DRIVE_SPEED);
         
     private static final SwerveModuleConfig Mod2 = new SwerveModuleConfig(
         2, 
         new SwerveMotorConfig(new NAR_TalonFX(MOD2_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
         new SwerveMotorConfig(new NAR_TalonFX(MOD2_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
         new SwerveEncoderConfig(new CANcoder(MOD2_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD2_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
-        SwerveConstants.MAX_DRIVE_SPEED);
+        MAX_DRIVE_SPEED);
         
     private static final SwerveModuleConfig Mod3 = new SwerveModuleConfig(
         3, 
         new SwerveMotorConfig(new NAR_TalonFX(MOD3_DRIVE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), driveMotorConfig, drivePIDConfig),
         new SwerveMotorConfig(new NAR_TalonFX(MOD3_ANGLE_MOTOR_ID, DRIVETRAIN_CANBUS_NAME), angleMotorConfig, anglePIDConfig),
         new SwerveEncoderConfig(new CANcoder(MOD3_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD3_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
-        SwerveConstants.MAX_DRIVE_SPEED);
+        MAX_DRIVE_SPEED);
 
     private static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-            new Translation2d(DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0),
-            new Translation2d(DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0),
-            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0),
-            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0)); 
+            new Translation2d(DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0), // front left - 0
+            new Translation2d(DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0), // front right - 1
+            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0), // back left - 2
+            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0) // back right - 3
+    ); 
 
-    private final Constraints driveConstraints = new Constraints(Units.radiansToDegrees(MAX_DRIVE_ANGULAR_VELOCITY), Units.radiansToDegrees(MAX_DRIVE_ANGULAR_ACCELERATION));
-    private final PIDFFConfig drivePidffConfig = new PIDFFConfig(DRIVE_TURN_KP, DRIVE_TURN_KI, DRIVE_TURN_KD, DRIVE_TURN_KS, DRIVE_TURN_KV, DRIVE_TURN_KA, DRIVE_TURN_KG);
+    // x * kP = dx/dt && (v_max)^2 = 2*a_max*x
+    public static final Constraints translationConstraints = new Constraints(MAX_DRIVE_SPEED, MAX_DRIVE_ACCELERATION);
+    public static final PIDFFConfig translationConfig = new PIDFFConfig(2 * MAX_DRIVE_SPEED / MAX_DRIVE_ACCELERATION); //Conservative Kp estimate (2*a_max/v_max)
+    public static final Controller translationController = new Controller(translationConfig, Controller.Type.POSITION); //Displacement error to output velocity
+    public static final double translationTolerance = 0.1;
 
-    private final Controller1 turnController = new Controller1(drivePidffConfig, Controller1.Type.POSITION);
-    private double turnSetpoint;
+    public static final Constraints rotationConstraints = new Constraints(MAX_DRIVE_ANGULAR_VELOCITY, MAX_DRIVE_ANGULAR_ACCELERATION);
+    public static final PIDFFConfig rotationConfig = new PIDFFConfig(2 * MAX_DRIVE_ANGULAR_ACCELERATION / MAX_DRIVE_ANGULAR_VELOCITY); //Conservative Kp estimate (2*a_max/v_max)
+    public static final Controller rotationController = new Controller(rotationConfig, Controller.Type.POSITION); //Angular displacement error to output angular velocity
+    public static final double rotationTolerance = Units.degreesToRadians(2);
 
-    private double rotOutput;
+    static {
+        translationController.setTolerance(translationTolerance);
+        translationController.setConstraints(translationConstraints);
+        translationController.setDisableAtSetpoint(true);
+        
+        rotationController.setTolerance(rotationTolerance);
+        rotationController.setConstraints(rotationConstraints);
+        rotationController.setDisableAtSetpoint(true);
+        rotationController.enableContinuousInput(-180, 180);
+    }
+
+    private static Translation2d translationSetpoint = new Translation2d();
+    private static Supplier<Rotation2d> rotationSetpointSupplier = ()-> new Rotation2d();
 
     public static synchronized Swerve getInstance() {
         if (instance == null) {
@@ -125,52 +130,13 @@ public class Swerve extends SwerveBase1 {
 
         gyro.optimizeBusUtilization();
 
-        turnController.enableContinuousInput(-180, 180);
-        turnController.setMeasurementSource(()-> Swerve.getInstance().getYaw());
-        turnController.setTolerance(0);
-
         initShuffleboard();
-        NAR_Shuffleboard.addData("Testing", "Name", ()-> getDist(speakerMidpointBlue), 0, 0);
-        NAR_Shuffleboard.addData("Testing", "Dist", ()-> getDistHorizontal(), 0, 1);
-        NAR_Shuffleboard.addData("Auto", "Setpoint", ()-> turnController.atSetpoint());
-        NAR_Shuffleboard.addData("Swerve", "abcbcbcb", ()-> getTurnAngle(), 4,3);
         initStateCheck();
-
-        setRotOutput(() -> rotOutput);
-    }
-
-    public boolean crossedPodium() {
-        final double x = getPose().getX();
-        if (Robot.getAlliance() == Alliance.Red) return x > FieldConstants.FIELD_X_LENGTH - 2.1;
-        return x < 2.1;
-    }
-
-    public void setVoltage(double volts) {
-        for (final SwerveModule module : modules) {
-            module.getAngleMotor().set(0, Control.Position);
-            module.getDriveMotor().setVolts(volts);
-        }
-    }
-
-    public void setVoltageRot(double volts) {
-        modules[0].getAngleMotor().set(135, Control.Position);
-        modules[1].getAngleMotor().set(135-90, Control.Position);
-        modules[3].getAngleMotor().set(135+180, Control.Position);
-        modules[2].getAngleMotor().set(135+90, Control.Position);
-        for (final SwerveModule module : modules) {
-            // module.getAngleMotor().set(45 + i * 90, Control.Position);
-            module.getDriveMotor().setVolts(volts);
-        }
-    }
-
-    public double getVelocity() {
-        var x = getRobotVelocity();
-        return Math.hypot(x.vxMetersPerSecond, x.vyMetersPerSecond);
     }
 
     @Override
     public double getYaw() {
-        return yaw.get() - GYRO_OFFSET;
+        return yaw.get();
     }
 
     @Override
@@ -184,120 +150,85 @@ public class Swerve extends SwerveBase1 {
     }
 
     @Override
-    public void zeroGyro(double reset) {
-        gyro.setYaw(reset != 0 ? reset : Robot.getAlliance() == Alliance.Red ? 0 : 180);
-        // gyroOffset = (Robot.getAlliance() == Alliance.Red ? 180 : 0) - gyro.getAngle();
+    public void drive(ChassisSpeeds velocity){
+        if(velocity.vxMetersPerSecond < TRANSLATIONAL_DEADBAND && translationController.isEnabled())
+            velocity.vxMetersPerSecond = translationController.calculate(getPose().getTranslation().getX(), translationSetpoint.getX());
+        
+        if(velocity.vyMetersPerSecond < TRANSLATIONAL_DEADBAND && translationController.isEnabled())
+            velocity.vyMetersPerSecond = translationController.calculate(getPose().getTranslation().getY(), translationSetpoint.getY());
+
+        if((velocity.omegaRadiansPerSecond < ROTATIONAL_DEADBAND || DriverStation.isAutonomous()) && rotationController.isEnabled())
+            velocity.omegaRadiansPerSecond = rotationController.calculate(getPose().getRotation().getRadians(), rotationSetpointSupplier.get().getRadians());
+
+        
+        assign(velocity);
+        if(translationController.isEnabled() && translationController.atSetpoint()) translationController.disable();
+        if(rotationController.isEnabled() && rotationController.atSetpoint()) rotationController.disable();
     }
 
-    public double getPredictedDistance() {
-        final ChassisSpeeds velocity = getFieldVelocity();
-        final Translation2d predictedPos = getPredictedPosition(velocity, RAMP_TIME);
-        final double shotTime = getProjectileTime(getDist(predictedPos));
-        final Translation2d target = calculateTarget(Robot.getAlliance() == Alliance.Red ? speakerMidpointRed : speakerMidpointBlue, velocity, shotTime);
-        final double distance = getDist(predictedPos, target);
-        return distance;
+    public Command getDriveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier theta){
+        return new FunctionalCommand(
+            ()-> {}, 
+            ()-> drive(inputToChassisSpeeds(x, y, theta)),
+            (Boolean interrupted)-> stop(),
+            ()-> false,
+            this);
     }
 
-    public double getPredictedAngle() {
-        final ChassisSpeeds velocity = getFieldVelocity();
-        final Translation2d predictedPos = getPredictedPosition(velocity, RAMP_TIME);
-        final double shotTime = getProjectileTime(getDist(predictedPos));
-        final Translation2d target = calculateTarget(Robot.getAlliance() == Alliance.Red ? speakerMidpointRed : speakerMidpointBlue, velocity, shotTime);
-        final double angle = getTurnAngle(predictedPos, target);
-        return angle;
+    private ChassisSpeeds inputToChassisSpeeds(DoubleSupplier x, DoubleSupplier y, DoubleSupplier z){
+        final Translation2d translation = adjustInput(x.getAsDouble(), y.getAsDouble()).times(MAX_DRIVE_SPEED);
+        final double rotation = Math.copySign(Math.pow(z.getAsDouble(), 3/2), z.getAsDouble()) * MAX_DRIVE_ANGULAR_VELOCITY;
+        return new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
     }
 
-    public Translation2d getPredictedPosition(ChassisSpeeds velocity, double time) {
-        final Translation2d currentPosition = getPose().getTranslation();
-        return currentPosition.plus(new Translation2d(velocity.vxMetersPerSecond * time, velocity.vyMetersPerSecond * time));
+    public void setPose(Pose2d pose){
+        moveTo(pose.getTranslation());
+        rotateTo(pose.getRotation());
     }
 
-    public double getProjectileTime(double distance) {
-        return distance / ShooterConstants.PROJECTILE_SPEED;
+    public void moveTo(Translation2d translation) {
+        translationSetpoint = translation;
+        translationController.enable();
     }
 
-    public Translation2d calculateTarget(Translation2d target, ChassisSpeeds velocity, double time) {
-        return target.minus(new Translation2d(0, velocity.vyMetersPerSecond * time));
+    public void moveBy(Translation2d translation) {
+        translationSetpoint = getPose().getTranslation().plus(translation);
+        translationController.enable();
     }
 
-    public double getDistHorizontal() {
-        final double x = getPose().getX();
-        final double dist = Robot.getAlliance() == Alliance.Red ? FieldConstants.FIELD_X_LENGTH - x : x;
-        return dist - ROBOT_LENGTH / 2.0;
+    public void rotateTo(Rotation2d theta) {
+        rotationSetpointSupplier = ()->theta;
+        rotationController.enable();
+    }
+    
+    public void rotateTo(Translation2d translation) {
+        rotationSetpointSupplier = ()-> getAngleTo(translation);
+        rotationController.enable();
     }
 
-    public double getDist() {
-        return getDist(Robot.getAlliance() == Alliance.Red ? speakerMidpointRed : speakerMidpointBlue);
+    public void rotateBy(Rotation2d dTheta) {
+        Rotation2d curGyroRotation = getGyroRotation2d();
+        rotationSetpointSupplier = ()-> curGyroRotation.plus(dTheta);
+        rotationController.enable();
     }
 
-    public double getDist(Translation2d point) {
-        return getDist(getPose().getTranslation(), point);
-    }
-
-    public double getDist(Translation2d point1, Translation2d point2) {
-        return point1.getDistance(point2) - ROBOT_LENGTH / 2.0;
-    }
-
-    public double getTurnAngle() {
-        // return getTurnAngle(Robot.getAlliance() == Alliance.Red ? focalPointRed : focalPointBlue);
-        return getTurnAngle(new Translation2d());
-    }
-
-    public double getTurnAngle(Translation2d target) {
-        final Translation2d robotPos = getPose().getTranslation();
-        return getTurnAngle(robotPos, target);
-    }
-
-    public double getTurnAngle(Translation2d robotPos, Translation2d targetPos) {
-        return Math.toDegrees(Math.atan2(targetPos.getY() - robotPos.getY(), targetPos.getX() - robotPos.getX())) + angleOffset;
-    }
-
-    public Command turnInPlace() {
-        return new NAR_PIDCommand1(
-            turnController,
-            () -> getYaw(),
-            () -> getTurnAngle(),
-            // () -> 270,
-            (double output) -> {
-                // setRotLocked(true);
-                rotOutput = -Units.degreesToRadians(output);
-            },
-            0.5
-        );
-    }
-
-    public Command turnInPlace(boolean moving) {
-        return turnInPlace(()-> moving ? getPredictedAngle() : getTurnAngle());
-    }
-
-    public Command turnInPlace(DoubleSupplier setpoint) {
-        return none();
-        // return new NAR_PIDCommand(
-        //     turnController, 
-        //     ()-> getYaw(), //measurement
-        //     setpoint, //setpoint
-        //     (double output) -> {
-        //         final double x = RobotContainer.controller.getLeftX();
-        //         final double y = RobotContainer.controller.getLeftY();
-        //         Translation2d translation = new Translation2d(x,y).times(MAX_ATTAINABLE_DRIVE_SPEED);
-        //         if (Robot.getAlliance() == Alliance.Red || !fieldRelative) {
-        //             translation = translation.rotateBy(Rotation2d.fromDegrees(90));
-        //         }
-        //         else {
-        //             translation = translation.rotateBy(Rotation2d.fromDegrees(-90));
-        //         }
-
-        //         Swerve.getInstance().drive(translation, Units.degreesToRadians(output), true);
-        //     },
-        //     2,
-        //     Swerve.getInstance()
-        // ).beforeStarting(runOnce(()-> CmdSwerveDrive.setTurnEnabled(false)));
+    public void snapToAngle() {
+        final Rotation2d gyroAngle = Swerve.getInstance().getGyroRotation2d();
+        Rotation2d setpoint = Collections.min(
+                            snapToAngles,
+                            Comparator.comparing(
+                                (Rotation2d angle) -> Math.abs(gyroAngle.minus(angle).getDegrees()))
+                            );
+        rotateTo(setpoint);
     }
 
     public boolean isConfigured() {
         for (final SwerveModule module : modules) {
             final double CANCoderAngle = module.getAbsoluteAngle().getDegrees();
             final double AngleMotorAngle = module.getAngleMotor().getPosition();
+            NAR_Shuffleboard.addData("Modules Status", "Module " + module.moduleNumber + " Drive", ()-> module.getDriveMotor().getTemperature() != 0 , 0, module.moduleNumber);
+            NAR_Shuffleboard.addData("Modules Status", "Module " + module.moduleNumber + " Angle", ()-> module.getAngleMotor().getTemperature() != 0 , 0, module.moduleNumber);
+            NAR_Shuffleboard.addData("Modules Status", "Module " + module.moduleNumber + " CANCoder", ()-> module.getAngleEncoder().getVersion().getValue() != 0, 0, module.moduleNumber);
             if (CANCoderAngle == 0 || AngleMotorAngle == 0) return false;
         }
         return true;
@@ -307,31 +238,14 @@ public class Swerve extends SwerveBase1 {
         return gyro;
     }
 
-    public double getTurnSetpoint() {
-        return turnSetpoint;
-    }
-
-    public void setTurnSetpoint(double turnSetpoint) {
-        this.turnSetpoint = turnSetpoint;
-        CmdSwerveDrive.setTurnEnabled(true);
-    }
-
-    public boolean isTurnControllerAtSetpoint() {
-        return turnController.atSetpoint();
-    }
-
-    public double getTurnControllerCalculation(double setpoint) {
-        return turnController.calculate(getGyroRotation2d().getDegrees(), setpoint);
-    }
-
-    public void resetTurnController() {
-        turnController.reset();
-    }
-
     @Override
     public void initShuffleboard(){
         super.initShuffleboard();
-        NAR_Shuffleboard.addSendable("Commands", "Swerve Commands", this, 0, 0);
+    }
+
+    @Override
+    public void resetGyro(double reset) {
+        gyro.setYaw(flipRotation(reset).getDegrees());
     }
 
 }

@@ -1,7 +1,6 @@
 package frc.team3128.autonomous;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import common.utility.narwhaldashboard.NarwhalDashboard;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
@@ -25,7 +24,7 @@ public class AutoPrograms {
         final String[] autoStrings = new String[] {
         };
         
-        NarwhalDashboard.getInstance().addAutos(autoStrings);
+        // NarwhalDashboard.getInstance().addAutos(autoStrings);
         for (final String auto : autoStrings) {
             if (auto.equals("default")) continue;
             autoMap.put(auto, Trajectories.getPathPlannerAuto(auto));
@@ -33,8 +32,8 @@ public class AutoPrograms {
     }
 
     public Command getAutonomousCommand() {
-        String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
-        selectedAutoName = "";
+        // String selectedAutoName = NarwhalDashboard.getInstance().getSelectedAuto();
+        String selectedAutoName = "";
         
         if (selectedAutoName.equals("")) {
             return none();

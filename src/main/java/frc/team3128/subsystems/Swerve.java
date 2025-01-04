@@ -264,6 +264,7 @@ public class Swerve extends SwerveBase {
         gyro.setYaw(flipRotation(reset).getDegrees());
     }
 
+    @Override
     public Command characterize(double startDelay, double rampRate, double targetPosition) {
         NAR_Motor driveMotor = modules[0].getDriveMotor();
         return new CmdSysId(

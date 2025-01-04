@@ -75,7 +75,7 @@ public class RobotContainer {
         
         controller.getButton(XboxButton.kY).whileTrue(sequence(
             runOnce(()-> swerve.zeroLock(), swerve),
-            swerve.characterize(1, 0.5)
+            swerve.characterize(1, 0.5, 30)
         )).onFalse(runOnce(()->swerve.stop(), swerve));
 
         // controller.getButton(XboxButton.kY).onTrue(sequence(
@@ -88,10 +88,10 @@ public class RobotContainer {
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(runOnce(()-> CommandScheduler.getInstance().cancelAll()));
 
-        controller.getUpPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(0))));
-        controller.getDownPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(Math.PI))));
-        controller.getRightPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(-Math.PI / 2))));
-        controller.getLeftPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(Math.PI / 2))));
+        controller.getUpPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(Math.PI))));
+        controller.getDownPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(0))));
+        controller.getRightPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(Math.PI / 2))));
+        controller.getLeftPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(-Math.PI / 2))));
 
         new Trigger(()-> Swerve.autoEnabled).onTrue(runOnce(()-> controller.startVibrate())).onFalse(runOnce(()-> controller.stopVibrate()));
     }

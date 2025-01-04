@@ -16,10 +16,12 @@ import common.core.swerve.SwerveModule;
 import common.core.swerve.SwerveModuleConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveEncoderConfig;
 import common.core.swerve.SwerveModuleConfig.SwerveMotorConfig;
+import common.hardware.motorcontroller.NAR_Motor;
 import common.hardware.motorcontroller.NAR_Motor.MotorConfig;
 import common.hardware.motorcontroller.NAR_Motor.Neutral;
 import common.hardware.motorcontroller.NAR_TalonFX;
 import common.utility.shuffleboard.NAR_Shuffleboard;
+import common.utility.sysid.CmdSysId;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -260,6 +262,21 @@ public class Swerve extends SwerveBase {
     @Override
     public void resetGyro(double reset) {
         gyro.setYaw(flipRotation(reset).getDegrees());
+    }
+
+    public Command characterize(double startDelay, double rampRate, double targetPosition) {
+        NAR_Motor driveMotor = modules[0].getDriveMotor();
+        return new CmdSysId(
+            getName(), 
+            (volts)-> setDriveVoltage(volts), 
+            ()-> driveMotor.getVelocity(), 
+            ()-> driveMotor.getPosition(), 
+            startDelay, 
+            rampRate, 
+            targetPosition, 
+            true, 
+            this
+        );
     }
 
 }

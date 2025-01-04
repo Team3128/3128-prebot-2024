@@ -13,7 +13,10 @@ import common.utility.narwhaldashboard.NarwhalDashboard;
 import common.utility.narwhaldashboard.NarwhalDashboard.State;
 import common.utility.shuffleboard.NAR_Shuffleboard;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -53,7 +56,7 @@ public class RobotContainer {
         buttonPad = new NAR_ButtonBoard(3);
         controller2 = new NAR_XboxController(4);
 
-
+        swerve = Swerve.getInstance();
         swerveDriveCommand = swerve.getDriveCommand(controller::getLeftX,controller::getLeftY, controller::getRightX);
 
         //uncomment line below to enable driving
@@ -67,21 +70,28 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         controller.getButton(XboxButton.kA).onTrue(runOnce(()-> swerve.resetGyro(0)));
+
+        controller.getButton(XboxButton.kX).onTrue(runOnce(()-> swerve.moveBy(new Translation2d(0, 1))));
         
-        controller.getButton(XboxButton.kX).onTrue(sequence(
+        controller.getButton(XboxButton.kY).whileTrue(sequence(
             runOnce(()-> swerve.zeroLock(), swerve),
             swerve.characterize(1, 0.5)
-        )).onFalse(runOnce(()->swerve.stop()));
+        )).onFalse(runOnce(()->swerve.stop(), swerve));
 
-        controller.getButton(XboxButton.kY).onTrue(sequence(
-            runOnce(()-> swerve.oLock(), swerve),
-            swerve.characterize(1, 0.5)
-        )).onFalse(runOnce(()->swerve.stop()));
+        // controller.getButton(XboxButton.kY).onTrue(sequence(
+        //     runOnce(()-> swerve.oLock(), swerve),
+        //     swerve.characterize(1, 0.5)
+        // )).onFalse(runOnce(()->swerve.stop()));
 
         controller.getButton(XboxButton.kRightStick).onTrue(runOnce(()-> swerve.snapToAngle()));
 
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(runOnce(()-> CommandScheduler.getInstance().cancelAll()));
+
+        controller.getUpPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(0))));
+        controller.getDownPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(Math.PI))));
+        controller.getRightPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(-Math.PI / 2))));
+        controller.getLeftPOVButton().onTrue(runOnce(()-> swerve.rotateTo(new Rotation2d(Math.PI / 2))));
 
         new Trigger(()-> Swerve.autoEnabled).onTrue(runOnce(()-> controller.startVibrate())).onFalse(runOnce(()-> controller.stopVibrate()));
     }

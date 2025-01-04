@@ -88,12 +88,12 @@ public class Swerve extends SwerveBase {
 
     // x * kP = dx/dt && (v_max)^2 = 2*a_max*x
     public static final Constraints translationConstraints = new Constraints(MAX_DRIVE_SPEED, MAX_DRIVE_ACCELERATION);
-    public static final PIDFFConfig translationConfig = new PIDFFConfig(2 * MAX_DRIVE_SPEED / MAX_DRIVE_ACCELERATION); //Conservative Kp estimate (2*a_max/v_max)
+    public static final PIDFFConfig translationConfig = new PIDFFConfig(2 * MAX_DRIVE_ACCELERATION / MAX_DRIVE_SPEED); //Conservative Kp estimate (2*a_max/v_max)
     public static final Controller translationController = new Controller(translationConfig, Controller.Type.POSITION); //Displacement error to output velocity
-    public static final double translationTolerance = 0.1;
+    public static final double translationTolerance = 0.02;
 
     public static final Constraints rotationConstraints = new Constraints(MAX_DRIVE_ANGULAR_VELOCITY, MAX_DRIVE_ANGULAR_ACCELERATION);
-    public static final PIDFFConfig rotationConfig = new PIDFFConfig(2 * MAX_DRIVE_ANGULAR_ACCELERATION / MAX_DRIVE_ANGULAR_VELOCITY); //Conservative Kp estimate (2*a_max/v_max)
+    public static final PIDFFConfig rotationConfig = new PIDFFConfig(5, 0, 0.1); //Conservative Kp estimate (2*a_max/v_max)
     public static final Controller rotationController = new Controller(rotationConfig, Controller.Type.POSITION); //Angular displacement error to output angular velocity
     public static final double rotationTolerance = Units.degreesToRadians(2);
 
@@ -105,7 +105,7 @@ public class Swerve extends SwerveBase {
         rotationController.setTolerance(rotationTolerance);
         rotationController.setConstraints(rotationConstraints);
         rotationController.setDisableAtSetpoint(true);
-        rotationController.enableContinuousInput(-180, 180);
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     private static Translation2d translationSetpoint = new Translation2d();
@@ -165,7 +165,10 @@ public class Swerve extends SwerveBase {
             velocity.vyMetersPerSecond = translationController.calculate(getPose().getTranslation().getY(), translationSetpoint.getY());
 
         if((velocity.omegaRadiansPerSecond < ROTATIONAL_DEADBAND || DriverStation.isAutonomous()) && rotationController.isEnabled())
-            velocity.omegaRadiansPerSecond = rotationController.calculate(getPose().getRotation().getRadians(), rotationSetpointSupplier.get().getRadians());
+            velocity.omegaRadiansPerSecond = -rotationController.calculate(getPose().getRotation().getRadians(), rotationSetpointSupplier.get().getRadians());
+        NAR_Shuffleboard.addData("Translation Controller", "Error", ()-> getPose().getTranslation().minus(translationSetpoint).toString(), 0, 0);
+        NAR_Shuffleboard.addData("Translation Controller", "Output X", ()-> velocity.vxMetersPerSecond, 0, 1);
+        NAR_Shuffleboard.addData("Translation Controller", "Output Y", ()-> velocity.vyMetersPerSecond, 0, 2);
 
         
         assign(velocity);
@@ -251,6 +254,7 @@ public class Swerve extends SwerveBase {
     @Override
     public void initShuffleboard(){
         super.initShuffleboard();
+        NAR_Shuffleboard.addData("Rotation Controller", "Measurement", ()-> getGyroRotation2d().getRadians(), 1, 0);
     }
 
     @Override

@@ -107,7 +107,7 @@ public final class Constants {
         /* Drive Motor Characterization Values */
         public static final double DRIVE_MOTOR_KS = 0.19057;//0.60094; // 0.19225;
         public static final double DRIVE_MOTOR_KV = 2.01208;//1.1559;  // 2.4366
-        public static final double DRIVE_MOTOR_KA = 0.15168; //0.12348; // 0.34415
+        public static final double DRIVE_MOTOR_KA = 0.09043; //0.12348; // 0.34415
 
         /* Swerve Profiling Values */
         // Theoretical: v = 4.96824, omega = 11.5
@@ -123,7 +123,7 @@ public final class Constants {
         public static final int PIDGEON_ID = 15; 
         public static final String DRIVETRAIN_CANBUS_NAME = "Drivetrain";
         public static final double TRANSLATIONAL_DEADBAND = 0.5;
-        public static final double ROTATIONAL_DEADBAND = 0.5;
+        public static final double ROTATIONAL_DEADBAND = 0.1;
 
         /* Motor Inverts */
         public static final boolean DRIVE_MOTOR_INVERTED = false;

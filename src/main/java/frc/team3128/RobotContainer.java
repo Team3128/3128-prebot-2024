@@ -16,6 +16,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team3128.subsystems.Swerve;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
@@ -81,6 +82,8 @@ public class RobotContainer {
 
         // disables all subsystems
         controller.getButton(XboxButton.kBack).onTrue(runOnce(()-> CommandScheduler.getInstance().cancelAll()));
+
+        new Trigger(()-> Swerve.autoEnabled).onTrue(runOnce(()-> controller.startVibrate())).onFalse(runOnce(()-> controller.stopVibrate()));
     }
 
     @SuppressWarnings("unused")

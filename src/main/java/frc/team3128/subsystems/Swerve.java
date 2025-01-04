@@ -111,6 +111,8 @@ public class Swerve extends SwerveBase {
     private static Translation2d translationSetpoint = new Translation2d();
     private static Supplier<Rotation2d> rotationSetpointSupplier = ()-> new Rotation2d();
 
+    public static boolean autoEnabled = false;
+
     public static synchronized Swerve getInstance() {
         if (instance == null) {
             instance = new Swerve();
@@ -149,8 +151,13 @@ public class Swerve extends SwerveBase {
         return 0;
     }
 
+    public double getOmega() {
+        return Units.degreesToRadians(gyro.getRate());
+    }
+
     @Override
     public void drive(ChassisSpeeds velocity){
+        ChassisSpeeds initialRequest = velocity;
         if(velocity.vxMetersPerSecond < TRANSLATIONAL_DEADBAND && translationController.isEnabled())
             velocity.vxMetersPerSecond = translationController.calculate(getPose().getTranslation().getX(), translationSetpoint.getX());
         
@@ -164,6 +171,9 @@ public class Swerve extends SwerveBase {
         assign(velocity);
         if(translationController.isEnabled() && translationController.atSetpoint()) translationController.disable();
         if(rotationController.isEnabled() && rotationController.atSetpoint()) rotationController.disable();
+        
+        if(velocity.equals(initialRequest)) autoEnabled = false;
+        else autoEnabled = true;
     }
 
     public Command getDriveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier theta){

@@ -9,8 +9,14 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import common.utility.Log;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.BaseUnits;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Mass;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -44,18 +50,19 @@ public class Trajectories {
             robotConfig = RobotConfig.fromGUISettings();
         } catch(Exception e) {
             robotConfig = new RobotConfig(
-                ROBOT_MASS, 
+                ROBOT_MASS,
                 ROBOT_MOI, 
                 new ModuleConfig(
                     DRIVE_WHEEL_DIAMETER / 2, 
                     MAX_DRIVE_SPEED, 
                     WHEEL_COF, 
-                    DCMotor.getKrakenX60(4),
+                    DCMotor.getKrakenX60(1),
                     DRIVE_MOTOR_GEAR_RATIO, 
                     (double) DRIVE_MOTOR_CURRENT_LIMIT, 
-                    4
+                    1
                 ),
-                Swerve.moduleOffsets);
+                Swerve.moduleOffsets
+            );
         }
 
         AutoBuilder.configure(

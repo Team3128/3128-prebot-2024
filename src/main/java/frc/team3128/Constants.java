@@ -17,7 +17,6 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -31,9 +30,6 @@ public final class Constants {
     public static class AutoConstants {
         public static final double SLOW_SPEED = 1.5;
         public static final double SLOW_ACCELERATION = 2;
-
-        public static final PathConstraints PATH_CONSTRAINTS = new PathConstraints(
-            SwerveConstants.MAX_DRIVE_SPEED, SwerveConstants.MAX_DRIVE_ACCELERATION, SwerveConstants.MAX_DRIVE_ANGULAR_VELOCITY, SwerveConstants.MAX_DRIVE_ANGULAR_ACCELERATION); 
 
         /* Translation PID Values */
         public static final double TRANSLATION_KP = 2;

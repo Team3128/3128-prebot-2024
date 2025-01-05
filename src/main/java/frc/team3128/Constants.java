@@ -75,6 +75,9 @@ public final class Constants {
         public static final double RAMP_TIME = 3;
 
         /* Drivetrain Constants */
+        public static final double ROBOT_MASS = 35.210; //kg
+        public static final double ROBOT_MOI = 3.385; //kg m^2 mass * (trackWidth / 2) * (Ka angular / Ka linear)
+        public static final double WHEEL_COF = 1.43;
         public static final double DRIVE_BUMPER_LENGTH = Units.inchesToMeters(5);
         public static final double DRIVE_TRACK_WIDTH = Units.inchesToMeters(20.75); //Hand measure later
         public static final double DRIVE_WHEEL_BASE = Units.inchesToMeters(20.75); //Hand measure later

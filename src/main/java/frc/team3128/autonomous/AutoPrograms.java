@@ -1,10 +1,17 @@
 package frc.team3128.autonomous;
 
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import java.util.HashMap;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import common.utility.shuffleboard.NAR_Shuffleboard;
 
 /**
  * Class to store information about autonomous routines.
@@ -14,13 +21,18 @@ import java.util.HashMap;
 public class AutoPrograms {
     
     private HashMap<String, Command> autoMap = new HashMap<String, Command>();
+    private final SendableChooser<Command> autoChooser;
 
     public AutoPrograms() {
         Trajectories.initTrajectories();
         initAutoSelector();
+        autoChooser = new SendableChooser<Command>();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private void initAutoSelector() {
+        
+
         final String[] autoStrings = new String[] {
         };
         
@@ -36,7 +48,7 @@ public class AutoPrograms {
         String selectedAutoName = "";
         
         if (selectedAutoName.equals("")) {
-            return none();
+            return autoChooser.getSelected();
         }
         else if (selectedAutoName.equals("default")) {
             return defaultAuto();

@@ -1,14 +1,16 @@
 package frc.team3128.autonomous;
 
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
-
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -20,6 +22,9 @@ import frc.team3128.Constants.AutoConstants;
 import frc.team3128.Robot;
 import frc.team3128.subsystems.Swerve;
 import static frc.team3128.subsystems.Swerve.translationConfig;
+
+import java.util.ArrayList;
+
 import static frc.team3128.subsystems.Swerve.rotationConfig;
 
 /**
@@ -33,21 +38,39 @@ public class Trajectories {
     public static void initTrajectories() {
         Pathfinding.setPathfinder(new LocalADStar());
 
-        AutoBuilder.configureHolonomic(
-            swerve::getPose,
-            swerve::resetOdometry,
-            swerve::getRobotVelocity,
-            swerve::drive,
-            new HolonomicPathFollowerConfig(
+        RobotConfig robotConfig;
+
+        try {
+            robotConfig = RobotConfig.fromGUISettings();
+        } catch(Exception e) {
+            robotConfig = new RobotConfig(
+                ROBOT_MASS, 
+                ROBOT_MOI, 
+                new ModuleConfig(
+                    DRIVE_WHEEL_DIAMETER / 2, 
+                    MAX_DRIVE_SPEED, 
+                    WHEEL_COF, 
+                    DCMotor.getKrakenX60(4),
+                    DRIVE_MOTOR_GEAR_RATIO, 
+                    (double) DRIVE_MOTOR_CURRENT_LIMIT, 
+                    4
+                ),
+                Swerve.moduleOffsets);
+        }
+
+        AutoBuilder.configure(
+            swerve::getPose, 
+            swerve::resetOdometry, 
+            swerve::getRobotVelocity, 
+            (velocity, feedforwards)-> swerve.drive(velocity), 
+            new PPHolonomicDriveController(
                 new PIDConstants(translationConfig.kP, translationConfig.kI, translationConfig.kD),
-                new PIDConstants(rotationConfig.kP, rotationConfig.kI, rotationConfig.kD),
-                MAX_DRIVE_SPEED,
-                DRIVE_TRACK_WIDTH / Math.sqrt(2),
-                new ReplanningConfig(false, true)
+                new PIDConstants(rotationConfig.kP, rotationConfig.kI, rotationConfig.kD)
             ),
+            robotConfig,
             ()-> Robot.getAlliance() == Alliance.Red,
             swerve
-        );
+            );
     }
 
     public static Command resetAuto() {
@@ -59,15 +82,5 @@ public class Trajectories {
 
     public static Command getPathPlannerAuto(String trajectoryName) {
         return AutoBuilder.buildAuto(trajectoryName);
-    }
-
-    public static Command goToPoint(Pose2d pose) {
-        return AutoBuilder.pathfindToPose(
-            pose,
-            AutoConstants.PATH_CONSTRAINTS,
-            0.0, // Goal end velocity in meters/sec
-            0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
-        );
-    }
-    
+    }  
 }

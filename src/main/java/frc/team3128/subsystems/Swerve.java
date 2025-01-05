@@ -81,12 +81,14 @@ public class Swerve extends SwerveBase {
         new SwerveEncoderConfig(new CANcoder(MOD3_CANCODER_ID, DRIVETRAIN_CANBUS_NAME), MOD3_CANCODER_OFFSET, ANGLE_CANCODER_INVERTED),
         MAX_DRIVE_SPEED);
 
-    private static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-            new Translation2d(DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0), // front left - 0
-            new Translation2d(DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0), // front right - 1
-            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0), // back left - 2
-            new Translation2d(-DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0) // back right - 3
-    ); 
+    public static final Translation2d[] moduleOffsets = {
+        new Translation2d(DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0), // front left - 0
+        new Translation2d(DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0), // front right - 1
+        new Translation2d(-DRIVE_WHEEL_BASE / 2.0, DRIVE_TRACK_WIDTH / 2.0), // back left - 2
+        new Translation2d(-DRIVE_WHEEL_BASE / 2.0, -DRIVE_TRACK_WIDTH / 2.0) // back right - 3
+    };
+    
+    private static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(moduleOffsets); 
 
     // x * kP = dx/dt && (v_max)^2 = 2*a_max*x
     public static final Constraints translationConstraints = new Constraints(MAX_DRIVE_SPEED, MAX_DRIVE_ACCELERATION);
@@ -157,7 +159,9 @@ public class Swerve extends SwerveBase {
         return Units.degreesToRadians(gyro.getRate());
     }
 
-    @Override
+    /**
+     * @param velocity Desired robot velocity ROBOT RELATIVE
+     */
     public void drive(ChassisSpeeds velocity){
         ChassisSpeeds initialRequest = velocity;
         if(velocity.vxMetersPerSecond < TRANSLATIONAL_DEADBAND && translationController.isEnabled())

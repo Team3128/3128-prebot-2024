@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RED_BARGE to REEF_6"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "REEF_6 to CORAL_2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CORAL_2 to REEF_5"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

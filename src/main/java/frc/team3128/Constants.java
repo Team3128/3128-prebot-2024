@@ -178,7 +178,8 @@ public final class Constants {
             PIECE_1,
             PIECE_2,
             PIECE_3,
-            CORAL,
+            CORAL_1,
+            CORAL_2,
             PROCESSOR
         }
 

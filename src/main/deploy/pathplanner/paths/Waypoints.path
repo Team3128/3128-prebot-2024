@@ -84,11 +84,11 @@
         "y": 4.85
       },
       "prevControl": {
-        "x": 4.156166621827166,
+        "x": 4.156166621827165,
         "y": 5.124858103293362
       },
       "nextControl": {
-        "x": 3.267926884119871,
+        "x": 3.2679268841198708,
         "y": 4.660860807668222
       },
       "isLocked": false,
@@ -152,7 +152,7 @@
         "y": 4.926607702453277
       },
       "nextControl": {
-        "x": 0.6932591538016002,
+        "x": 0.6932591538016,
         "y": 5.919536440959951
       },
       "isLocked": false,
@@ -164,7 +164,7 @@
         "y": 3.75
       },
       "prevControl": {
-        "x": 0.37567948263339,
+        "x": 0.37567948263339024,
         "y": 4.7332843981983155
       },
       "nextControl": {
@@ -204,7 +204,7 @@
         "y": 8.459706084129174
       },
       "isLocked": false,
-      "linkedName": "CORAL"
+      "linkedName": "CORAL_1"
     },
     {
       "anchor": {
@@ -212,12 +212,28 @@
         "y": 0.5
       },
       "prevControl": {
-        "x": 5.234814416839711,
-        "y": 4.558911844789009
+        "x": 6.944977137609033,
+        "y": 0.42108337316538175
+      },
+      "nextControl": {
+        "x": 5.076768859090781,
+        "y": 0.549848123763845
+      },
+      "isLocked": false,
+      "linkedName": "PROCESSOR"
+    },
+    {
+      "anchor": {
+        "x": 1.1639097357966877,
+        "y": 0.8748322334660743
+      },
+      "prevControl": {
+        "x": 1.3261724039254625,
+        "y": 1.8570028994314347
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "PROCESSOR"
+      "linkedName": "CORAL_2"
     }
   ],
   "rotationTargets": [],
@@ -234,7 +250,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -125.00000000000001
   },
   "reversed": false,
   "folder": null,

@@ -7,31 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RED_BARGE to REEF_6"
+            "pathName": "RED_BARGE to REEF_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "REEF_6 to CORAL_2"
+            "pathName": "REEF_2 to CORAL_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CORAL_2 to REEF_5"
+            "pathName": "CORAL_1 to REEF_3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "REEF_5 to CORAL_2"
+            "pathName": "REEF_3 to CORAL_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CORAL_2 to REEF_5"
+            "pathName": "CORAL_1 to REEF_3"
           }
         }
       ]

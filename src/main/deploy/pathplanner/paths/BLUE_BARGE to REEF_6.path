@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.3,
-        "y": 1.73
+        "x": 7.75,
+        "y": 1.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.360307379214091,
-        "y": 2.072020143325669
+        "x": 6.810307379214091,
+        "y": 2.2420201433256697
       },
       "isLocked": false,
-      "linkedName": "RED_BARGE"
+      "linkedName": "BLUE_BARGE"
     },
     {
       "anchor": {
-        "x": 4.83,
-        "y": 2.65
+        "x": 5.15,
+        "y": 2.9
       },
       "prevControl": {
-        "x": 5.769692620785908,
-        "y": 2.307979856674331
+        "x": 6.089692620785908,
+        "y": 2.557979856674331
       },
       "nextControl": null,
       "isLocked": false,

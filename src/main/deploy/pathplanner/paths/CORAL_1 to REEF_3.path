@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.0,
-        "y": 6.5
+        "x": 1.2,
+        "y": 7.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.530174337438657,
-        "y": 4.8881011749595284
+        "x": 3.7301743374386573,
+        "y": 5.3881011749595284
       },
       "isLocked": false,
       "linkedName": "CORAL_1"
     },
     {
       "anchor": {
-        "x": 3.63,
-        "y": 4.85
+        "x": 3.8,
+        "y": 5.15
       },
       "prevControl": {
-        "x": 3.38,
-        "y": 5.283012701892219
+        "x": 3.55,
+        "y": 5.58301270189222
       },
       "nextControl": null,
       "isLocked": false,

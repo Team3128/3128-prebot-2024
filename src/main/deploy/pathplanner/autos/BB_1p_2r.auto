@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RED_BARGE to REEF_6"
+            "pathName": "BLUE_BARGE to REEF_6"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "REEF_6 to REEF_5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "REEF_5 to REEF_4"
           }
         }
       ]

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.7301743374386573,
-        "y": 2.6118988250404716
+        "x": 3.8,
+        "y": 2.9
       },
       "isLocked": false,
       "linkedName": "CORAL_2"
@@ -20,15 +20,20 @@
         "y": 2.9
       },
       "prevControl": {
-        "x": 3.55,
-        "y": 2.4669872981077807
+        "x": 1.2,
+        "y": 1.0
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "REEF_5"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.99,
+      "rotationDegrees": 60.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 60.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -125.00000000000001
+    "rotation": -125.0
   },
   "useDefaultConstraints": true
 }

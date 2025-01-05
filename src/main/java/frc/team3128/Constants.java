@@ -164,7 +164,23 @@ public final class Constants {
 
         public static final double FIELD_X_LENGTH = Units.inchesToMeters(651.25); // meters
         public static final double FIELD_Y_LENGTH = Units.inchesToMeters(315.5); // meters
-        public static final Pose2d SPEAKER = new Pose2d(Units.inchesToMeters(324.5), Units.inchesToMeters(315.5), Rotation2d.fromDegrees(0));
+
+        public enum FieldStates {
+            BLUE_BARGE,
+            CENTER_BARGE,
+            RED_BARGE,
+            REEF_1,
+            REEF_2,
+            REEF_3,
+            REEF_4,
+            REEF_5,
+            REEF_6,
+            PIECE_1,
+            PIECE_2,
+            PIECE_3,
+            CORAL,
+            PROCESSOR
+        }
 
 
         public static Pose2d allianceFlip(Pose2d pose) {

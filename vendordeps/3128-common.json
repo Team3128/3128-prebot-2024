@@ -1,8 +1,8 @@
 {
     "name": "3128-common",
-    "version": "1.9.3",
+    "version": "2.0.1",
     "uuid": "ae3fa5a2-78d9-47e8-921a-dba45b889445",
-    "frcYear": "2024",
+    "frcYear": "2025",
     "mavenUrls": [
         "https://jitpack.io"
     ],
@@ -12,7 +12,7 @@
         {
             "groupId": "com.github.Team3128",
             "artifactId": "3128-common",
-            "version": "1.9.3"
+            "version": "2.0.1"
         }
     ],
     "jniDependencies": [],
